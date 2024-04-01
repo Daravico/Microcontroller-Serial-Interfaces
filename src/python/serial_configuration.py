@@ -1,11 +1,17 @@
 from serial import Serial
 import serial.tools.list_ports as SerialTools
 
-# This file can set the configuration for the serial connection. Most of 
-# the functions require a Serial object to be send as a parameter. In case
-# it is required, all the functions can be adapted and/or extended within
-# each section in order to have multiple functionalities or call other 
-# sections of code.
+# ------------
+# DESCRIPTION:
+# ------------
+
+'''
+This file can set the configuration for the serial connection. Most of 
+the functions require a Serial object to be send as a parameter. In case
+it is required, all the functions can be adapted and/or extended within
+each section in order to have multiple functionalities or call other 
+sections of code.
+'''
 
 # ------------------------------------------------------------------------
 

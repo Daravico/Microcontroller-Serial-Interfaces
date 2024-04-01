@@ -1,7 +1,17 @@
 import tkinter as tk
-import serial
 from pyfirmata import Arduino
 
+# ------------
+# DESCRIPTION:
+# ------------
+
+'''
+Does not require the serial library
+'''
+
+# ------------------------------------------------------------------------
+
+# Serial port to be connected. 
 board = Arduino("COM3")
 
 def ledOn():
