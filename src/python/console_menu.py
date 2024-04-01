@@ -1,37 +1,67 @@
+import serial_configuration
+import serial
+import os
 
-from serialConfig import PortsInfo
-from serialObject import SerialConnection
+def commands_OAT(serial_conn):
+    os.system('cls')
 
-import serialObject
+    print("Available:")
+    print('[1] - Q1')
+    print('[2] - Q2')
+    print('[3] - Q3')
 
-from serialConfiguration import SerialConnection
+    selected_Q = input("Select from the available Q:")
+    angle = input("Give the angle value (Degrees °):")
 
+    instruction = f'Q{selected_Q}-{angle}'
+    serial_configuration.write_message(serial_conn, instruction)
+
+def commands_FULL():
+    pass
+
+
+# Main execution of the program.
 if __name__ == '__main__':
 
-    serial_conn = SerialConnection()
+    # Clearing the console. If Windows, use 'cls'. Linux use 'clear'.
+    os.system('cls')
 
+    # Serial object to establish the Serial connection.
+    serial_conn = serial.Serial()
+
+    # Main loop.
     while True:
         print("[ 0 ] - Show available ports")
         print("[ 1 ] - Ports Configuration")
         print("[ 2 ] - Send Message")
+        print("[ 3 ] - Angular commands (OAT)")
+        print("[ 4 ] - Angular commands (FULL)")
         print("[ x ] - Exit\n")
 
-        entry = input("Select mode: ")
+        # Selection from the user.
+        selection = input("Select mode: ")
 
-        if entry == '0':
-            serial_conn.show_ports()
+        if selection == '0':
+            for port, desc, _ in sorted(serial_configuration.show_ports()):
+                print(f"{port}: {desc}")
 
-        elif entry == '1':
-            serial_conn.show_ports()
-
-            port = input("PORT: ")
+        elif selection == '1':
+            port:str = input("PORT: ")
             speed = input("SPEED: ")
 
-            serial_conn.establish_parameters(port, speed)
+            serial_configuration.establish_parameters(serial_conn, port, speed)
 
-        elif entry == '2':
-            msg = input("MSG: ")
+        elif selection == '2':
+            msg = input("Message to send: ")
             serial_conn.write_message(msg)
+
+        elif selection == '3':
+            while True:
+                pass
+
+        elif selection == '4':
+            while True:
+                pass
 
         else:
             print("Goodbye . . .")
