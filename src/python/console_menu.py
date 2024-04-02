@@ -95,7 +95,7 @@ if __name__ == '__main__':
         # -----------------------------------------------------------------
         elif selection == '2':
             msg = input("Message to send: ")
-            serial_conn.write_message(msg)
+            serial_configuration.write_message(msg)
 
         # Sub-menu to send single commands to a specific joint.
         # -----------------------------------------------------------------
