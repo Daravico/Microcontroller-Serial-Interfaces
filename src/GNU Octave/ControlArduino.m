@@ -10,13 +10,13 @@ pause(2)
 % pkg install -forge arduino
 
 % Loading the Package.
-pkg load arduino
+% pkg load arduino
 
 % Opening the Arduino Setup Script.
-arduinosetup
+% arduinosetup
 
 % Creating the Arduino object.
-a = arduino('COM3');
+a = arduino('COM14');
 
 % Visualizing the Arduino variables.
 a

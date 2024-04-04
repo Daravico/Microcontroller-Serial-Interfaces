@@ -3,6 +3,8 @@ from pyfirmata import Arduino
 
 # ------------
 # DESCRIPTION:
+# This sample code is to test the library of Arduino from pyfirmata.
+# No code for serial connection with a valid functionality has been developed.
 # ------------
 
 '''
