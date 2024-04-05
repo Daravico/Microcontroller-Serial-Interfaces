@@ -1,6 +1,7 @@
 import serial.tools.list_ports as serialTools
 
 
+
 class PortsInfo:
     def __init__(self):
         self.__ports = serialTools.comports()
