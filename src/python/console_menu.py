@@ -58,7 +58,7 @@ if __name__ == '__main__':
     os.system('cls')
 
     # Serial object to establish the Serial connection.
-    serial_conn = serial.Serial('COM14', 9600)
+    serial_conn = serial.Serial('COM10', 9600)
 
     # Main loop.
     while True:
@@ -100,6 +100,11 @@ if __name__ == '__main__':
         # Sub-menu to send single commands to a specific joint.
         # -----------------------------------------------------------------
         elif selection == '3':
+            # Setting the default position before waiting for commands.
+            serial_configuration.write_message(serial_conn, 'Q1-0')
+            serial_configuration.write_message(serial_conn, 'Q2-90')
+            serial_configuration.write_message(serial_conn, 'Q1-0')
+
             while continue_submenu_flag:
                 continue_submenu_flag = commands_OAT(serial_conn)
                 
