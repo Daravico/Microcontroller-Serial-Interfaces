@@ -19,6 +19,13 @@ def matrix_rounder(matrix: np.ndarray, digits: int):
 
 
 # ------------------------------------------------------------------------
+'''
+The following functions are used to calculate the homogeneous
+transformation matrices, using the Denavit Hartenberg parameters
+(theta, d, a, alpha) for the rotations and translations in the
+X and Z axes. The resulting matrix is returned for each case.
+'''
+# ------------------------------------------------------------------------
 
 def HRz(theta: float):
     matrix = np.array([
@@ -73,20 +80,53 @@ def HTz(d: float):
 # ------------------------------------------------------------------------
 
 def DH(theta: float, d: float, a: float, alpha: float):
+    '''
+    The final Homogenous Transformation Matrix for the Denavit Hartenberg 
+    procedure is calculated using the corresponding parameters for the 
+    connection between two frames.
+
+    :theta(float): Angular value for the Rz transformation.
+    :d(float): Linear value for the Tz transformation.
+    :a(float): Linear value for the Tx transformation.
+    :alpha(float): Angular value for the Rx transformation.
+    '''
     MHRz = HRz(theta)
     MHTz = HTz(d)
     MHTx = HTx(a)
     MHRx = HRx(alpha)
 
+    DH_matrix = MHRz * MHTz * MHTx * MHRx
+
+    return DH_matrix
     
+# ------------------------------------------------------------------------
 
+def end_effector_position(DH_matrix: np.ndarray):
+    '''
+    Uses the Denavit Hartenberg matrix to calculate the position of the 
+    final part of the robot. Coordinates in the last frame are considered as
+    the origin (0,0,0).
 
+    :DH_matrix(np.ndarray): Matrix to work with.
+    '''
+    origin = np.array([0, 0, 0, 1]).reshape(4,1)
+
+    position = DH_matrix * origin
+
+    return position
 
 # ------------------------------------------------------------------------
 
-def effector_final():
-    pass
+def Mapper(x: float, x1: float, x2: float, y1: float, y2: float):
+    '''
+    This function helps in getting the linear mapping for values in a
+    certain range (x1→y1 >> x2→y2).
+    '''
+    m = (y2 - y1 ) / (x2 - x1)
 
-# ------------------------------------------------------------------------
+    y = m * (x - x1) + y1
 
-print(HRz(np.pi/3) * HRz(np.pi/2*0)) 
+    return y
+
+DH1 = DH(np.pi/3, 5, 3, 0)
+print(DH1)
