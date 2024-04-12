@@ -12,39 +12,86 @@ class ControlGUI:
         self.root = root
         self.serial_conn = serial_conn
 
+        self.main_menu_frame()
+
     def clear_window(self):
         for widget in self.root.winfo_children():
             widget.destroy()
-    
+        
     def main_menu_frame(self):
-        self.clear_window(self.root)
+        self.clear_window()
 
-        single_command_option_button = tk.Button(self.root, text="Individual Commands", command=self.single_command_frame)
-        single_command_option_button.config(height=2, width=20)
-        single_command_option_button.pack(pady=10)
+        self.single_command_option_button = tk.Button(self.root, 
+                                                 text="Individual Commands", 
+                                                 command=self.single_command_frame, 
+                                                 height=2,
+                                                 width=20)
+        
+        self.single_command_option_button.pack(pady=10)
 
-        multiple_commands_window_button = tk.Button(self.root, text="Multiple Commands", command=self.multiple_command_frame)
-        multiple_commands_window_button.config(height=2, width=20)
-        multiple_commands_window_button.pack(pady=30)
+        self.multiple_commands_window_button = tk.Button(self.root, 
+                                                    text="Multiple Commands", 
+                                                    command=self.multiple_command_frame,
+                                                    height=2, 
+                                                    width=20)
+        
+        self.multiple_commands_window_button.pack(pady=30)
 
     def multiple_command_frame(self):
-        pass
+        self.clear_window()
+
+        self.knob_q1 = tk.Scale(self.root, 
+                                from_=-90, 
+                                to=90, 
+                                orient=tk.HORIZONTAL, 
+                                label='Q1')
+        
+        self.knob_q2 = tk.Scale(self.root, 
+                                from_=0, 
+                                to=90, 
+                                orient=tk.HORIZONTAL, 
+                                label='Q2')
+        
+        self.knob_q3 = tk.Scale(self.root, 
+                                from_=0, 
+                                to=90, 
+                                orient=tk.HORIZONTAL, 
+                                label='Q3')
+        
+        self.send_button = tk.Button(self.root, 
+                                     text="Send Command", 
+                                     command=lambda:send_multiple_commands(self.knob_q1, self.knob_q2, self.knob_q3))
+
+        self.home_button = tk.Button(self.root, 
+                                     text="Return", 
+                                     command=self.main_menu_frame)
+        
+        self.knob_q1.pack(pady=10, padx=10)
+        self.knob_q2.pack(pady=20, padx=10)
+        self.knob_q3.pack(pady=30, padx=10)
+        self.send_button.pack(pady=100)
+        self.home_button.pack(pady=10)
 
     def single_command_frame(self):
-        pass
+        self.clear_window()
 
-
-
-
-
-
-
-
-
-
-
-
-
+        knob = tk.Scale(self.root, 
+                        from_=0, 
+                        to=360, 
+                        orient=tk.HORIZONTAL, 
+                        label='Knob A')
+        
+        send_button = tk.Button(self.root, 
+                                text="Send Command", 
+                                command= lambda: print("Sending..."))
+        
+        home_button = tk.Button(self.root, 
+                                text="Return", 
+                                command=self.main_menu_frame)
+        
+        knob.pack(pady=10)
+        send_button.pack(pady=100)
+        home_button.pack(pady=10)
 
 
 
