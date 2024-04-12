@@ -1,8 +1,53 @@
 
 # MAKE THIS INTO A CLASS, RECEIVE THE SERIAL CONFIGURATION AS A PARAMETER FROM THE GUI PRINCIPAL FRAME FILE.
 
+#POSIBLEMENTE SUBIR LOS COMPONENTES A UNA FUNCIÓN Y LLAMARLOS AL INIT Y NO NECESARIAMENTE DESTRUIRLOS, SOLO OCULTAR.
+
+
 import tkinter as tk
 from serial import Serial
+
+class ControlGUI:
+    def __init__(self, root: tk.Tk, serial_conn: Serial):
+        self.root = root
+        self.serial_conn = serial_conn
+
+    def clear_window(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+    
+    def main_menu_frame(self):
+        self.clear_window(self.root)
+
+        single_command_option_button = tk.Button(self.root, text="Individual Commands", command=self.single_command_frame)
+        single_command_option_button.config(height=2, width=20)
+        single_command_option_button.pack(pady=10)
+
+        multiple_commands_window_button = tk.Button(self.root, text="Multiple Commands", command=self.multiple_command_frame)
+        multiple_commands_window_button.config(height=2, width=20)
+        multiple_commands_window_button.pack(pady=30)
+
+    def multiple_command_frame(self):
+        pass
+
+    def single_command_frame(self):
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def send_single_command():
     pass
@@ -60,9 +105,3 @@ def multiple_commands_window(root: tk.Tk):
     home_button.pack(pady=10)
 
 
-
-
-class gui_frames:
-    def __init__(self, root: tk.Tk, serial_conn: Serial):
-        self.root = root
-        self.serial_conn = serial_conn
