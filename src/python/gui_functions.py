@@ -1,13 +1,15 @@
 
-# MAKE THIS INTO A CLASS, RECEIVE THE SERIAL CONFIGURATION AS A PARAMETER FROM THE GUI PRINCIPAL FRAME FILE.
 
-#POSIBLEMENTE SUBIR LOS COMPONENTES A UNA FUNCIÓN Y LLAMARLOS AL INIT Y NO NECESARIAMENTE DESTRUIRLOS, SOLO OCULTAR.
-
+# Realizar modificaciones para añadir un botón que establezca la configuración de SERIAL con el archivo creado de 
+# serial_configuration
 
 import tkinter as tk
+from tkinter import ttk
 from serial import Serial
+import serial_configuration
 
 class ControlGUI:
+    # oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
     def __init__(self, root: tk.Tk):
         self.serial_conn = Serial(None, 9600, timeout=10)
 
@@ -17,25 +19,8 @@ class ControlGUI:
         self.single_command_frame = tk.Frame(self.root)
         self.multiple_command_frame = tk.Frame(self.root)
 
-        self.components_main_frame()
-        self.components_single_commands_frame()
-        self.components_multiple_commands_frame()
-        
-        self.frames = [
-            self.main_frame,
-            self.single_command_frame,
-            self.multiple_command_frame
-        ]
-        self.main_frame.pack()
+        # ______________
 
-    def frame_packer(self, selected_frame):
-        for frame in self.frames:
-            if frame != selected_frame:
-                frame.pack_forget()
-                continue
-            frame.pack()
-            
-    def components_main_frame(self):
         self.single_command_option_button = tk.Button(self.main_frame, 
                                                  text="Individual Commands", 
                                                  command=lambda:self.frame_packer(self.single_command_frame), 
@@ -48,10 +33,28 @@ class ControlGUI:
                                                     height=2, 
                                                     width=20)
         
-        self.single_command_option_button.pack(pady=10)
-        self.multiple_commands_window_button.pack(pady=30)
+        # ______________
 
-    def components_multiple_commands_frame(self):
+        self.knob = tk.Scale(self.single_command_frame, 
+                        from_=0, 
+                        to=360, 
+                        orient=tk.HORIZONTAL, 
+                        label='Knob A')
+        
+        self.combo = ttk.Combobox(self.single_command_frame,
+                                  values=['Q1', 'Q2', 'Q3'])
+        self.combo.set("Q1")
+        
+        self.send_single_button = tk.Button(self.single_command_frame, 
+                                text="Send Command", 
+                                command=self.send_single_command)
+        
+        self.home_single_button = tk.Button(self.single_command_frame, 
+                                text="Return", 
+                                command=lambda:self.frame_packer(self.main_frame))
+
+        # ______________
+
         self.knob_q1 = tk.Scale(self.multiple_command_frame, 
                                 from_=-90, 
                                 to=90, 
@@ -70,49 +73,75 @@ class ControlGUI:
                                 orient=tk.HORIZONTAL, 
                                 label='Q3')
         
-        self.send_button = tk.Button(self.multiple_command_frame, 
+        self.send_multiple_button = tk.Button(self.multiple_command_frame, 
                                      text="Send Command", 
-                                     command=lambda:send_multiple_commands(self.knob_q1, self.knob_q2, self.knob_q3))
+                                     command=self.send_multiple_commands)
 
-        self.home_button = tk.Button(self.multiple_command_frame, 
+        self.home_multiple_button = tk.Button(self.multiple_command_frame, 
                                      text="Return", 
                                      command=lambda:self.frame_packer(self.main_frame))
         
+        # ______________
+
+        self.single_command_option_button.pack(pady=10)
+        self.multiple_commands_window_button.pack(pady=30)
+        
+        self.knob.pack(pady=10)
+        self.combo.pack(pady=10)
+        self.send_single_button.pack(pady=50)
+        self.home_single_button.pack(pady=100)
+
         self.knob_q1.pack(pady=10, padx=10)
         self.knob_q2.pack(pady=20, padx=10)
         self.knob_q3.pack(pady=30, padx=10)
-        self.send_button.pack(pady=100)
-        self.home_button.pack(pady=10)
+        self.send_multiple_button.pack(pady=100)
+        self.home_multiple_button.pack(pady=10)
 
-    def components_single_commands_frame(self):
-        knob = tk.Scale(self.single_command_frame, 
-                        from_=0, 
-                        to=360, 
-                        orient=tk.HORIZONTAL, 
-                        label='Knob A')
-        
-        send_button = tk.Button(self.single_command_frame, 
-                                text="Send Command", 
-                                command= lambda: print("Sending..."))
-        
-        home_button = tk.Button(self.single_command_frame, 
-                                text="Return", 
-                                command=lambda:self.frame_packer(self.main_frame))
-        
-        knob.pack(pady=10)
-        send_button.pack(pady=100)
-        home_button.pack(pady=10)
+        # ______________
+
+        self.frames = [
+            self.main_frame,
+            self.single_command_frame,
+            self.multiple_command_frame
+        ]
+
+        self.main_frame.pack()
+
+    # oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+    def frame_packer(self, selected_frame):
+        for frame in self.frames:
+            if frame != selected_frame:
+                frame.pack_forget()
+                continue
+            frame.pack()
+            
+    # ------------------------------------------------------------------------
+
+    def send_single_command(self):
+        Q_value = self.knob.get()
+        selected_Q = self.combo.get()
+
+        command = f'S#{selected_Q}-{Q_value}'
+
+        print(command)
+
+    # ------------------------------------------------------------------------
+
+    def send_multiple_commands(self):
+        Q1_value = self.knob_q1.get()
+        Q2_value = self.knob_q2.get()
+        Q3_value = self.knob_q3.get()
+
+        command = f'M#Q1-{Q1_value},Q2-{Q2_value},Q3-{Q3_value}'
+
+        print(command)
+
+    # oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
 
 
-
-
-
-
-
-
-
-
+'''
 
 
 
@@ -171,4 +200,4 @@ def multiple_commands_window(root: tk.Tk):
     home_button = tk.Button(root, text="Return", command= lambda: main_menu_window(root))
     home_button.pack(pady=10)
 
-
+'''
