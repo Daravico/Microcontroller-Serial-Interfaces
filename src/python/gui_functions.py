@@ -21,6 +21,12 @@ class ControlGUI:
 
         # ______________
 
+        self.serial_configuration_button = tk.Button(self.main_frame,
+                                                     text="Serial Configuration",
+                                                     command=self.get_ports,
+                                                     height=2,
+                                                     width=20)
+
         self.single_command_option_button = tk.Button(self.main_frame, 
                                                  text="Individual Commands", 
                                                  command=lambda:self.frame_packer(self.single_command_frame), 
@@ -35,15 +41,21 @@ class ControlGUI:
         
         # ______________
 
+        self.combo_serial = ttk.Combobox(self.single_command_frame,
+                                  values=serial_configuration.show_ports())
+        
+        # ______________
+
         self.knob = tk.Scale(self.single_command_frame, 
                         from_=0, 
                         to=360, 
                         orient=tk.HORIZONTAL, 
                         label='Knob A')
         
-        self.combo = ttk.Combobox(self.single_command_frame,
+        self.combo_joint = ttk.Combobox(self.single_command_frame,
                                   values=['Q1', 'Q2', 'Q3'])
-        self.combo.set("Q1")
+        
+        self.combo_joint.set("Q1")
         
         self.send_single_button = tk.Button(self.single_command_frame, 
                                 text="Send Command", 
@@ -83,11 +95,12 @@ class ControlGUI:
         
         # ______________
 
-        self.single_command_option_button.pack(pady=10)
-        self.multiple_commands_window_button.pack(pady=30)
+        self.serial_configuration_button.pack(pady=10)
+        self.single_command_option_button.pack(pady=40)
+        self.multiple_commands_window_button.pack(pady=50)
         
         self.knob.pack(pady=10)
-        self.combo.pack(pady=10)
+        self.combo_joint.pack(pady=10)
         self.send_single_button.pack(pady=50)
         self.home_single_button.pack(pady=100)
 
@@ -109,6 +122,14 @@ class ControlGUI:
 
     # oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
+    def get_ports(self):
+        for port in sorted(serial_configuration.show_ports()):
+                print(f"{port}: {port.device}")
+        
+        
+
+    # ------------------------------------------------------------------------
+
     def frame_packer(self, selected_frame):
         for frame in self.frames:
             if frame != selected_frame:
@@ -120,7 +141,7 @@ class ControlGUI:
 
     def send_single_command(self):
         Q_value = self.knob.get()
-        selected_Q = self.combo.get()
+        selected_Q = self.combo_joint.get()
 
         command = f'S#{selected_Q}-{Q_value}'
 
@@ -142,7 +163,7 @@ class ControlGUI:
 
 
 '''
-
+# OBSOLETE.
 
 
 def send_single_command():
