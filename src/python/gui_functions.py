@@ -8,9 +8,11 @@ import tkinter as tk
 from serial import Serial
 
 class ControlGUI:
-    def __init__(self, root: tk.Tk, serial_conn: Serial):
+    def __init__(self, root: tk.Tk):
         self.root = root
-        self.serial_conn = serial_conn
+        self.serial_conn = Serial(None, 9600, timeout=10)
+
+        self.frame_mw = tk.Frame(self.root)
 
         self.main_menu_frame()
 
