@@ -8,6 +8,12 @@ from tkinter import ttk
 from serial import Serial
 import serial_configuration
 
+
+'''
+Class with all the implementations for the current GUI design and methods used to communicate the controller
+with the robot. No specific Micro is required, it is only needed the considerations in the codes being sent 
+through the serial communication. The instance also establishes the configuration for the serial communication.
+'''
 class ControlGUI:
     # oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
     def __init__(self, root: tk.Tk):
