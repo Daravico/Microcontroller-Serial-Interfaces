@@ -1,10 +1,15 @@
-
 import tkinter as tk
 from tkinter import ttk
-# from tkdial import Dial
 from serial import Serial
 import serial_configuration
+import robot_calculations
 
+# HERE IT IS NEEDED TO CREATE AND HOLD VALUES REGARDING THE
+# DH MATRIX.
+
+# GUI_PRINCIPAL_FRAME ADDED TO THE END OF THIS FILE TO BE ABLE TO BE RUN DIRECTLY.
+
+# REMOVE THE OPTION OF SINGLE COMMAND SEND.
 
 '''
 Class with all the implementations for the current GUI design and methods used to communicate the controller
@@ -27,6 +32,13 @@ class ControlGUI:
         self.serial_configuration_frame = tk.Frame(self.root)
         self.single_command_frame = tk.Frame(self.root)
         self.multiple_command_frame = tk.Frame(self.root)
+        self.dh_matrix_frame = tk.Frame(self.root, background='red')
+
+        # Other Variables.
+        self.serial_baudrate_value = tk.StringVar(self.root)
+        self.serial_baudrate_value.set("9600")
+
+        self.joint_values = [0, 90, 0]
 
         # ----------------------------------
         # SECTION: COMPONENTS INITIALIZATION.
@@ -42,13 +54,13 @@ class ControlGUI:
 
         self.single_command_option_button = tk.Button(self.main_frame, 
                                                  text="Individual Commands", 
-                                                 command=lambda:self.frame_packer(self.single_command_frame), 
+                                                 command=lambda:self.send_command_frame_packer(self.single_command_frame), 
                                                  height=2,
                                                  width=20)
         
         self.multiple_commands_window_button = tk.Button(self.main_frame, 
                                                     text="Multiple Commands", 
-                                                    command=lambda:self.frame_packer(self.multiple_command_frame),
+                                                    command=lambda:self.send_command_frame_packer(self.multiple_command_frame),
                                                     height=2, 
                                                     width=20)
         
@@ -70,9 +82,6 @@ class ControlGUI:
         
         self.selected_port_desc_label = tk.Label(self.serial_configuration_frame,
                                                  text="...")
-        
-        self.serial_baudrate_value = tk.StringVar(self.root)
-        self.serial_baudrate_value.set("9600")
         
         self.baudrate_entry = tk.Entry(self.serial_configuration_frame, 
                                        textvariable=self.serial_baudrate_value,
@@ -142,6 +151,12 @@ class ControlGUI:
                                      text="Return", 
                                      command=lambda:self.frame_packer(self.main_frame))
         
+
+
+        # @ @ @ DH Table Frame components @ @ @
+
+
+        
         # ----------------------------------
         # SECTION: COMPONENTS PACKING.
         # ----------------------------------
@@ -177,7 +192,8 @@ class ControlGUI:
             self.main_frame,
             self.serial_configuration_frame,
             self.single_command_frame,
-            self.multiple_command_frame
+            self.multiple_command_frame,
+            self.dh_matrix_frame
         ]
 
         self.main_frame.pack()
@@ -265,6 +281,22 @@ class ControlGUI:
                 frame.pack_forget()
                 continue
             frame.pack()
+    
+    # ------------------------------------------------------------------------
+
+    def send_command_frame_packer(self, selected_frame:tk.Frame):
+        for frame in self.frames:
+
+            if frame == self.dh_matrix_frame:
+                frame.pack(side="right")
+                continue
+
+            if frame != selected_frame:
+                frame.pack_forget()
+                continue
+
+            frame.pack(side="left")
+
             
     # ----------------------------------
     # SECTION: SENDING COMMANDS OPTIONS.
@@ -290,3 +322,17 @@ class ControlGUI:
         print(command)
 
     # oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+
+# This file can now also run the main window. "gui_principal_frame.py" will be removed in the future,
+# as well for this comment. robot_calculations.py needs to be implemented as well. 
+
+if __name__ == '__main__':
+
+    root = tk.Tk()
+    root.title("Robot Serial Interface")
+    root.geometry('400x600')
+
+    control_gui = ControlGUI(root)
+
+    root.mainloop()

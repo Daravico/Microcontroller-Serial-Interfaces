@@ -95,7 +95,7 @@ def DH(theta: float, d: float, a: float, alpha: float):
     MHTx = HTx(a)
     MHRx = HRx(alpha)
 
-    DH_matrix = MHRz * MHTz * MHTx * MHRx
+    DH_matrix = MHRz @ MHTz @ MHTx @ MHRx
 
     return DH_matrix
     

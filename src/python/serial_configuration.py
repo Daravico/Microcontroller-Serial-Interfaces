@@ -2,7 +2,7 @@ from serial import Serial
 import serial.tools.list_ports as SerialTools
 
 # ------------
-# DESCRIPTION:
+# DESCRIPTION OF LIBRARY:
 # ------------
 
 '''
