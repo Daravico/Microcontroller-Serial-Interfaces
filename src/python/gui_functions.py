@@ -1,7 +1,7 @@
 
 import tkinter as tk
 from tkinter import ttk
-from tkdial import Dial
+# from tkdial import Dial
 from serial import Serial
 import serial_configuration
 
@@ -71,11 +71,11 @@ class ControlGUI:
         self.selected_port_desc_label = tk.Label(self.serial_configuration_frame,
                                                  text="...")
         
-        self.serial_baudrate = tk.StringVar(self.root)
-        self.serial_baudrate.set("9600")
+        self.serial_baudrate_value = tk.StringVar(self.root)
+        self.serial_baudrate_value.set("9600")
         
         self.baudrate_entry = tk.Entry(self.serial_configuration_frame, 
-                                       textvariable=self.serial_baudrate,
+                                       textvariable=self.serial_baudrate_value,
                                        validate="key",
                                        validatecommand=(self.root.register(self.baudrate_entry_number_validation), "%P"))
         
@@ -96,6 +96,7 @@ class ControlGUI:
                         from_=0, 
                         to=360, 
                         orient=tk.HORIZONTAL, 
+                        bg='gray',
                         label='Knob A')
         
         self.combo_joint = ttk.Combobox(self.single_command_frame,
@@ -145,28 +146,28 @@ class ControlGUI:
         # SECTION: COMPONENTS PACKING.
         # ----------------------------------
 
-        self.serial_configuration_button.pack(pady=10)
-        self.single_command_option_button.pack(pady=40)
-        self.multiple_commands_window_button.pack(pady=50)
+        self.serial_configuration_button.pack(pady=5)
+        self.single_command_option_button.pack(pady=5)
+        self.multiple_commands_window_button.pack(pady=5)
 
-        self.load_serial_button.pack()
-        self.selected_port_name_label.pack()
-        self.selected_port_desc_label.pack()
-        self.combo_serial.pack()
-        self.baudrate_entry.pack()
-        self.update_serial_configuration_button.pack(pady=10)
-        self.home_serial_configuration_button.pack()
+        self.load_serial_button.pack(pady=5)
+        self.selected_port_name_label.pack(pady=5)
+        self.selected_port_desc_label.pack(pady=5)
+        self.combo_serial.pack(pady=5)
+        self.baudrate_entry.pack(pady=5)
+        self.update_serial_configuration_button.pack(pady=5)
+        self.home_serial_configuration_button.pack(pady=5)
         
-        self.knob.pack(pady=10)
-        self.combo_joint.pack(pady=10)
-        self.send_single_button.pack(pady=50)
-        self.home_single_button.pack(pady=100)
+        self.knob.pack(pady=5)
+        self.combo_joint.pack(pady=5)
+        self.send_single_button.pack(pady=5)
+        self.home_single_button.pack(pady=5)
 
-        self.knob_q1.pack(pady=10, padx=10)
-        self.knob_q2.pack(pady=20, padx=10)
-        self.knob_q3.pack(pady=30, padx=10)
-        self.send_multiple_button.pack(pady=100)
-        self.home_multiple_button.pack(pady=10)
+        self.knob_q1.pack(pady=5, padx=10)
+        self.knob_q2.pack(pady=5, padx=10)
+        self.knob_q3.pack(pady=5, padx=10)
+        self.send_multiple_button.pack(pady=5)
+        self.home_multiple_button.pack(pady=5)
 
         # ----------------------------------
         # SECTION: FRAMES ORGANIZATION.
@@ -186,7 +187,7 @@ class ControlGUI:
     # ||||||||||||||||||||||||||||||||||||||||||
 
     # ----------------------------------
-    # SECTION: 
+    # SECTION: SERIAL CONFIGURATION METHODS.
     # ----------------------------------
 
     def load_ports(self):
@@ -224,12 +225,34 @@ class ControlGUI:
     # ------------------------------------------------------------------------
 
     def baudrate_entry_number_validation(self, new_value:str):
+        '''
+        Callback function that is called when a new entry is set for the baudrate.
+        This confirms if it is a number or a blank space in order to avoid chars in
+        the value required as int.
+        '''
         if new_value.isdigit() or new_value == "":
             return True
         return False
     
+    # ------------------------------------------------------------------------
+    
     def update_serial_configuration(self):
-        pass
+        '''
+        Casting the value of the variable holding the baudrate from the entry
+        to an integer and updating the configuration for the serial port.
+        '''
+        if self.combo_serial.get() == None or self.combo_serial.get() == "":
+            print("No changes")
+            return
+        
+        self.serial_conn.port = self.combo_serial.get()
+        self.serial_conn.baudrate = int(self.serial_baudrate_value.get())
+        
+        print(f'PORT: {self.serial_conn.port} | BAUDRATE: {self.serial_conn.baudrate}')
+
+    # ----------------------------------
+    # SECTION: FRAME UPDATE METHODS.
+    # ----------------------------------
 
     def frame_packer(self, selected_frame:tk.Frame):
         '''
@@ -243,7 +266,9 @@ class ControlGUI:
                 continue
             frame.pack()
             
-    # ------------------------------------------------------------------------
+    # ----------------------------------
+    # SECTION: SENDING COMMANDS OPTIONS.
+    # ----------------------------------
 
     def send_single_command(self):
         Q_value = self.knob.get()
