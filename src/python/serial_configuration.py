@@ -15,7 +15,7 @@ sections of code.
 
 # ------------------------------------------------------------------------
 
-def show_ports():
+def get_ports():
     '''
     This function returns the available ports. Needs to be upgraded to 
     reduce the information to be returned.

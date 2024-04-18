@@ -80,7 +80,7 @@ if __name__ == '__main__':
         # Showing the available ports.
         # -----------------------------------------------------------------
         if selection == '0':
-            for port, desc, _ in sorted(serial_configuration.show_ports()):
+            for port, desc, _ in sorted(serial_configuration.get_ports()):
                 print(f"{port}: {desc}")
 
         # Changing parameters for the serial communication.
