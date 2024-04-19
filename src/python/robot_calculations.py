@@ -56,8 +56,8 @@ def HRx(alpha: float):
 def HTx(a: float):
     matrix = np.array([
         [   1,                 0,                  0,                  a               ],
-        [   0,                 1,                  1,                  0               ],
-        [   0,                 1,                  1,                  0               ],
+        [   0,                 1,                  0,                  0               ],
+        [   0,                 0,                  1,                  0               ],
         [   0,                 0,                  0,                  1               ]
     ])
 
@@ -69,8 +69,8 @@ def HTx(a: float):
 def HTz(d: float):
     matrix = np.array([
         [   1,                 0,                  0,                  0               ],
-        [   0,                 1,                  1,                  0               ],
-        [   0,                 1,                  1,                  d               ],
+        [   0,                 1,                  0,                  0               ],
+        [   0,                 0,                  1,                  d               ],
         [   0,                 0,                  0,                  1               ]
     ])
 
@@ -94,6 +94,11 @@ def DH(theta: float, d: float, a: float, alpha: float):
     MHTz = HTz(d)
     MHTx = HTx(a)
     MHRx = HRx(alpha)
+
+    print(MHRz)
+    print(MHTz)
+    print(MHTx)
+    print(MHRx)
 
     DH_matrix = MHRz @ MHTz @ MHTx @ MHRx
 
@@ -128,5 +133,7 @@ def Mapper(x: float, x1: float, x2: float, y1: float, y2: float):
 
     return y
 
-DH1 = DH(np.pi/3, 5, 3, 0)
-print(DH1)
+
+if __name__ == '__main__':
+    DH1 = DH(np.pi/3, 5, 3, 0)
+    print(DH1)

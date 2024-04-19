@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from serial import Serial
 import serial_configuration
-import robot_calculations
+# import robot_calculations
 
 # HERE IT IS NEEDED TO CREATE AND HOLD VALUES REGARDING THE
 # DH MATRIX.
@@ -75,6 +75,7 @@ class ControlGUI:
                                                     width=20)
 
         self.combo_serial = ttk.Combobox(self.serial_configuration_frame)
+        
         self.combo_serial.bind('<<ComboboxSelected>>', self.update_label_serial_port)
 
         self.selected_port_name_label = tk.Label(self.serial_configuration_frame,
@@ -100,6 +101,8 @@ class ControlGUI:
 
 
         # @ @ @ Single Command Frame components @ @ @
+
+        # POSSIBLE REMOVAL IN FUTURE CHANGES. <--------   &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
         self.knob = tk.Scale(self.single_command_frame, 
                         from_=0, 
