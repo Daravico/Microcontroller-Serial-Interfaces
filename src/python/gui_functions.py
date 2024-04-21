@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from serial import Serial
 import serial_configuration
-# import robot_calculations
+import robot_calculations
 
 # HERE IT IS NEEDED TO CREATE AND HOLD VALUES REGARDING THE
 # DH MATRIX.
