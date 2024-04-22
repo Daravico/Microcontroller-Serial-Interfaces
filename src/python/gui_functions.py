@@ -5,12 +5,10 @@ import serial_configuration
 from robot_calculations import RoboticProperties
 import numpy as np
 
-# HERE IT IS NEEDED TO CREATE AND HOLD VALUES REGARDING THE
-# DH MATRIX.
+# REMOVE THE OPTION OF SINGLE COMMAND SEND. CHANGE THE NAME OF 
+# THE OTHER VARIABLES AND ADJUST THE LOADING FRAMES TO HAVE SHORTER NAMES AND LESS FUNCTIONS/PARAMETERS.
 
-# GUI_PRINCIPAL_FRAME ADDED TO THE END OF THIS FILE TO BE ABLE TO BE RUN DIRECTLY.
-
-# REMOVE THE OPTION OF SINGLE COMMAND SEND. CHANGE THE NAME OF THE OTHER VARIABLES AND ADJUST THE LOADING FRAMES TO HAVE SHORTER NAMES AND LESS FUNCTIONS/PARAMETERS.
+# CHANGE SLIDE BARS FOR KNOBS. ttk.
 
 '''
 Class with all the implementations for the current GUI design and methods used to communicate the controller
@@ -31,16 +29,14 @@ class ControlGUI:
         # Frames created and used for the robot controller.
         self.main_frame = tk.Frame(self.root)
         self.serial_configuration_frame = tk.Frame(self.root)
-        ''' self.single_command_frame = tk.Frame(self.root) '''
-        self.multiple_command_frame = tk.Frame(self.root)
-        self.dh_matrix_frame = tk.Frame(self.root, background='red')
+        self.send_command_frame = tk.Frame(self.root)
+        self.robotics_details_frame = tk.Frame(self.root, background='red')
 
         # Other Variables.
         self.serial_baudrate_value = tk.StringVar(self.root)
         self.serial_baudrate_value.set("9600")
 
         self.joint_values = [0, 90, 0]
-
 
         # DH Parameters and Homogeneous Matrix variables.
         # Note: 'q' is set to the default value at the start of the program <--------------------- YET TO IMPLEMENT, SEND THE COMMANDS ON START.
@@ -49,14 +45,13 @@ class ControlGUI:
         l = [0,         5,           3]
         A = [np.pi/2,   0,           0]
         
-
         ranges = [[-90, 90], [0, 90], [0, 90]]
 
-        robotic_properties_3DOF = RoboticProperties(q, d, l, A, ranges)
+        self.robotic_properties_3DOF = RoboticProperties(q, d, l, A, ranges)
 
-        # ----------------------------------
-        # SECTION: COMPONENTS INITIALIZATION.
-        # ----------------------------------
+        # /////////////////////////////////////////////////////////////////////
+        #            SECTION: COMPONENTS INITIALIZATION AND PACKING.
+        # ////////////////////////////////////////////////////////////////////
 
         # @ @ @ Main Frame components @ @ @
 
@@ -65,20 +60,19 @@ class ControlGUI:
                                                      command=lambda:self.frame_packer(self.serial_configuration_frame),
                                                      height=2,
                                                      width=20)
-
-        '''self.single_command_option_button = tk.Button(self.main_frame, 
-                                                 text="Individual Commands", 
-                                                 command=lambda:self.send_command_frame_packer(self.single_command_frame), 
-                                                 height=2,
-                                                 width=20)'''
         
-        self.multiple_commands_window_button = tk.Button(self.main_frame, 
+        self.send_commands_frame_button = tk.Button(self.main_frame, 
                                                     text="Multiple Commands", 
-                                                    command=lambda:self.send_command_frame_packer(self.multiple_command_frame),
+                                                    command=lambda:self.send_command_frame_packer(self.send_command_frame),
                                                     height=2, 
                                                     width=20)
         
+        # Main frame components packing.
+        self.serial_configuration_button.pack(pady=5)
+        self.send_commands_frame_button.pack(pady=5)
 
+        # -------------------------------------------------------------------------------
+        
 
         # @ @ @ Serial Configuration Frame components @ @ @
 
@@ -112,12 +106,108 @@ class ControlGUI:
                                                           text="Return", 
                                                           command=lambda:self.frame_packer(self.main_frame))
 
+        # Serial Configuration frame components packing.
+        self.load_serial_button.pack(pady=5)
+        self.selected_port_name_label.pack(pady=5)
+        self.selected_port_desc_label.pack(pady=5)
+        self.combo_serial.pack(pady=5)
+        self.baudrate_entry.pack(pady=5)
+        self.update_serial_configuration_button.pack(pady=5)
+        self.home_serial_configuration_button.pack(pady=5)
 
-        '''
+        # -------------------------------------------------------------------------------
+
+        # @ @ @ Commands Sender Frame components @ @ @
+
+        self.knob_q1 = tk.Scale(self.send_command_frame, 
+                                from_=-90, 
+                                to=90, 
+                                orient=tk.HORIZONTAL, 
+                                label='Q1')
+        
+        self.knob_q2 = tk.Scale(self.send_command_frame, 
+                                from_=0, 
+                                to=90, 
+                                orient=tk.HORIZONTAL, 
+                                label='Q2')
+        
+        self.knob_q3 = tk.Scale(self.send_command_frame, 
+                                from_=0, 
+                                to=90, 
+                                orient=tk.HORIZONTAL, 
+                                label='Q3')
+        
+        self.send_command_button = tk.Button(self.send_command_frame, 
+                                     text="Send Command", 
+                                     command=self.send_commands)
+
+        self.home_button = tk.Button(self.send_command_frame, 
+                                     text="Return", 
+                                     command=lambda:self.frame_packer(self.main_frame))
+        
+        # Command sender frame packing.
+        self.knob_q1.pack(pady=5, padx=10)
+        self.knob_q2.pack(pady=5, padx=10)
+        self.knob_q3.pack(pady=5, padx=10)
+        self.send_command_button.pack(pady=5)
+        self.home_button.pack(pady=5)
+
+        # -------------------------------------------------------------------------------    
+
+        # @ @ @ Robotics details components @ @ @
+
+        self.dh_table = ttk.Treeview(self.robotics_details_frame, columns=("a", "alpha", "d", "theta"), show="headings")
+
+        self.dh_table.heading("a", text="a")
+        self.dh_table.heading("alpha", text="alpha")
+        self.dh_table.heading("d", text="d")
+        self.dh_table.heading("theta", text="theta")
+
+        self.homogeneous_table = ttk.Treeview(self.robotics_details_frame, columns=(" ", " ", " ", " "), show="headings")
+        self.homogeneous_table.heading(" ", text=" ")
+
+        self.position_table = ttk.Treeview(self.robotics_details_frame, columns=("X", "Y", "Z"), show="headings")
+        self.position_table.heading("X", text="X")
+        self.position_table.heading("Y", text="Y")
+        self.position_table.heading("Z", text="Z")
+        
+
+        # Robotics details frame packing.
+        self.dh_table.pack(side='top', pady=5)
+        self.homogeneous_table.pack(side='bottom', pady=5)
+        self.position_table.pack(side='bottom', pady=5)
+
+        # -------------------------------------------------------------------------------    
+
+
+    
+
+        # ----------------------------------
+        # SECTION: FRAMES ORGANIZATION.
+        # ----------------------------------
+
+        self.frames = [
+            self.main_frame,
+            self.serial_configuration_frame,
+            self.send_command_frame,
+            self.robotics_details_frame
+        ]
+
+        self.main_frame.pack()
+
+
+
+        # FUNCTIONS NO LONGER REQUIRED. REMOVE IN CASE IT IS ABSOLUTELY NECESSARY.
+        ''' self.single_command_frame = tk.Frame(self.root) 
+
+        self.single_command_option_button = tk.Button(self.main_frame, 
+                                                 text="Individual Commands", 
+                                                 command=lambda:self.send_command_frame_packer(self.single_command_frame), 
+                                                 height=2,
+                                                 width=20)
+
         # @ @ @ Single Command Frame components @ @ @
-
-        # POSSIBLE REMOVAL IN FUTURE CHANGES. <--------   &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
+        
         self.knob = tk.Scale(self.single_command_frame, 
                         from_=0, 
                         to=360, 
@@ -137,85 +227,14 @@ class ControlGUI:
         self.home_single_button = tk.Button(self.single_command_frame, 
                                 text="Return", 
                                 command=lambda:self.frame_packer(self.main_frame))
-        '''
-
-
-        # @ @ @ Multiple Commands Frame components @ @ @
-
-        self.knob_q1 = tk.Scale(self.multiple_command_frame, 
-                                from_=-90, 
-                                to=90, 
-                                orient=tk.HORIZONTAL, 
-                                label='Q1')
         
-        self.knob_q2 = tk.Scale(self.multiple_command_frame, 
-                                from_=0, 
-                                to=90, 
-                                orient=tk.HORIZONTAL, 
-                                label='Q2')
+        self.single_command_option_button.pack(pady=5)
         
-        self.knob_q3 = tk.Scale(self.multiple_command_frame, 
-                                from_=0, 
-                                to=90, 
-                                orient=tk.HORIZONTAL, 
-                                label='Q3')
-        
-        self.send_multiple_button = tk.Button(self.multiple_command_frame, 
-                                     text="Send Command", 
-                                     command=self.send_multiple_commands)
-
-        self.home_multiple_button = tk.Button(self.multiple_command_frame, 
-                                     text="Return", 
-                                     command=lambda:self.frame_packer(self.main_frame))
-        
-
-
-        # @ @ @ DH Table Frame components @ @ @
-
-
-        
-        # ----------------------------------
-        # SECTION: COMPONENTS PACKING.
-        # ----------------------------------
-
-        self.serial_configuration_button.pack(pady=5)
-        '''self.single_command_option_button.pack(pady=5)'''
-        self.multiple_commands_window_button.pack(pady=5)
-
-        self.load_serial_button.pack(pady=5)
-        self.selected_port_name_label.pack(pady=5)
-        self.selected_port_desc_label.pack(pady=5)
-        self.combo_serial.pack(pady=5)
-        self.baudrate_entry.pack(pady=5)
-        self.update_serial_configuration_button.pack(pady=5)
-        self.home_serial_configuration_button.pack(pady=5)
-        
-        '''
         self.knob.pack(pady=5)
         self.combo_joint.pack(pady=5)
         self.send_single_button.pack(pady=5)
         self.home_single_button.pack(pady=5)
         '''
-
-        self.knob_q1.pack(pady=5, padx=10)
-        self.knob_q2.pack(pady=5, padx=10)
-        self.knob_q3.pack(pady=5, padx=10)
-        self.send_multiple_button.pack(pady=5)
-        self.home_multiple_button.pack(pady=5)
-
-        # ----------------------------------
-        # SECTION: FRAMES ORGANIZATION.
-        # ----------------------------------
-
-        self.frames = [
-            self.main_frame,
-            self.serial_configuration_frame,
-            # self.single_command_frame,
-            self.multiple_command_frame,
-            self.dh_matrix_frame
-        ]
-
-        self.main_frame.pack()
 
     # ||||||||||||||||||||||||||||||||||||||||||
     # MAIN METHODS OF THE CLASS.
@@ -306,7 +325,7 @@ class ControlGUI:
     def send_command_frame_packer(self, selected_frame:tk.Frame):
         for frame in self.frames:
 
-            if frame == self.dh_matrix_frame:
+            if frame == self.robotics_details_frame:
                 frame.pack(side="right")
                 continue
 
@@ -320,7 +339,7 @@ class ControlGUI:
     # ----------------------------------
     # SECTION: SENDING COMMANDS OPTIONS.
     # ----------------------------------
-
+    '''
     def send_single_command(self):
         Q_value = self.knob.get()
         selected_Q = self.combo_joint.get()
@@ -328,10 +347,11 @@ class ControlGUI:
         command = f'S#{selected_Q}-{Q_value}'
 
         print(command)
+    '''
 
     # ------------------------------------------------------------------------
 
-    def send_multiple_commands(self):
+    def send_commands(self):
         Q1_value = self.knob_q1.get()
         Q2_value = self.knob_q2.get()
         Q3_value = self.knob_q3.get()
@@ -350,8 +370,8 @@ if __name__ == '__main__':
 
     root = tk.Tk()
     root.title("Robot Serial Interface")
-    root.geometry('400x600')
-
+    root.geometry('1200x600')
+    root.configure(background='#F0ECD2')
     control_gui = ControlGUI(root)
 
     root.mainloop()
