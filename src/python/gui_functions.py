@@ -3,6 +3,7 @@ from tkinter import ttk
 from serial import Serial
 import serial_configuration
 import robot_calculations
+import numpy as np
 
 # HERE IT IS NEEDED TO CREATE AND HOLD VALUES REGARDING THE
 # DH MATRIX.
@@ -39,6 +40,24 @@ class ControlGUI:
         self.serial_baudrate_value.set("9600")
 
         self.joint_values = [0, 90, 0]
+
+
+        # DH Parameters and Homogeneous Matrix variables.
+        # Note: 'q' is set to the default value at the start of the program <--------------------- YET TO IMPLEMENT, SEND THE COMMANDS ON START.
+        l = [1,         5,           3]
+        A = [np.pi/2,   0,           0]
+        q = [0,         np.pi/2,     0]
+
+        ranges = [[-90, 90], [0, 90], [0, 90]]
+
+        DH10 = robot_calculations.DH(q(0),  l(0),   0,      A(0))
+        DH21 = robot_calculations.DH(q(1),  0,      l(1),   A(1))
+        DH32 = robot_calculations.DH(q(2),  0,      l(2),   A(2))
+
+        matrix_DH = DH10 @ DH21 @ DH32
+
+        print(matrix_DH)
+
 
         # ----------------------------------
         # SECTION: COMPONENTS INITIALIZATION.
