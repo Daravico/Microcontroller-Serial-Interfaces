@@ -1,11 +1,9 @@
-import serial
+import numpy as np
 
-ser = serial.Serial('COM13', 9600, timeout=10)
-ser.close()
-ser.open()
+# Tamaño del array exterior
+size = 5
 
-ser.write(b'Q1-74.56')
+# Crear un array NumPy de tamaño específico con arrays NumPy sin inicializar valores
+array = np.array([np.empty((3,3)) for _ in range(size)])
 
-texto = ser.readline()
-print(texto)
-ser.close()
+print(array)

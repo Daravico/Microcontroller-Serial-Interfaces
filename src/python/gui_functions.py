@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from serial import Serial
 import serial_configuration
-import robot_calculations
+from robot_calculations import RoboticProperties
 import numpy as np
 
 # HERE IT IS NEEDED TO CREATE AND HOLD VALUES REGARDING THE
@@ -44,19 +44,25 @@ class ControlGUI:
 
         # DH Parameters and Homogeneous Matrix variables.
         # Note: 'q' is set to the default value at the start of the program <--------------------- YET TO IMPLEMENT, SEND THE COMMANDS ON START.
-        l = [1,         5,           3]
-        A = [np.pi/2,   0,           0]
         q = [0,         np.pi/2,     0]
+        d = [1,         0,           0]
+        l = [0,         5,           3]
+        A = [np.pi/2,   0,           0]
+        
 
         ranges = [[-90, 90], [0, 90], [0, 90]]
 
-        DH10 = robot_calculations.DH(q(0),  l(0),   0,      A(0))
-        DH21 = robot_calculations.DH(q(1),  0,      l(1),   A(1))
-        DH32 = robot_calculations.DH(q(2),  0,      l(2),   A(2))
+        robotic_properties_3DOF = RoboticProperties(q, d, l, A)
 
-        matrix_DH = DH10 @ DH21 @ DH32
+        #DH_matrices = [,,]
 
-        print(matrix_DH)
+        #DH_matrices[0] = robotic_properties_3DOF.DH(q[0],  d[0],   l[0],   A[0])
+        #DH_matrices[1] = robotic_properties_3DOF.DH(q[1],  d[1],   l[1],   A[1])
+        #DH_matrices[2] = robotic_properties_3DOF.DH(q[2],  d[2],   l[2],   A[2])
+
+        # matrix_DH = DH10 @ DH21 @ DH32
+
+        # print(matrix_DH)
 
 
         # ----------------------------------

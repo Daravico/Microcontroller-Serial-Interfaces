@@ -1,139 +1,153 @@
 import numpy as np
+from typing import List
 
 # ------------------------------------------------------------------------
+class RoboticProperties:
 
-def matrix_rounder(matrix: np.ndarray, digits: int):
+    def __init__(self, q:List[float], d:List[float], a:List[float], A:List[float]):
+        self.q = q
+        self.d = d
+        self.a = a
+        self.A = A
+
+        self.dof = len(q)
+        
+        self.DH_individual = np.array([np.empty((4,4)) for _ in range(self.dof)])
+
+        for i in range(self.dof):
+            self.DH_individual[i] = self.DH(q[i], d[i], a[i], A[i])
+            print(self.DH_individual[i])
+
+
+
+    def matrix_rounder(self, matrix: np.ndarray, digits: int):
+        '''
+        This function helps in reducing the amount of digits being
+        displayed in the terminal.
+
+        :matrix(np.ndarray): Array to be converted.
+        :digits(int): Number of digits to be rounded up to (Power of 10).
+        '''
+
+        ten_digits = np.power(10, digits)
+
+        new_matrix = np.round(matrix * ten_digits) / ten_digits
+
+        return new_matrix
+
+
+    # ------------------------------------------------------------------------
     '''
-    This function helps in reducing the amount of digits being
-    displayed in the terminal.
-
-    :matrix(np.ndarray): Array to be converted.
-    :digits(int): Number of digits to be rounded up to (Power of 10).
+    The following functions are used to calculate the homogeneous
+    transformation matrices, using the Denavit Hartenberg parameters
+    (theta, d, a, alpha) for the rotations and translations in the
+    X and Z axes. The resulting matrix is returned for each case.
     '''
+    # ------------------------------------------------------------------------
 
-    ten_digits = np.power(10, digits)
+    def HRz(self, theta: float):
+        matrix = np.array([
+            [   np.cos(theta),     -np.sin(theta),     0,                  0               ],
+            [   np.sin(theta),     np.cos(theta),      0,                  0               ],
+            [   0,                 0,                  1,                  0               ],
+            [   0,                 0,                  0,                  1               ]
+        ])
 
-    new_matrix = np.round(matrix * ten_digits) / ten_digits
+        rounded_matrix = self.matrix_rounder(matrix, 5) 
+        return rounded_matrix
 
-    return new_matrix
+    # ------------------------------------------------------------------------
 
+    def HRx(self, alpha: float):
+        matrix = np.array([
+            [   1,                 0,                  0,                  0               ],
+            [   0,                 np.cos(alpha),      -np.sin(alpha),     0               ],
+            [   0,                 np.sin(alpha),      np.cos(alpha),      0               ],
+            [   0,                 0,                  0,                  1               ]
+        ])
 
-# ------------------------------------------------------------------------
-'''
-The following functions are used to calculate the homogeneous
-transformation matrices, using the Denavit Hartenberg parameters
-(theta, d, a, alpha) for the rotations and translations in the
-X and Z axes. The resulting matrix is returned for each case.
-'''
-# ------------------------------------------------------------------------
+        rounded_matrix = self.matrix_rounder(matrix, 2) 
+        return rounded_matrix
 
-def HRz(theta: float):
-    matrix = np.array([
-        [   np.cos(theta),     -np.sin(theta),     0,                  0               ],
-        [   np.sin(theta),     np.cos(theta),      0,                  0               ],
-        [   0,                 0,                  1,                  0               ],
-        [   0,                 0,                  0,                  1               ]
-    ])
+    # ------------------------------------------------------------------------
 
-    rounded_matrix = matrix_rounder(matrix, 5) 
-    return rounded_matrix
+    def HTx(self, a: float):
+        matrix = np.array([
+            [   1,                 0,                  0,                  a               ],
+            [   0,                 1,                  0,                  0               ],
+            [   0,                 0,                  1,                  0               ],
+            [   0,                 0,                  0,                  1               ]
+        ])
 
-# ------------------------------------------------------------------------
+        rounded_matrix = self.matrix_rounder(matrix, 2) 
+        return rounded_matrix
 
-def HRx(alpha: float):
-    matrix = np.array([
-        [   1,                 0,                  0,                  0               ],
-        [   0,                 np.cos(alpha),      -np.sin(alpha),     0               ],
-        [   0,                 np.sin(alpha),      np.cos(alpha),      0               ],
-        [   0,                 0,                  0,                  1               ]
-    ])
+    # ------------------------------------------------------------------------
 
-    rounded_matrix = matrix_rounder(matrix, 2) 
-    return rounded_matrix
+    def HTz(self, d: float):
+        matrix = np.array([
+            [   1,                 0,                  0,                  0               ],
+            [   0,                 1,                  0,                  0               ],
+            [   0,                 0,                  1,                  d               ],
+            [   0,                 0,                  0,                  1               ]
+        ])
 
-# ------------------------------------------------------------------------
+        rounded_matrix = self.matrix_rounder(matrix, 2) 
+        return rounded_matrix
 
-def HTx(a: float):
-    matrix = np.array([
-        [   1,                 0,                  0,                  a               ],
-        [   0,                 1,                  0,                  0               ],
-        [   0,                 0,                  1,                  0               ],
-        [   0,                 0,                  0,                  1               ]
-    ])
+    # ------------------------------------------------------------------------
 
-    rounded_matrix = matrix_rounder(matrix, 2) 
-    return rounded_matrix
+    def DH(self, theta: float, d: float, a: float, alpha: float):
+        '''
+        The final Homogenous Transformation Matrix for the Denavit Hartenberg 
+        procedure is calculated using the corresponding parameters for the 
+        connection between two frames.
 
-# ------------------------------------------------------------------------
+        :theta(float): Angular value for the Rz transformation.
+        :d(float): Linear value for the Tz transformation.
+        :a(float): Linear value for the Tx transformation.
+        :alpha(float): Angular value for the Rx transformation.
+        '''
+        MHRz = self.HRz(theta)
+        MHTz = self.HTz(d)
+        MHTx = self.HTx(a)
+        MHRx = self.HRx(alpha)
 
-def HTz(d: float):
-    matrix = np.array([
-        [   1,                 0,                  0,                  0               ],
-        [   0,                 1,                  0,                  0               ],
-        [   0,                 0,                  1,                  d               ],
-        [   0,                 0,                  0,                  1               ]
-    ])
+        DH_matrix = MHRz @ MHTz @ MHTx @ MHRx
 
-    rounded_matrix = matrix_rounder(matrix, 2) 
-    return rounded_matrix
+        return DH_matrix
+        
+    # ------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------
+    def end_effector_position(self, DH_matrix: np.ndarray):
+        '''
+        Uses the Denavit Hartenberg matrix to calculate the position of the 
+        final part of the robot. Coordinates in the last frame are considered as
+        the origin (0,0,0).
 
-def DH(theta: float, d: float, a: float, alpha: float):
-    '''
-    The final Homogenous Transformation Matrix for the Denavit Hartenberg 
-    procedure is calculated using the corresponding parameters for the 
-    connection between two frames.
+        :DH_matrix(np.ndarray): Matrix to work with.
+        '''
+        origin = np.array([0, 0, 0, 1]).reshape(4,1)
 
-    :theta(float): Angular value for the Rz transformation.
-    :d(float): Linear value for the Tz transformation.
-    :a(float): Linear value for the Tx transformation.
-    :alpha(float): Angular value for the Rx transformation.
-    '''
-    MHRz = HRz(theta)
-    MHTz = HTz(d)
-    MHTx = HTx(a)
-    MHRx = HRx(alpha)
+        position = DH_matrix * origin
 
-    print(MHRz)
-    print(MHTz)
-    print(MHTx)
-    print(MHRx)
+        return position
 
-    DH_matrix = MHRz @ MHTz @ MHTx @ MHRx
+    # ------------------------------------------------------------------------
 
-    return DH_matrix
-    
-# ------------------------------------------------------------------------
+    def Mapper(x: float, x1: float, x2: float, y1: float, y2: float):
+        '''
+        This function helps in getting the linear mapping for values in a
+        certain range (x1→y1 >> x2→y2).
+        '''
+        m = (y2 - y1 ) / (x2 - x1)
 
-def end_effector_position(DH_matrix: np.ndarray):
-    '''
-    Uses the Denavit Hartenberg matrix to calculate the position of the 
-    final part of the robot. Coordinates in the last frame are considered as
-    the origin (0,0,0).
+        y = m * (x - x1) + y1
 
-    :DH_matrix(np.ndarray): Matrix to work with.
-    '''
-    origin = np.array([0, 0, 0, 1]).reshape(4,1)
-
-    position = DH_matrix * origin
-
-    return position
-
-# ------------------------------------------------------------------------
-
-def Mapper(x: float, x1: float, x2: float, y1: float, y2: float):
-    '''
-    This function helps in getting the linear mapping for values in a
-    certain range (x1→y1 >> x2→y2).
-    '''
-    m = (y2 - y1 ) / (x2 - x1)
-
-    y = m * (x - x1) + y1
-
-    return y
+        return y
 
 
 if __name__ == '__main__':
-    DH1 = DH(np.pi/3, 5, 3, 0)
+    robotics = RoboticProperties(1,2,3,4)
+    DH1 = robotics.DH(np.pi/3, 5, 3, 0)
     print(DH1)
