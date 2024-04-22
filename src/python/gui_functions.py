@@ -10,7 +10,7 @@ import numpy as np
 
 # GUI_PRINCIPAL_FRAME ADDED TO THE END OF THIS FILE TO BE ABLE TO BE RUN DIRECTLY.
 
-# REMOVE THE OPTION OF SINGLE COMMAND SEND.
+# REMOVE THE OPTION OF SINGLE COMMAND SEND. CHANGE THE NAME OF THE OTHER VARIABLES AND ADJUST THE LOADING FRAMES TO HAVE SHORTER NAMES AND LESS FUNCTIONS/PARAMETERS.
 
 '''
 Class with all the implementations for the current GUI design and methods used to communicate the controller
@@ -31,7 +31,7 @@ class ControlGUI:
         # Frames created and used for the robot controller.
         self.main_frame = tk.Frame(self.root)
         self.serial_configuration_frame = tk.Frame(self.root)
-        self.single_command_frame = tk.Frame(self.root)
+        ''' self.single_command_frame = tk.Frame(self.root) '''
         self.multiple_command_frame = tk.Frame(self.root)
         self.dh_matrix_frame = tk.Frame(self.root, background='red')
 
@@ -52,18 +52,7 @@ class ControlGUI:
 
         ranges = [[-90, 90], [0, 90], [0, 90]]
 
-        robotic_properties_3DOF = RoboticProperties(q, d, l, A)
-
-        #DH_matrices = [,,]
-
-        #DH_matrices[0] = robotic_properties_3DOF.DH(q[0],  d[0],   l[0],   A[0])
-        #DH_matrices[1] = robotic_properties_3DOF.DH(q[1],  d[1],   l[1],   A[1])
-        #DH_matrices[2] = robotic_properties_3DOF.DH(q[2],  d[2],   l[2],   A[2])
-
-        # matrix_DH = DH10 @ DH21 @ DH32
-
-        # print(matrix_DH)
-
+        robotic_properties_3DOF = RoboticProperties(q, d, l, A, ranges)
 
         # ----------------------------------
         # SECTION: COMPONENTS INITIALIZATION.
@@ -77,11 +66,11 @@ class ControlGUI:
                                                      height=2,
                                                      width=20)
 
-        self.single_command_option_button = tk.Button(self.main_frame, 
+        '''self.single_command_option_button = tk.Button(self.main_frame, 
                                                  text="Individual Commands", 
                                                  command=lambda:self.send_command_frame_packer(self.single_command_frame), 
                                                  height=2,
-                                                 width=20)
+                                                 width=20)'''
         
         self.multiple_commands_window_button = tk.Button(self.main_frame, 
                                                     text="Multiple Commands", 
@@ -124,7 +113,7 @@ class ControlGUI:
                                                           command=lambda:self.frame_packer(self.main_frame))
 
 
-
+        '''
         # @ @ @ Single Command Frame components @ @ @
 
         # POSSIBLE REMOVAL IN FUTURE CHANGES. <--------   &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -148,7 +137,7 @@ class ControlGUI:
         self.home_single_button = tk.Button(self.single_command_frame, 
                                 text="Return", 
                                 command=lambda:self.frame_packer(self.main_frame))
-
+        '''
 
 
         # @ @ @ Multiple Commands Frame components @ @ @
@@ -190,7 +179,7 @@ class ControlGUI:
         # ----------------------------------
 
         self.serial_configuration_button.pack(pady=5)
-        self.single_command_option_button.pack(pady=5)
+        '''self.single_command_option_button.pack(pady=5)'''
         self.multiple_commands_window_button.pack(pady=5)
 
         self.load_serial_button.pack(pady=5)
@@ -201,10 +190,12 @@ class ControlGUI:
         self.update_serial_configuration_button.pack(pady=5)
         self.home_serial_configuration_button.pack(pady=5)
         
+        '''
         self.knob.pack(pady=5)
         self.combo_joint.pack(pady=5)
         self.send_single_button.pack(pady=5)
         self.home_single_button.pack(pady=5)
+        '''
 
         self.knob_q1.pack(pady=5, padx=10)
         self.knob_q2.pack(pady=5, padx=10)
@@ -219,7 +210,7 @@ class ControlGUI:
         self.frames = [
             self.main_frame,
             self.serial_configuration_frame,
-            self.single_command_frame,
+            # self.single_command_frame,
             self.multiple_command_frame,
             self.dh_matrix_frame
         ]

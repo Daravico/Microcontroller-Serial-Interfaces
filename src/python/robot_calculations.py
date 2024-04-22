@@ -4,21 +4,46 @@ from typing import List
 # ------------------------------------------------------------------------
 class RoboticProperties:
 
-    def __init__(self, q:List[float], d:List[float], a:List[float], A:List[float]):
+    def __init__(self, q:List[float], d:List[float], a:List[float], A:List[float], ranges:List[List[float]]):
+        '''
+
+        '''
+        # List with the given DH parameters.
         self.q = q
         self.d = d
         self.a = a
         self.A = A
 
-        self.dof = len(q)
+        # Extracted degrees of freedom from the previous list (All must be the same).
+        self.degrees_of_freedom = len(q)
+
+        # Saving the information about the ranges for the joints.
+        self.ranges = ranges
+
+        # Initialization of DH table for the previous parameters.
+        self.DH_table = np.empty((self.degrees_of_freedom, 4))
+
+        # Initialization of N empty arrays depending on the degrees of freedom.
+        self.DH_individual = np.array([np.empty((4,4)) for _ in range(self.degrees_of_freedom)])
         
-        self.DH_individual = np.array([np.empty((4,4)) for _ in range(self.dof)])
+        # Initialization of the final matrix for the DH parameters.
+        self.matrix_DH = np.eye(4)
 
-        for i in range(self.dof):
+        # Initialization of the position for the final efector.
+        self.final_efector = np.empty(3)
+
+        for i in range(self.degrees_of_freedom):
+            # Denavit-Hartenberg parameters.
+            self.DH_table[i,0] = q[i]
+            self.DH_table[i,1] = d[i]
+            self.DH_table[i,2] = a[i]
+            self.DH_table[i,3] = A[i]
+
+            # Homegeneous transformation matrix.
             self.DH_individual[i] = self.DH(q[i], d[i], a[i], A[i])
-            print(self.DH_individual[i])
+            self.matrix_DH = self.matrix_DH @ self.DH_individual[i]
 
-
+    # ------------------------------------------------------------------------
 
     def matrix_rounder(self, matrix: np.ndarray, digits: int):
         '''
@@ -148,6 +173,12 @@ class RoboticProperties:
 
 
 if __name__ == '__main__':
-    robotics = RoboticProperties(1,2,3,4)
-    DH1 = robotics.DH(np.pi/3, 5, 3, 0)
-    print(DH1)
+
+    q = [0,         np.pi/2,     0]
+    d = [3,         0,           0]
+    l = [0,         5,           4]
+    A = [np.pi/2,   0,           0]
+
+    ranges = [[-90, 90], [0, 90], [0, 90]]
+    
+    robotics = RoboticProperties(q, d, l, A, ranges)
