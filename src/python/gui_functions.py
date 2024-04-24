@@ -10,6 +10,8 @@ import numpy as np
 
 # CHANGE SLIDE BARS FOR KNOBS. ttk.
 
+# Include continous mode. If checklist selected, the updates should be performed each time the knob is moved.
+
 '''
 Class with all the implementations for the current GUI design and methods used to communicate the controller
 with the robot. No specific Micro is required, it is only needed the considerations in the codes being sent 
@@ -39,6 +41,7 @@ class ControlGUI:
         self.joint_values = [0, 90, 0]
 
         # DH Parameters and Homogeneous Matrix variables.
+        # CONSIDER OR MIGHT NOT CONSIDER CREATING THESE WITH SELF (NOT USER AFTER THE CONSTURCTOR IS CALLED, THESE ARE STORED SEPARATELY)
         # Note: 'q' is set to the default value at the start of the program <--------------------- YET TO IMPLEMENT, SEND THE COMMANDS ON START.
         q = [0,         np.pi/2,     0]
         d = [1,         0,           0]
@@ -171,11 +174,16 @@ class ControlGUI:
         self.position_table.heading("Y", text="Y")
         self.position_table.heading("Z", text="Z")
         
-
         # Robotics details frame packing.
         self.dh_table.pack(side='top', pady=5)
         self.homogeneous_table.pack(side='bottom', pady=5)
         self.position_table.pack(side='bottom', pady=5)
+
+
+        for count, row in enumerate(self.robotic_properties_3DOF.DH_table):
+            print(count)
+
+            self.dh_table.insert("", "end", iid=count, values=list(row))
 
         # -------------------------------------------------------------------------------    
 
@@ -194,47 +202,6 @@ class ControlGUI:
         ]
 
         self.main_frame.pack()
-
-
-
-        # FUNCTIONS NO LONGER REQUIRED. REMOVE IN CASE IT IS ABSOLUTELY NECESSARY.
-        ''' self.single_command_frame = tk.Frame(self.root) 
-
-        self.single_command_option_button = tk.Button(self.main_frame, 
-                                                 text="Individual Commands", 
-                                                 command=lambda:self.send_command_frame_packer(self.single_command_frame), 
-                                                 height=2,
-                                                 width=20)
-
-        # @ @ @ Single Command Frame components @ @ @
-        
-        self.knob = tk.Scale(self.single_command_frame, 
-                        from_=0, 
-                        to=360, 
-                        orient=tk.HORIZONTAL, 
-                        bg='gray',
-                        label='Knob A')
-        
-        self.combo_joint = ttk.Combobox(self.single_command_frame,
-                                  values=['Q1', 'Q2', 'Q3'])
-        
-        self.combo_joint.set("Q1")
-        
-        self.send_single_button = tk.Button(self.single_command_frame, 
-                                text="Send Command", 
-                                command=self.send_single_command)
-        
-        self.home_single_button = tk.Button(self.single_command_frame, 
-                                text="Return", 
-                                command=lambda:self.frame_packer(self.main_frame))
-        
-        self.single_command_option_button.pack(pady=5)
-        
-        self.knob.pack(pady=5)
-        self.combo_joint.pack(pady=5)
-        self.send_single_button.pack(pady=5)
-        self.home_single_button.pack(pady=5)
-        '''
 
     # ||||||||||||||||||||||||||||||||||||||||||
     # MAIN METHODS OF THE CLASS.
@@ -339,17 +306,6 @@ class ControlGUI:
     # ----------------------------------
     # SECTION: SENDING COMMANDS OPTIONS.
     # ----------------------------------
-    '''
-    def send_single_command(self):
-        Q_value = self.knob.get()
-        selected_Q = self.combo_joint.get()
-
-        command = f'S#{selected_Q}-{Q_value}'
-
-        print(command)
-    '''
-
-    # ------------------------------------------------------------------------
 
     def send_commands(self):
         Q1_value = self.knob_q1.get()
@@ -362,9 +318,6 @@ class ControlGUI:
 
     # oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
-
-# This file can now also run the main window. "gui_principal_frame.py" will be removed in the future,
-# as well for this comment. robot_calculations.py needs to be implemented as well. 
 
 if __name__ == '__main__':
 
