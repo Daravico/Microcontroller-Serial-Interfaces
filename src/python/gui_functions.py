@@ -32,7 +32,7 @@ class ControlGUI:
         self.main_frame = tk.Frame(self.root)
         self.serial_configuration_frame = tk.Frame(self.root)
         self.send_command_frame = tk.Frame(self.root)
-        self.robotics_details_frame = tk.Frame(self.root, background='red')
+        self.robotics_details_frame = tk.Frame(self.root, background='#DAF0D2')
 
         # Other Variables.
         self.serial_baudrate_value = tk.StringVar(self.root)
@@ -42,7 +42,8 @@ class ControlGUI:
 
         # DH Parameters and Homogeneous Matrix variables.
         # CONSIDER OR MIGHT NOT CONSIDER CREATING THESE WITH SELF (NOT USER AFTER THE CONSTURCTOR IS CALLED, THESE ARE STORED SEPARATELY)
-        # Note: 'q' is set to the default value at the start of the program <--------------------- YET TO IMPLEMENT, SEND THE COMMANDS ON START.
+        # Note: 'q' is set to the default value at the start of the program <--------------------- YET TO 
+        # IMPLEMENT, SEND THE COMMANDS ON START.
         q = [0,         np.pi/2,     0]
         d = [1,         0,           0]
         l = [0,         5,           3]
@@ -76,7 +77,6 @@ class ControlGUI:
 
         # -------------------------------------------------------------------------------
         
-
         # @ @ @ Serial Configuration Frame components @ @ @
 
         self.load_serial_button = tk.Button(self.serial_configuration_frame, 
@@ -104,7 +104,6 @@ class ControlGUI:
                                                              text="Update",
                                                              command=self.update_serial_configuration)
         
-
         self.home_serial_configuration_button = tk.Button(self.serial_configuration_frame, 
                                                           text="Return", 
                                                           command=lambda:self.frame_packer(self.main_frame))
@@ -162,9 +161,16 @@ class ControlGUI:
         self.dh_table = ttk.Treeview(self.robotics_details_frame, columns=("a", "alpha", "d", "theta"), show="headings")
 
         self.dh_table.heading("a", text="a")
-        self.dh_table.heading("alpha", text="alpha")
+        self.dh_table.column("a", minwidth=0, width=100, stretch=tk.NO)
+
+        self.dh_table.heading("alpha", text="α")
+        self.dh_table.column("alpha", minwidth=0, width=100, stretch=tk.NO)
+
         self.dh_table.heading("d", text="d")
-        self.dh_table.heading("theta", text="theta")
+        self.dh_table.column("d", minwidth=0, width=100, stretch=tk.NO)
+
+        self.dh_table.heading("theta", text="θ")
+        self.dh_table.column("theta", minwidth=0, width=100, stretch=tk.NO)
 
         self.homogeneous_table = ttk.Treeview(self.robotics_details_frame, columns=(" ", " ", " ", " "), show="headings")
         self.homogeneous_table.heading(" ", text=" ")
@@ -181,10 +187,8 @@ class ControlGUI:
 
 
         for count, row in enumerate(self.robotic_properties_3DOF.DH_table):
-            print(count)
-
             self.dh_table.insert("", "end", iid=count, values=list(row))
-
+  
         # -------------------------------------------------------------------------------    
 
 
