@@ -21,27 +21,27 @@ class RoboticProperties:
         self.ranges = ranges
 
         # Initialization of DH table for the previous parameters.
-        self.DH_table = np.empty((self.degrees_of_freedom, 4))
+        self.DH_parameters = np.empty((self.degrees_of_freedom, 4))
 
         # Initialization of N empty arrays depending on the degrees of freedom.
         self.DH_individual = np.array([np.empty((4,4)) for _ in range(self.degrees_of_freedom)])
         
         # Initialization of the final matrix for the DH parameters.
-        self.matrix_DH = np.eye(4)
+        self.transformation_matrix = np.eye(4)
 
         # Initialization of the position for the final efector.
-        self.final_efector = np.empty(3)
+        self.final_efector_position = np.array([0,0,0])
 
         for i in range(self.degrees_of_freedom):
             # Denavit-Hartenberg parameters.
-            self.DH_table[i,0] = q[i]
-            self.DH_table[i,1] = d[i]
-            self.DH_table[i,2] = a[i]
-            self.DH_table[i,3] = A[i]
+            self.DH_parameters[i,0] = q[i]
+            self.DH_parameters[i,1] = d[i]
+            self.DH_parameters[i,2] = a[i]
+            self.DH_parameters[i,3] = A[i]
 
             # Homegeneous transformation matrix.
             self.DH_individual[i] = self.DH(q[i], d[i], a[i], A[i])
-            self.matrix_DH = self.matrix_DH @ self.DH_individual[i]
+            self.transformation_matrix = self.transformation_matrix @ self.DH_individual[i]
 
     # ------------------------------------------------------------------------
 

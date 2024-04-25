@@ -1,3 +1,5 @@
 # Robot-Serial-Interface
 
- Texto de ejemplo
+ ## Self library for robotic calculations.
+
+ ## GUI integrations. 

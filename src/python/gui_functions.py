@@ -158,37 +158,51 @@ class ControlGUI:
 
         # @ @ @ Robotics details components @ @ @
 
-        self.dh_table = ttk.Treeview(self.robotics_details_frame, columns=("a", "alpha", "d", "theta"), show="headings")
+        self.dh_parameters_table = ttk.Treeview(self.robotics_details_frame, columns=("a", "alpha", "d", "theta"), show="headings", height=5)
 
-        self.dh_table.heading("a", text="a")
-        self.dh_table.column("a", minwidth=0, width=100, stretch=tk.NO)
+        self.dh_parameters_table.heading("a", text="a")
+        self.dh_parameters_table.column("a", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
-        self.dh_table.heading("alpha", text="α")
-        self.dh_table.column("alpha", minwidth=0, width=100, stretch=tk.NO)
+        self.dh_parameters_table.heading("alpha", text="α")
+        self.dh_parameters_table.column("alpha", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
-        self.dh_table.heading("d", text="d")
-        self.dh_table.column("d", minwidth=0, width=100, stretch=tk.NO)
+        self.dh_parameters_table.heading("d", text="d")
+        self.dh_parameters_table.column("d", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
-        self.dh_table.heading("theta", text="θ")
-        self.dh_table.column("theta", minwidth=0, width=100, stretch=tk.NO)
+        self.dh_parameters_table.heading("theta", text="θ")
+        self.dh_parameters_table.column("theta", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
-        self.homogeneous_table = ttk.Treeview(self.robotics_details_frame, columns=(" ", " ", " ", " "), show="headings")
-        self.homogeneous_table.heading(" ", text=" ")
+        # - - - - 
 
-        self.position_table = ttk.Treeview(self.robotics_details_frame, columns=("X", "Y", "Z"), show="headings")
-        self.position_table.heading("X", text="X")
-        self.position_table.heading("Y", text="Y")
-        self.position_table.heading("Z", text="Z")
+        self.transformation_matrix_table = ttk.Treeview(self.robotics_details_frame, columns=("A", "B", "C", "D"), show="headings")
+        self.transformation_matrix_table.column("A", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.transformation_matrix_table.column("B", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.transformation_matrix_table.column("C", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.transformation_matrix_table.column("D", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+
+        # - - - - 
+
+        self.final_efector_position_table = ttk.Treeview(self.robotics_details_frame, columns=("X", "Y", "Z"), show="headings")
+        self.final_efector_position_table.heading("X", text="X")
+        self.final_efector_position_table.column("X", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+
+        self.final_efector_position_table.heading("Y", text="Y")
+        self.final_efector_position_table.column("Y", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+
+        self.final_efector_position_table.heading("Z", text="Z")
+        self.final_efector_position_table.column("Z", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
         
         # Robotics details frame packing.
-        self.dh_table.pack(side='top', pady=5)
-        self.homogeneous_table.pack(side='bottom', pady=5)
-        self.position_table.pack(side='bottom', pady=5)
+        self.dh_parameters_table.pack(side='top', pady=5)
+        self.transformation_matrix_table.pack(side='bottom', pady=5)
+        self.final_efector_position_table.pack(side='bottom', pady=5)
 
 
-        for count, row in enumerate(self.robotic_properties_3DOF.DH_table):
-            self.dh_table.insert("", "end", iid=count, values=list(row))
-  
+        self.update_table(self.robotic_properties_3DOF.DH_parameters, self.dh_parameters_table)
+        self.update_table(self.robotic_properties_3DOF.transformation_matrix, self.transformation_matrix_table)
+        self.update_table(self.robotic_properties_3DOF.final_efector_position, self.final_efector_position_table)
+        #self.update_position_display()
+        
         # -------------------------------------------------------------------------------    
 
 
@@ -210,6 +224,25 @@ class ControlGUI:
     # ||||||||||||||||||||||||||||||||||||||||||
     # MAIN METHODS OF THE CLASS.
     # ||||||||||||||||||||||||||||||||||||||||||
+
+    def update_table(self, table:np.ndarray, visual_table:ttk.Treeview):
+        
+        # Taking each element of the table and applying the delete function.
+        visual_table.delete(*visual_table.get_children())
+
+        for count, row in enumerate(table):
+            rounded_row = np.around(row, decimals=3)
+
+            if visual_table == self.final_efector_position_table:
+                visual_table.insert("", tk.END, values=list(self.robotic_properties_3DOF.final_efector_position))
+                break
+
+            visual_table.insert("", "end", iid=count, values=list(rounded_row))
+
+    def update_position_display(self):
+        self.final_efector_position_table.delete(*self.final_efector_position_table.get_children())
+
+        self.final_efector_position_table.insert("", tk.END, values=list(self.robotic_properties_3DOF.final_efector_position))
 
     # ----------------------------------
     # SECTION: SERIAL CONFIGURATION METHODS.
@@ -294,10 +327,13 @@ class ControlGUI:
     # ------------------------------------------------------------------------
 
     def send_command_frame_packer(self, selected_frame:tk.Frame):
+        '''
+        
+        '''
         for frame in self.frames:
 
             if frame == self.robotics_details_frame:
-                frame.pack(side="right")
+                frame.pack(side="right", anchor="center")
                 continue
 
             if frame != selected_frame:
