@@ -5,22 +5,14 @@ import serial_configuration
 from robot_calculations import RoboticProperties
 import numpy as np
 
-# REMOVE THE OPTION OF SINGLE COMMAND SEND. CHANGE THE NAME OF 
-# THE OTHER VARIABLES AND ADJUST THE LOADING FRAMES TO HAVE SHORTER NAMES AND LESS FUNCTIONS/PARAMETERS.
 
-# CHANGE SLIDE BARS FOR KNOBS. ttk.
-
-# CHANGE LABEL FOR KNOBS FOR INDEPENDENT LABELS
-
-# Include continous mode. If checklist selected, the updates should be performed each time the knob is moved.
-
-'''
-Class with all the implementations for the current GUI design and methods used to communicate the controller
-with the robot. No specific Micro is required, it is only needed the considerations in the codes being sent 
-through the serial communication. The instance also establishes the configuration for the serial communication.
-'''
 
 class ControlGUI:
+    '''
+    Class with all the implementations for the current GUI design and methods used to communicate the controller
+    with the robot. No specific Micro is required, it is only needed the considerations in the codes being sent 
+    through the serial communication. The instance also establishes the configuration for the serial communication.
+    '''
 
     def __init__(self, root: tk.Tk):
         # Serial variables and configuration.
@@ -43,9 +35,6 @@ class ControlGUI:
         self.joint_values = [0, 90, 0]
 
         # DH Parameters and Homogeneous Matrix variables.
-        # CONSIDER OR MIGHT NOT CONSIDER CREATING THESE WITH SELF (NOT USER AFTER THE CONSTURCTOR IS CALLED, THESE ARE STORED SEPARATELY)
-        # Note: 'q' is set to the default value at the start of the program <--------------------- YET TO 
-        # IMPLEMENT, SEND THE COMMANDS ON START.
         q = [0,         np.pi/2,     0]
         d = [1,         0,           0]
         l = [0,         5,           3]
@@ -74,8 +63,8 @@ class ControlGUI:
                                                     width=20)
         
         # Main frame components packing.
-        self.serial_configuration_button.pack(pady=5)
-        self.send_commands_frame_button.pack(pady=5)
+        self.serial_configuration_button.place(relx=0.5, rely=0.4, anchor='center')
+        self.send_commands_frame_button.place(relx=0.5, rely=0.5, anchor='center')
 
         # -------------------------------------------------------------------------------
         
@@ -204,12 +193,8 @@ class ControlGUI:
         self.update_table(self.robotic_properties_3DOF.DH_parameters, self.dh_parameters_table)
         self.update_table(self.robotic_properties_3DOF.transformation_matrix, self.transformation_matrix_table)
         self.update_table(self.robotic_properties_3DOF.final_efector_position, self.final_efector_position_table)
-        #self.update_position_display()
-        
+
         # -------------------------------------------------------------------------------    
-
-
-    
 
         # ----------------------------------
         # SECTION: FRAMES ORGANIZATION.
@@ -222,12 +207,14 @@ class ControlGUI:
             self.robotics_details_frame
         ]
 
-        self.main_frame.pack()
+        # Packing the starting frame.
+        self.frame_packer(self.main_frame)
 
     # ||||||||||||||||||||||||||||||||||||||||||
     # MAIN METHODS OF THE CLASS.
     # ||||||||||||||||||||||||||||||||||||||||||
 
+    #FIXME: Organize where it belongs.
     def update_table(self, table:np.ndarray, visual_table:ttk.Treeview):
         
         # Taking each element of the table and applying the delete function.
@@ -242,6 +229,7 @@ class ControlGUI:
 
             visual_table.insert("", "end", iid=count, values=list(rounded_row))
 
+    #FIXME: Organize where it belongs.
     def update_position_display(self):
         self.final_efector_position_table.delete(*self.final_efector_position_table.get_children())
 
