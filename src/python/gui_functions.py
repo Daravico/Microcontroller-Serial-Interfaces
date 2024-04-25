@@ -10,6 +10,8 @@ import numpy as np
 
 # CHANGE SLIDE BARS FOR KNOBS. ttk.
 
+# CHANGE LABEL FOR KNOBS FOR INDEPENDENT LABELS
+
 # Include continous mode. If checklist selected, the updates should be performed each time the knob is moved.
 
 '''
@@ -31,7 +33,7 @@ class ControlGUI:
         # Frames created and used for the robot controller.
         self.main_frame = tk.Frame(self.root)
         self.serial_configuration_frame = tk.Frame(self.root)
-        self.send_command_frame = tk.Frame(self.root)
+        self.send_command_frame = tk.Frame(self.root, background='gray')
         self.robotics_details_frame = tk.Frame(self.root, background='#DAF0D2')
 
         # Other Variables.
@@ -125,19 +127,20 @@ class ControlGUI:
                                 from_=-90, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
-                                label='Q1')
+                                label='Q1',
+                                width=20, length=300)
         
         self.knob_q2 = tk.Scale(self.send_command_frame, 
                                 from_=0, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
-                                label='Q2')
+                                label='Q2', length=300)
         
         self.knob_q3 = tk.Scale(self.send_command_frame, 
                                 from_=0, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
-                                label='Q3')
+                                label='Q3', length=300)
         
         self.send_command_button = tk.Button(self.send_command_frame, 
                                      text="Send Command", 
@@ -161,16 +164,16 @@ class ControlGUI:
         self.dh_parameters_table = ttk.Treeview(self.robotics_details_frame, columns=("a", "alpha", "d", "theta"), show="headings", height=5)
 
         self.dh_parameters_table.heading("a", text="a")
-        self.dh_parameters_table.column("a", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.dh_parameters_table.column("a", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
         self.dh_parameters_table.heading("alpha", text="α")
-        self.dh_parameters_table.column("alpha", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.dh_parameters_table.column("alpha", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
         self.dh_parameters_table.heading("d", text="d")
-        self.dh_parameters_table.column("d", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.dh_parameters_table.column("d", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
         self.dh_parameters_table.heading("theta", text="θ")
-        self.dh_parameters_table.column("theta", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.dh_parameters_table.column("theta", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
         # - - - - 
 
@@ -322,7 +325,7 @@ class ControlGUI:
             if frame != selected_frame:
                 frame.pack_forget()
                 continue
-            frame.pack()
+            frame.pack(expand=True, fill='both')
     
     # ------------------------------------------------------------------------
 
@@ -333,14 +336,14 @@ class ControlGUI:
         for frame in self.frames:
 
             if frame == self.robotics_details_frame:
-                frame.pack(side="right", anchor="center")
+                frame.pack(side="right", anchor="center", expand=True, fill='both')
                 continue
 
             if frame != selected_frame:
                 frame.pack_forget()
                 continue
 
-            frame.pack(side="left")
+            frame.pack(side="left", expand=True, fill='both')
 
             
     # ----------------------------------
