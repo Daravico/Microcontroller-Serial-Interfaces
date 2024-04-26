@@ -66,9 +66,18 @@ class ControlGUI:
                                                     height=2, 
                                                     width=20)
         
+
+        self.exit_window_button = tk.Button(self.main_frame, 
+                                            text="Exit", 
+                                            command=self.close_window,
+                                            height=2, 
+                                            width=20)
+
+        
         # Main frame components placing.
         self.serial_configuration_button.place(relx=0.5, rely=0.4, anchor='center')
         self.send_commands_frame_button.place(relx=0.5, rely=0.5, anchor='center')
+        self.exit_window_button.place(relx=0.5, rely=0.7, anchor='center')
 
         # -------------------------------------------------------------------------------
         
@@ -166,8 +175,8 @@ class ControlGUI:
         self.q3_label.place(relx=0.2, rely=0.5, anchor='center')
         self.knob_q3.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.send_command_button.place(relx=0.5, rely=0.6, anchor='center')
-        self.home_button.place(relx=0.5, rely=0.7, anchor='center')
+        self.send_command_button.place(relx=0.5, rely=0.6, anchor='center', width=250, height=50)
+        self.home_button.place(relx=0.5, rely=0.7, anchor='center', width=200, height=50)
 
         # -------------------------------------------------------------------------------    
 
@@ -252,27 +261,6 @@ class ControlGUI:
     # ||||||||||||||||||||||||||||||||||||||||||
     # MAIN METHODS OF THE CLASS.
     # ||||||||||||||||||||||||||||||||||||||||||
-
-    #FIXME: Organize where it belongs.
-    def update_table(self, table:np.ndarray, visual_table:ttk.Treeview):
-        
-        # Taking each element of the table and applying the delete function.
-        visual_table.delete(*visual_table.get_children())
-
-        for count, row in enumerate(table):
-            rounded_row = np.around(row, decimals=3)
-
-            if visual_table == self.final_efector_position_table:
-                visual_table.insert("", tk.END, values=list(self.robotic_properties.final_efector_position))
-                break
-
-            visual_table.insert("", "end", iid=count, values=list(rounded_row))
-
-    #FIXME: Organize where it belongs.
-    def update_position_display(self):
-        self.final_efector_position_table.delete(*self.final_efector_position_table.get_children())
-
-        self.final_efector_position_table.insert("", tk.END, values=list(self.robotic_properties.final_efector_position))
 
     # ----------------------------------
     # SECTION: SERIAL CONFIGURATION METHODS.
@@ -371,6 +359,44 @@ class ControlGUI:
                 continue
 
             frame.pack(side="left", expand=True, fill='both')
+
+    # ------------------------------------------------------------------------
+
+    def close_window(self):
+        '''
+        
+        '''
+        self.root.destroy()
+
+    # ------------------------------------------------------------------------
+
+    def update_table(self, table:np.ndarray, visual_table:ttk.Treeview):
+        '''
+
+        '''
+        
+        # Taking each element of the table and applying the delete function.
+        visual_table.delete(*visual_table.get_children())
+
+        for count, row in enumerate(table):
+            rounded_row = np.around(row, decimals=3)
+
+            if visual_table == self.final_efector_position_table:
+                visual_table.insert("", tk.END, values=list(self.robotic_properties.final_efector_position))
+                break
+
+            visual_table.insert("", "end", iid=count, values=list(rounded_row))
+
+    # ------------------------------------------------------------------------
+
+    def update_position_display(self):
+        '''
+        
+        '''
+        self.final_efector_position_table.delete(*self.final_efector_position_table.get_children())
+
+        self.final_efector_position_table.insert("", tk.END, 
+                                                 values=list(self.robotic_properties.final_efector_position))
 
             
     # ----------------------------------
