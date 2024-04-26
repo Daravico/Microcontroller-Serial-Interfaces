@@ -1,6 +1,13 @@
 import numpy as np
 from typing import List
 
+# FIXME: Make 3 classes, one for robotic properties, which can also be a struct to store the values.
+# Or have it to be a class to have the methods to change things according to the updates.
+
+# Have a class for handling Direct Kinematic functions.
+
+# Have a class for handling Inverse Kinematic functions.
+
 # ------------------------------------------------------------------------
 class RoboticProperties:
 
@@ -8,7 +15,7 @@ class RoboticProperties:
         '''
 
         '''
-        # List with the given DH parameters.
+
         self.q = q
         self.d = d
         self.a = a
@@ -32,6 +39,12 @@ class RoboticProperties:
         # Initialization of the position for the final efector.
         self.final_efector_position = np.array([0,0,0])
 
+        self.update_tables(q, d, a, A)
+
+    # ------------------------------------------------------------------------
+
+    def update_tables(self, q:List[float], d:List[float], a:List[float], A:List[float]):
+        
         for i in range(self.degrees_of_freedom):
             # Denavit-Hartenberg parameters.
             self.DH_parameters[i,0] = q[i]
@@ -42,8 +55,6 @@ class RoboticProperties:
             # Homegeneous transformation matrix.
             self.DH_individual[i] = self.DH(q[i], d[i], a[i], A[i])
             self.transformation_matrix = self.transformation_matrix @ self.DH_individual[i]
-
-    # ------------------------------------------------------------------------
 
     def matrix_rounder(self, matrix: np.ndarray, digits: int):
         '''
