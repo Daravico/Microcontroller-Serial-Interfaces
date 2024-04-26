@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from serial import Serial
 import serial_configuration
-from robot_calculations import RoboticProperties
+from robotic_properties import RoboticProperties
 import numpy as np
 
 
@@ -42,7 +42,11 @@ class ControlGUI:
         
         ranges = [[-90, 90], [0, 90], [0, 90]]
 
-        self.robotic_properties_3DOF = RoboticProperties(q, d, l, A, ranges)
+        self.robotic_properties = RoboticProperties(q, d, l, A, ranges)
+
+        # Style configurations.
+        style = ttk.Style()
+        style.configure('Treeview.Heading', foreground = '#581845', font = ('Calibri', 14,'bold'))
 
         # /////////////////////////////////////////////////////////////////////
         #            SECTION: COMPONENTS INITIALIZATION AND PACKING.
@@ -62,7 +66,7 @@ class ControlGUI:
                                                     height=2, 
                                                     width=20)
         
-        # Main frame components packing.
+        # Main frame components placing.
         self.serial_configuration_button.place(relx=0.5, rely=0.4, anchor='center')
         self.send_commands_frame_button.place(relx=0.5, rely=0.5, anchor='center')
 
@@ -100,36 +104,49 @@ class ControlGUI:
                                                           command=lambda:self.frame_packer(self.main_frame))
 
         # Serial Configuration frame components packing.
-        self.load_serial_button.pack(pady=5)
-        self.selected_port_name_label.pack(pady=5)
-        self.selected_port_desc_label.pack(pady=5)
-        self.combo_serial.pack(pady=5)
-        self.baudrate_entry.pack(pady=5)
-        self.update_serial_configuration_button.pack(pady=5)
-        self.home_serial_configuration_button.pack(pady=5)
+        self.load_serial_button.place(relx=0.5, rely=0.2, anchor='center')
+        self.selected_port_name_label.place(relx=0.5, rely=0.3, anchor='center')
+        self.selected_port_desc_label.place(relx=0.5, rely=0.4, anchor='center')
+        self.combo_serial.place(relx=0.5, rely=0.5, anchor='center')
+        self.baudrate_entry.place(relx=0.5, rely=0.6, anchor='center')
+        self.update_serial_configuration_button.place(relx=0.5, rely=0.7, anchor='center')
+        self.home_serial_configuration_button.place(relx=0.5, rely=0.8, anchor='center')
 
         # -------------------------------------------------------------------------------
 
+        # TODO: Implement the individual labels for Q1,Q2,Q3. Implement the continous mode.
+
         # @ @ @ Commands Sender Frame components @ @ @
+
+        self.q1_label = tk.Label(self.send_command_frame,
+                                 text="Q1")
 
         self.knob_q1 = tk.Scale(self.send_command_frame, 
                                 from_=-90, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
-                                label='Q1',
+                                #label='Q1',
                                 width=20, length=300)
+        
+        self.q2_label = tk.Label(self.send_command_frame,
+                                 text="Q2")
         
         self.knob_q2 = tk.Scale(self.send_command_frame, 
                                 from_=0, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
-                                label='Q2', length=300)
+                                #label='Q2', 
+                                width=20, length=300)
+        
+        self.q3_label = tk.Label(self.send_command_frame,
+                                 text="Q3")
         
         self.knob_q3 = tk.Scale(self.send_command_frame, 
                                 from_=0, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
-                                label='Q3', length=300)
+                                #label='Q3', 
+                                width=20, length=300)
         
         self.send_command_button = tk.Button(self.send_command_frame, 
                                      text="Send Command", 
@@ -140,17 +157,27 @@ class ControlGUI:
                                      command=lambda:self.frame_packer(self.main_frame))
         
         # Command sender frame packing.
-        self.knob_q1.pack(pady=5, padx=10)
-        self.knob_q2.pack(pady=5, padx=10)
-        self.knob_q3.pack(pady=5, padx=10)
-        self.send_command_button.pack(pady=5)
-        self.home_button.pack(pady=5)
+        self.q1_label.place(relx=0.2, rely=0.3, anchor='center')
+        self.knob_q1.place(relx=0.5, rely=0.3, anchor='center')
+
+        self.q2_label.place(relx=0.2, rely=0.4, anchor='center')
+        self.knob_q2.place(relx=0.5, rely=0.4, anchor='center')
+
+        self.q3_label.place(relx=0.2, rely=0.5, anchor='center')
+        self.knob_q3.place(relx=0.5, rely=0.5, anchor='center')
+
+        self.send_command_button.place(relx=0.5, rely=0.6, anchor='center')
+        self.home_button.place(relx=0.5, rely=0.7, anchor='center')
 
         # -------------------------------------------------------------------------------    
 
         # @ @ @ Robotics details components @ @ @
 
-        self.dh_parameters_table = ttk.Treeview(self.robotics_details_frame, columns=("a", "alpha", "d", "theta"), show="headings", height=5)
+        self.dh_parameters_label = tk.Label(self.robotics_details_frame,
+                                            text="DH Parameters")
+
+        self.dh_parameters_table = ttk.Treeview(self.robotics_details_frame, columns=("a", "alpha", "d", "theta"), 
+                                                show="headings", height=self.robotic_properties.degrees_of_freedom)
 
         self.dh_parameters_table.heading("a", text="a")
         self.dh_parameters_table.column("a", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
@@ -166,33 +193,45 @@ class ControlGUI:
 
         # - - - - 
 
-        self.transformation_matrix_table = ttk.Treeview(self.robotics_details_frame, columns=("A", "B", "C", "D"), show="headings")
-        self.transformation_matrix_table.column("A", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
-        self.transformation_matrix_table.column("B", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
-        self.transformation_matrix_table.column("C", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
-        self.transformation_matrix_table.column("D", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.transformation_matrix_label = tk.Label(self.robotics_details_frame,
+                                                    text="Transformation Matrix")
+
+        self.transformation_matrix_table = ttk.Treeview(self.robotics_details_frame, columns=("A", "B", "C", "D"), show="tree", height=4)
+        self.transformation_matrix_table.column("#0", width=0)
+        self.transformation_matrix_table.column("A", minwidth=0, width=100, anchor=tk.CENTER)
+        self.transformation_matrix_table.column("B", minwidth=0, width=100, anchor=tk.CENTER)
+        self.transformation_matrix_table.column("C", minwidth=0, width=100, anchor=tk.CENTER)
+        self.transformation_matrix_table.column("D", minwidth=0, width=100, anchor=tk.CENTER)
 
         # - - - - 
 
-        self.final_efector_position_table = ttk.Treeview(self.robotics_details_frame, columns=("X", "Y", "Z"), show="headings")
+        self.final_efector_position_label = tk.Label(self.robotics_details_frame,
+                                                    text="Final Efector Position",
+                                                    background='green')
+
+        self.final_efector_position_table = ttk.Treeview(self.robotics_details_frame, columns=("X", "Y", "Z"), show="headings", height=1)
         self.final_efector_position_table.heading("X", text="X")
-        self.final_efector_position_table.column("X", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.final_efector_position_table.column("X", minwidth=0, width=100, anchor=tk.CENTER)
 
         self.final_efector_position_table.heading("Y", text="Y")
-        self.final_efector_position_table.column("Y", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.final_efector_position_table.column("Y", minwidth=0, width=100, anchor=tk.CENTER)
 
         self.final_efector_position_table.heading("Z", text="Z")
-        self.final_efector_position_table.column("Z", minwidth=0, width=100, stretch=tk.NO, anchor=tk.CENTER)
+        self.final_efector_position_table.column("Z", minwidth=0, width=100, anchor=tk.CENTER)
         
         # Robotics details frame packing.
-        self.dh_parameters_table.pack(side='top', pady=5)
-        self.transformation_matrix_table.pack(side='bottom', pady=5)
-        self.final_efector_position_table.pack(side='bottom', pady=5)
+        self.dh_parameters_label.place(relx=0.5, rely=0.2, anchor='center')
+        self.dh_parameters_table.place(relx=0.5, rely=0.3, anchor='center')
 
+        self.transformation_matrix_label.place(relx=0.5, rely=0.4, anchor='center')
+        self.transformation_matrix_table.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.update_table(self.robotic_properties_3DOF.DH_parameters, self.dh_parameters_table)
-        self.update_table(self.robotic_properties_3DOF.transformation_matrix, self.transformation_matrix_table)
-        self.update_table(self.robotic_properties_3DOF.final_efector_position, self.final_efector_position_table)
+        self.final_efector_position_label.place(relx=0.5, rely=0.73, anchor='center')
+        self.final_efector_position_table.place(relx=0.5, rely=0.8, anchor='center')
+
+        self.update_table(self.robotic_properties.DH_parameters, self.dh_parameters_table)
+        self.update_table(self.robotic_properties.transformation_matrix, self.transformation_matrix_table)
+        self.update_table(self.robotic_properties.final_efector_position, self.final_efector_position_table)
 
         # -------------------------------------------------------------------------------    
 
@@ -224,7 +263,7 @@ class ControlGUI:
             rounded_row = np.around(row, decimals=3)
 
             if visual_table == self.final_efector_position_table:
-                visual_table.insert("", tk.END, values=list(self.robotic_properties_3DOF.final_efector_position))
+                visual_table.insert("", tk.END, values=list(self.robotic_properties.final_efector_position))
                 break
 
             visual_table.insert("", "end", iid=count, values=list(rounded_row))
@@ -233,7 +272,7 @@ class ControlGUI:
     def update_position_display(self):
         self.final_efector_position_table.delete(*self.final_efector_position_table.get_children())
 
-        self.final_efector_position_table.insert("", tk.END, values=list(self.robotic_properties_3DOF.final_efector_position))
+        self.final_efector_position_table.insert("", tk.END, values=list(self.robotic_properties.final_efector_position))
 
     # ----------------------------------
     # SECTION: SERIAL CONFIGURATION METHODS.
