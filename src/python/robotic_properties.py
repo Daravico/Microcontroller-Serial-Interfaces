@@ -160,7 +160,7 @@ class RoboticProperties:
 
     # ------------------------------------------------------------------------
 
-    def Mapper(x: float, x1: float, x2: float, y1: float, y2: float):
+    def mapper(x: float, x1: float, x2: float, y1: float, y2: float):
         '''
         This function helps in getting the linear mapping for values in a
         certain range (x1→y1 >> x2→y2).
@@ -170,6 +170,11 @@ class RoboticProperties:
         y = m * (x - x1) + y1
 
         return y
+    
+    # ------------------------------------------------------------------------
+
+    def joint_degrees():
+        pass
 
 
 if __name__ == '__main__':

@@ -5,8 +5,6 @@ import serial_configuration
 from robotic_properties import RoboticProperties
 import numpy as np
 
-
-
 class ControlGUI:
     '''
     Class with all the implementations for the current GUI design and methods used to communicate the controller
@@ -31,8 +29,6 @@ class ControlGUI:
         # Other Variables.
         self.serial_baudrate_value = tk.StringVar(self.root)
         self.serial_baudrate_value.set("9600")
-
-        self.joint_values = [0, 90, 0]
 
         # DH Parameters and Homogeneous Matrix variables.
         q = [0,         np.pi/2,     0]
@@ -73,7 +69,6 @@ class ControlGUI:
                                             height=2, 
                                             width=20)
 
-        
         # Main frame components placing.
         self.serial_configuration_button.place(relx=0.5, rely=0.4, anchor='center')
         self.send_commands_frame_button.place(relx=0.5, rely=0.5, anchor='center')
@@ -123,9 +118,11 @@ class ControlGUI:
 
         # -------------------------------------------------------------------------------
 
-        # TODO: Implement the individual labels for Q1,Q2,Q3. Implement the continous mode.
+        # TODO: Implement the continous mode.
 
         # @ @ @ Commands Sender Frame components @ @ @
+
+        self.continous_mode_checkbutton = tk.Checkbutton(self.send_command_frame, text='Auto')
 
         self.q1_label = tk.Label(self.send_command_frame,
                                  text="Q1")
@@ -165,7 +162,14 @@ class ControlGUI:
                                      text="Return", 
                                      command=lambda:self.frame_packer(self.main_frame))
         
+        # Setting the default position.
+        self.knob_q1.set(np.rad2deg(self.robotic_properties.q[0]))
+        self.knob_q2.set(np.rad2deg(self.robotic_properties.q[1]))
+        self.knob_q3.set(np.rad2deg(self.robotic_properties.q[2]))
+
         # Command sender frame packing.
+        self.continous_mode_checkbutton.place(relx=0.7, rely=0.2, anchor='center')
+
         self.q1_label.place(relx=0.2, rely=0.3, anchor='center')
         self.knob_q1.place(relx=0.5, rely=0.3, anchor='center')
 
@@ -255,8 +259,9 @@ class ControlGUI:
             self.robotics_details_frame
         ]
 
-        # Packing the starting frame.
+        # Methods used at the start of the App.
         self.frame_packer(self.main_frame)
+        self.send_commands()
 
     # ||||||||||||||||||||||||||||||||||||||||||
     # MAIN METHODS OF THE CLASS.
