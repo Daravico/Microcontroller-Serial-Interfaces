@@ -10,6 +10,9 @@ from typing import List
 
 # ------------------------------------------------------------------------
 class RoboticProperties:
+    '''
+    Conteiner for properties. Functions
+    '''
 
     def __init__(self, q:List[float], d:List[float], a:List[float], A:List[float], ranges:List[List[float]]):
         '''
@@ -28,33 +31,38 @@ class RoboticProperties:
         self.ranges = ranges
 
         # Initialization of DH table for the previous parameters.
-        self.DH_parameters = np.empty((self.degrees_of_freedom, 4))
+        self.DH_parameters_table = np.empty((self.degrees_of_freedom, 4))
 
         # Initialization of N empty arrays depending on the degrees of freedom.
-        self.DH_individual = np.array([np.empty((4,4)) for _ in range(self.degrees_of_freedom)])
+        self.DH_matrix_array = np.array([np.empty((4,4)) for _ in range(self.degrees_of_freedom)])
         
         # Initialization of the final matrix for the DH parameters.
-        self.transformation_matrix = np.eye(4)
+        self.final_transformation_matrix = np.eye(4)
 
         # Initialization of the position for the final efector.
-        self.final_efector_position = np.array([0,0,0])
+        self.final_efector_vector = np.array([0,0,0])
 
         self.update_tables(q, d, a, A)
 
     # ------------------------------------------------------------------------
 
     def update_tables(self, q:List[float], d:List[float], a:List[float], A:List[float]):
+        '''
+        
+        '''
         
         for i in range(self.degrees_of_freedom):
             # Denavit-Hartenberg parameters.
-            self.DH_parameters[i,0] = q[i]
-            self.DH_parameters[i,1] = d[i]
-            self.DH_parameters[i,2] = a[i]
-            self.DH_parameters[i,3] = A[i]
+            self.DH_parameters_table[i,0] = q[i]
+            self.DH_parameters_table[i,1] = d[i]
+            self.DH_parameters_table[i,2] = a[i]
+            self.DH_parameters_table[i,3] = A[i]
 
             # Homegeneous transformation matrix.
-            self.DH_individual[i] = self.DH(q[i], d[i], a[i], A[i])
-            self.transformation_matrix = self.transformation_matrix @ self.DH_individual[i]
+            self.DH_matrix_array[i] = self.DH(q[i], d[i], a[i], A[i])
+            self.final_transformation_matrix = self.final_transformation_matrix @ self.DH_matrix_array[i]
+
+    # ------------------------------------------------------------------------
 
     def matrix_rounder(self, matrix: np.ndarray, digits: int):
         '''
@@ -71,8 +79,28 @@ class RoboticProperties:
 
         return new_matrix
 
-
     # ------------------------------------------------------------------------
+
+    def mapper(x: float, x1: float, x2: float, y1: float, y2: float):
+        '''
+        This function helps in getting the linear mapping for values in a
+        certain range (x1→y1 >> x2→y2).
+        '''
+        m = (y2 - y1 ) / (x2 - x1)
+
+        y = m * (x - x1) + y1
+
+        return y
+    
+    # ------------------------------------------------------------------------
+
+    def joint_degrees():
+        pass
+    
+    # ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    # D I R E C T   K I N E M A T I C S
+    # ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
     '''
     The following functions are used to calculate the homogeneous
     transformation matrices, using the Denavit Hartenberg parameters
@@ -144,12 +172,12 @@ class RoboticProperties:
         :a(float): Linear value for the Tx transformation.
         :alpha(float): Angular value for the Rx transformation.
         '''
-        MHRz = self.HRz(theta)
-        MHTz = self.HTz(d)
-        MHTx = self.HTx(a)
-        MHRx = self.HRx(alpha)
+        Matrix_HRz = self.HRz(theta)
+        Matrix_HTz = self.HTz(d)
+        Matrix_HTx = self.HTx(a)
+        Matrix_HRx = self.HRx(alpha)
 
-        DH_matrix = MHRz @ MHTz @ MHTx @ MHRx
+        DH_matrix = Matrix_HRz @ Matrix_HTz @ Matrix_HTx @ Matrix_HRx
 
         return DH_matrix
         
@@ -171,21 +199,11 @@ class RoboticProperties:
 
     # ------------------------------------------------------------------------
 
-    def mapper(x: float, x1: float, x2: float, y1: float, y2: float):
-        '''
-        This function helps in getting the linear mapping for values in a
-        certain range (x1→y1 >> x2→y2).
-        '''
-        m = (y2 - y1 ) / (x2 - x1)
+    # ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    # I N V E R S E   K I N E M A T I C S
+    # ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
-        y = m * (x - x1) + y1
 
-        return y
-    
-    # ------------------------------------------------------------------------
-
-    def joint_degrees():
-        pass
 
 
 if __name__ == '__main__':
