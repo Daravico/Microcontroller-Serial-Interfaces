@@ -417,6 +417,10 @@ class ControlGUI:
             rounded_row = np.around(row, decimals=3)
 
             if visual_table == self.final_efector_position_table:
+
+                # TODO: Remove this print.
+                #print(self.robotic_properties.final_efector_vector)
+
                 visual_table.insert("", tk.END, values=list(self.robotic_properties.final_efector_vector))
                 break
 
@@ -459,8 +463,6 @@ class ControlGUI:
         self.update_table(self.robotic_properties.DH_parameters_table, self.dh_parameters_table)
         self.update_table(self.robotic_properties.final_transformation_matrix, self.transformation_matrix_table)
         self.update_table(self.robotic_properties.final_efector_vector, self.final_efector_position_table)
-
-        print(command)
 
     # oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 

@@ -43,7 +43,9 @@ class RoboticProperties:
         '''
         
         '''
-        
+        # Final transformation matrix is reset.
+        self.final_transformation_matrix = np.eye(4)
+
         for i in range(self.degrees_of_freedom):
             # Denavit-Hartenberg parameters.
             self.DH_parameters_table[i,0] = self.q[i]
@@ -55,7 +57,7 @@ class RoboticProperties:
             self.DH_matrix_array[i] = self.DH(self.q[i], self.d[i], self.a[i], self.A[i])
             self.final_transformation_matrix = self.final_transformation_matrix @ self.DH_matrix_array[i]
 
-        print(self.final_transformation_matrix)
+        self.final_efector_vector = self.final_transformation_matrix[0:3, 3]
 
     # ------------------------------------------------------------------------
 
