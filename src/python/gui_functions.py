@@ -13,16 +13,18 @@ class ControlGUI:
     '''
 
     def __init__(self, root: tk.Tk):
+        # Root object for tkinter passed as a parameter.
+        self.root = root
+
         # Serial variables and configuration.
         self.serial_conn = Serial(None, 9600, timeout=10)
         self.available_ports_data = {}
 
         # Other Variables.
+        self.continous_mode_state = tk.IntVar()
+
         self.serial_baudrate_value = tk.StringVar(self.root)
         self.serial_baudrate_value.set("9600")
-
-        # Root object for tkinter passed as a parameter.
-        self.root = root
 
         # Frames created and used for the robot controller.
         self.main_frame = tk.Frame(self.root)
@@ -133,7 +135,10 @@ class ControlGUI:
 
         # @ @ @ Commands Sender Frame components @ @ @
 
-        self.continous_mode_checkbutton = tk.Checkbutton(self.direct_kinematics_frame, text='Auto')
+        self.continous_mode_checkbutton = tk.Checkbutton(self.direct_kinematics_frame, 
+                                                         text='Auto',
+                                                         command=self.toggle_continous_mode,
+                                                         variable=self.continous_mode_state)
 
         self.q1_label = tk.Label(self.direct_kinematics_frame,
                                  text="Q1",
@@ -193,7 +198,7 @@ class ControlGUI:
         self.knob_q3.place(relx=0.5, rely=0.5, anchor='center')
 
         self.send_command_button.place(relx=0.5, rely=0.6, anchor='center', width=250, height=50)
-        self.home_button.place(relx=0.5, rely=0.7, anchor='center', width=200, height=50)
+        self.home_button.place(relx=0.5, rely=0.8, anchor='center', width=200, height=50)
 
         # -------------------------------------------------------------------------------    
 
@@ -279,6 +284,12 @@ class ControlGUI:
         self.send_commands()
 
 
+
+
+
+    # FIXME: CHANGE THE LOCATION OF THIS FUNCTION.
+    def toggle_continous_mode(self):
+        print(self.continous_mode_state.get())
 
 
 
@@ -419,6 +430,10 @@ class ControlGUI:
     # ----------------------------------
 
     def send_commands(self):
+        # In case no port has been configurated the update can not be completed.
+        if self.serial_conn.port == None:
+            return
+
         #FIXME: Possible in future iterations, make Q1 knobs variables in case more DoF are implemented.
         q1_value = self.knob_q1.get()
         q2_value = self.knob_q2.get()
