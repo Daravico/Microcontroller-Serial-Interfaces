@@ -1,13 +1,6 @@
 import numpy as np
 from typing import List
 
-# FIXME: Make 3 classes, one for robotic properties, which can also be a struct to store the values.
-# Or have it to be a class to have the methods to change things according to the updates.
-
-# Have a class for handling Direct Kinematic functions.
-
-# Have a class for handling Inverse Kinematic functions.
-
 # ------------------------------------------------------------------------
 class RoboticProperties:
     '''
@@ -42,25 +35,27 @@ class RoboticProperties:
         # Initialization of the position for the final efector.
         self.final_efector_vector = np.array([0,0,0])
 
-        self.update_tables(q, d, a, A)
+        self.update_tables()
 
     # ------------------------------------------------------------------------
 
-    def update_tables(self, q:List[float], d:List[float], a:List[float], A:List[float]):
+    def update_tables(self):
         '''
         
         '''
         
         for i in range(self.degrees_of_freedom):
             # Denavit-Hartenberg parameters.
-            self.DH_parameters_table[i,0] = q[i]
-            self.DH_parameters_table[i,1] = d[i]
-            self.DH_parameters_table[i,2] = a[i]
-            self.DH_parameters_table[i,3] = A[i]
+            self.DH_parameters_table[i,0] = self.q[i]
+            self.DH_parameters_table[i,1] = self.d[i]
+            self.DH_parameters_table[i,2] = self.a[i]
+            self.DH_parameters_table[i,3] = self.A[i]
 
             # Homegeneous transformation matrix.
-            self.DH_matrix_array[i] = self.DH(q[i], d[i], a[i], A[i])
+            self.DH_matrix_array[i] = self.DH(self.q[i], self.d[i], self.a[i], self.A[i])
             self.final_transformation_matrix = self.final_transformation_matrix @ self.DH_matrix_array[i]
+
+        print(self.final_transformation_matrix)
 
     # ------------------------------------------------------------------------
 

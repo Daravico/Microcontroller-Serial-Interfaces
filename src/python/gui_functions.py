@@ -144,7 +144,7 @@ class ControlGUI:
                                  text="Q1",
                                  )
 
-        self.knob_q1 = tk.Scale(self.direct_kinematics_frame, 
+        self.slide_q1 = tk.Scale(self.direct_kinematics_frame, 
                                 from_=-90, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
@@ -155,7 +155,7 @@ class ControlGUI:
                                  text="Q2",
                                  )
         
-        self.knob_q2 = tk.Scale(self.direct_kinematics_frame, 
+        self.slide_q2 = tk.Scale(self.direct_kinematics_frame, 
                                 from_=0, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
@@ -165,7 +165,7 @@ class ControlGUI:
         self.q3_label = tk.Label(self.direct_kinematics_frame,
                                  text="Q3")
         
-        self.knob_q3 = tk.Scale(self.direct_kinematics_frame, 
+        self.slide_q3 = tk.Scale(self.direct_kinematics_frame, 
                                 from_=0, 
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
@@ -181,21 +181,21 @@ class ControlGUI:
                                      command=lambda:self.frame_packer(self.main_frame))
         
         # Setting the default position.
-        self.knob_q1.set(np.rad2deg(self.robotic_properties.q[0]))
-        self.knob_q2.set(np.rad2deg(self.robotic_properties.q[1]))
-        self.knob_q3.set(np.rad2deg(self.robotic_properties.q[2]))
+        self.slide_q1.set(np.rad2deg(self.robotic_properties.q[0]))
+        self.slide_q2.set(np.rad2deg(self.robotic_properties.q[1]))
+        self.slide_q3.set(np.rad2deg(self.robotic_properties.q[2]))
 
         # Command sender frame packing.
         self.continous_mode_checkbutton.place(relx=0.7, rely=0.2, anchor='center')
 
         self.q1_label.place(relx=0.2, rely=0.3, anchor='center')
-        self.knob_q1.place(relx=0.5, rely=0.3, anchor='center')
+        self.slide_q1.place(relx=0.5, rely=0.3, anchor='center')
 
         self.q2_label.place(relx=0.2, rely=0.4, anchor='center')
-        self.knob_q2.place(relx=0.5, rely=0.4, anchor='center')
+        self.slide_q2.place(relx=0.5, rely=0.4, anchor='center')
 
         self.q3_label.place(relx=0.2, rely=0.5, anchor='center')
-        self.knob_q3.place(relx=0.5, rely=0.5, anchor='center')
+        self.slide_q3.place(relx=0.5, rely=0.5, anchor='center')
 
         self.send_command_button.place(relx=0.5, rely=0.6, anchor='center', width=250, height=50)
         self.home_button.place(relx=0.5, rely=0.8, anchor='center', width=200, height=50)
@@ -207,20 +207,20 @@ class ControlGUI:
         self.dh_parameters_label = tk.Label(self.robotic_details_frame,
                                             text="DH Parameters")
 
-        self.dh_parameters_table = ttk.Treeview(self.robotic_details_frame, columns=("a", "alpha", "d", "theta"), 
+        self.dh_parameters_table = ttk.Treeview(self.robotic_details_frame, columns=("theta", "d", "a", "alpha"), 
                                                 show="headings", height=self.robotic_properties.degrees_of_freedom)
+
+        self.dh_parameters_table.heading("theta", text="θ")
+        self.dh_parameters_table.column("theta", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
+
+        self.dh_parameters_table.heading("d", text="d")
+        self.dh_parameters_table.column("d", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
         self.dh_parameters_table.heading("a", text="a")
         self.dh_parameters_table.column("a", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
         self.dh_parameters_table.heading("alpha", text="α")
         self.dh_parameters_table.column("alpha", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
-
-        self.dh_parameters_table.heading("d", text="d")
-        self.dh_parameters_table.column("d", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
-
-        self.dh_parameters_table.heading("theta", text="θ")
-        self.dh_parameters_table.column("theta", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER)
 
         # - - - - 
 
@@ -432,12 +432,13 @@ class ControlGUI:
     def send_commands(self):
         # In case no port has been configurated the update can not be completed.
         if self.serial_conn.port == None:
-            return
+            None
+            #return # TODO: Commented for debbuging purposes.
 
         #FIXME: Possible in future iterations, make Q1 knobs variables in case more DoF are implemented.
-        q1_value = self.knob_q1.get()
-        q2_value = self.knob_q2.get()
-        q3_value = self.knob_q3.get()
+        q1_value = self.slide_q1.get()
+        q2_value = self.slide_q2.get()
+        q3_value = self.slide_q3.get()
 
         command = f'M#Q1-{q1_value},Q2-{q2_value},Q3-{q3_value}'
 
@@ -448,9 +449,12 @@ class ControlGUI:
         #TODO: SEND TO SERIAL
         #TODO: Update the tables.
 
+        #FIXME: Note that q is not always the variable, this could be later changed for linear actuators.
         self.robotic_properties.q[0] = q1_rad_value
         self.robotic_properties.q[1] = q2_rad_value
         self.robotic_properties.q[2] = q3_rad_value
+
+        self.robotic_properties.update_tables()
 
         self.update_table(self.robotic_properties.DH_parameters_table, self.dh_parameters_table)
         self.update_table(self.robotic_properties.final_transformation_matrix, self.transformation_matrix_table)
