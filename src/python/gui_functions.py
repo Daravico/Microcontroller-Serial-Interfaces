@@ -69,7 +69,7 @@ class ControlGUI:
         
         self.inverse_kinematics_frame_button = tk.Button(self.main_frame, 
                                                         text="Inverse Kinematics", 
-                                                        command=None,
+                                                        command=self.toggle_continous_mode,
                                                         height=2, 
                                                         width=20)
         
@@ -137,7 +137,7 @@ class ControlGUI:
 
         self.continous_mode_checkbutton = tk.Checkbutton(self.direct_kinematics_frame, 
                                                          text='Auto',
-                                                         command=self.toggle_continous_mode,
+                                                         command=None,
                                                          variable=self.continous_mode_state)
 
         self.q1_label = tk.Label(self.direct_kinematics_frame,
@@ -149,7 +149,8 @@ class ControlGUI:
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
                                 #label='Q1',
-                                width=20, length=300)
+                                width=20, length=300,
+                                command=self.scale_changes)
         
         self.q2_label = tk.Label(self.direct_kinematics_frame,
                                  text="Q2",
@@ -160,7 +161,8 @@ class ControlGUI:
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
                                 #label='Q2', 
-                                width=20, length=300)
+                                width=20, length=300,
+                                command=self.scale_changes)
         
         self.q3_label = tk.Label(self.direct_kinematics_frame,
                                  text="Q3")
@@ -170,7 +172,8 @@ class ControlGUI:
                                 to=90, 
                                 orient=tk.HORIZONTAL, 
                                 #label='Q3', 
-                                width=20, length=300)
+                                width=20, length=300,
+                                command=self.scale_changes)
         
         self.send_command_button = tk.Button(self.direct_kinematics_frame, 
                                      text="Send Command", 
@@ -282,15 +285,6 @@ class ControlGUI:
         # Methods used at the start of the App.
         self.frame_packer(self.main_frame)
         self.send_commands()
-
-
-
-
-
-    # FIXME: CHANGE THE LOCATION OF THIS FUNCTION.
-    def toggle_continous_mode(self):
-        print(self.continous_mode_state.get())
-
 
 
     # ||||||||||||||||||||||||||||||||||||||||||
@@ -433,6 +427,18 @@ class ControlGUI:
     # SECTION: SENDING COMMANDS OPTIONS.
     # ----------------------------------
 
+    def scale_changes(self, value):
+        if self.continous_mode_state.get():
+            print(value)
+
+    # ------------------------------------------------------------------------
+
+    # FIXME: CHANGE THE LOCATION OF THIS FUNCTION.
+    def toggle_continous_mode(self):
+        print(self.continous_mode_state.get())
+
+    # ------------------------------------------------------------------------
+    
     def send_commands(self):
         # In case no port has been configurated the update can not be completed.
         if self.serial_conn.port == None:
