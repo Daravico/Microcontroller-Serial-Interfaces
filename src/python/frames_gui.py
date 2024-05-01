@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from typing import List
+from principal_window import FrameHandler
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -8,16 +9,18 @@ from typing import List
 
 
 class MainMenuFrame(tk.Frame):
-    def __init__(self, root):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
 
         # Calling the original constructor to keep the properties.
         tk.Frame.__init__(self, root)
 
         self.root = root
 
+        self.name = 'main_frame'
+
         self.serial_configuration_button = tk.Button(self,
                                                      text="Serial Configuration",
-                                                     command=None,
+                                                     command=lambda: frame_handler.frame_packer('serial_frame'),
                                                      height=2,
                                                      width=20)
         
@@ -35,7 +38,7 @@ class MainMenuFrame(tk.Frame):
         
         self.exit_window_button = tk.Button(self, 
                                             text="Exit", 
-                                            command=None,
+                                            command=self.root.destroy,
                                             height=2, 
                                             width=20)
 
@@ -52,11 +55,13 @@ class MainMenuFrame(tk.Frame):
 
 
 class SerialConfigurationFrame(tk.Frame):
-    def __init__(self, root:tk.Tk):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
         # Calling the original constructor to keep the properties.
         tk.Frame.__init__(self, root)
 
         self.root = root
+
+        self.name = 'serial_frame'
 
         self.load_serial_button = tk.Button(self, 
                                             text="Load Ports", 
@@ -87,7 +92,7 @@ class SerialConfigurationFrame(tk.Frame):
         
         self.home_serial_configuration_button = tk.Button(self, 
                                                         text="Return", 
-                                                        command=None)
+                                                        command=lambda: frame_handler.frame_packer('main_frame'))
 
         # Serial Configuration frame components packing.
         self.load_serial_button.place(relx=0.5, rely=0.2, anchor='center')
