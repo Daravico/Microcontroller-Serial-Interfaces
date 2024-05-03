@@ -1,6 +1,7 @@
 import tkinter as tk
 from frames_gui import *
 from typing import List
+from serial_library import SerialObject
 
 
 
@@ -16,12 +17,19 @@ from typing import List
 
 class PrincipalWindow:
     def __init__(self, root:tk.Tk):
+        # Reference to the main application.
         self.root = root
 
+        # Reference for the Serial Object, for both configuration and connection.
+        self.serial_conn = SerialObject()
+        # self.serial_conn.establish_parameters('COM1', 9600)
+
+        # Reference for the handler of the frames.
         self.frames_handler = FrameHandler()
 
+        # Frames used in this application.
         self.main_menu_frame = MainMenuFrame(root, self.frames_handler)
-        self.serial_menu_frame = SerialConfigurationFrame(root, self.frames_handler)
+        self.serial_menu_frame = SerialConfigurationFrame(root, self.frames_handler, self.serial_conn)
         self.robotic_configuration_frame = RoboticConfigurationFrame(root, self.frames_handler)
         self.direct_kinematics_frame = DirectKinematicsFrame(root, self.frames_handler)
         self.inverse_kinematics_frame = InverseKinematicsFrame(root, self.frames_handler)
@@ -34,7 +42,7 @@ class PrincipalWindow:
             self.inverse_kinematics_frame
             ]
         
-        # Updating the frames container in the Handler.
+        # Updating the frames container in the Handler. Calling the first frame.
         self.frames_handler.frames = frames
         self.frames_handler.frame_packer('main_frame')
 

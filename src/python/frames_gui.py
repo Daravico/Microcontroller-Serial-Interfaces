@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from typing import List
-import serial_configuration
+from serial_library import SerialObject
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -11,14 +11,14 @@ class FrameHandler:
     def __init__(self):
         self.frames:List[GeneralFrame] = [] 
 
+    # ------------------------------------------------
+
     def frame_packer(self, frame_name:str):
         '''
         Function used to update the frame that is being selected.
         :selected_frame: is searched in the list of the available frames in order to be loaded. Any other frame is forgoten from the root.
         '''
         for frame in self.frames:
-            # Note: 'name' is a property created for the frames created in frames_gui.py
-            # TODO: Consideration: Organize in a new superclass to make this property globally available (tk.Frame > NewClass > EachClass).
             if frame.name != frame_name:
                 frame.pack_forget()
                 continue
@@ -27,7 +27,9 @@ class FrameHandler:
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
-
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 
 class GeneralFrame(tk.Frame):
     '''
@@ -35,14 +37,16 @@ class GeneralFrame(tk.Frame):
     '''
     def __init__(self, root:tk.Tk, name: str, frame_handler:FrameHandler):
         tk.Frame.__init__(self, root)
-        self.frame_handler=frame_handler # NOTE: Not quite required. Just stored in case it is.
+        self.frame_handler=frame_handler 
         self.root = root
         self.name = name
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
-
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 
 class MainMenuFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
@@ -58,9 +62,10 @@ class MainMenuFrame(GeneralFrame):
                                                      height=2,
                                                      width=20)
         
+        # TODO: Add functionalities.
         self.robotic_configuration_button = tk.Button(self,
                                                       text="Robotic Configuration",
-                                                      command=lambda: frame_handler.frame_packer('robotic_configuration_frame'),
+                                                      command=None,#lambda: frame_handler.frame_packer('robotic_configuration_frame'),
                                                       height=2,
                                                       width=20)
 
@@ -70,9 +75,10 @@ class MainMenuFrame(GeneralFrame):
                                                         height=2, 
                                                         width=20)
         
+        # TODO: Add functionalities.
         self.inverse_kinematics_frame_button = tk.Button(self, 
                                                         text="Inverse Kinematics", 
-                                                        command=lambda: frame_handler.frame_packer('inverse_kinematics_frame'),
+                                                        command=None,#lambda: frame_handler.frame_packer('inverse_kinematics_frame'),
                                                         height=2, 
                                                         width=20)
         
@@ -93,13 +99,23 @@ class MainMenuFrame(GeneralFrame):
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
-
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 
 class SerialConfigurationFrame(GeneralFrame):
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, serial_conn:SerialObject):
         GeneralFrame.__init__(self, root, 'serial_configuration_frame', frame_handler)
 
+        # Serial object reference.
+        self.serial_conn = serial_conn
+
+        # Port data.
         self.available_ports_data = {}
+
+        # Baudrate values reference.
+        self.serial_baudrate_value = tk.StringVar(self.root)
+        self.serial_baudrate_value.set(self.serial_conn.baudrate)
         
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - GUI Components- - - - - - - - - -
@@ -107,14 +123,13 @@ class SerialConfigurationFrame(GeneralFrame):
 
         self.load_serial_button = tk.Button(self, 
                                             text="Load Ports", 
-                                            command=None,
+                                            command=self.load_ports,
                                             height=2, 
                                             width=20)
 
         self.combo_serial = ttk.Combobox(self)
         
-        # TODO: IMPORT FUNCTION.
-        self.combo_serial.bind('<<ComboboxSelected>>', None)
+        self.combo_serial.bind('<<ComboboxSelected>>', self.update_label_serial_port)
 
         self.selected_port_name_label = tk.Label(self,
                                                  text="NONE")
@@ -122,19 +137,21 @@ class SerialConfigurationFrame(GeneralFrame):
         self.selected_port_desc_label = tk.Label(self,
                                                 text="...")
         
-        # TODO: Add correct validations.
+        # TODO: Add correct validations. Add the starting value.
         self.baudrate_entry = tk.Entry(self, 
-                                    textvariable=None,#self.serial_baudrate_value,
+                                    textvariable=self.serial_baudrate_value,
                                     validate="key",
-                                    validatecommand=(self.root.register(None), "%P"))
+                                    validatecommand=(self.root.register(self.baudrate_entry_number_validation), "%P"))
         
         self.update_serial_configuration_button = tk.Button(self,
                                                             text="Update",
-                                                            command=None)
+                                                            command=self.update_serial_configuration)
         
         self.home_serial_configuration_button = tk.Button(self, 
                                                         text="Return", 
-                                                        command=lambda: frame_handler.frame_packer('main_frame'))
+                                                        command=lambda: frame_handler.frame_packer('main_frame'),
+                                                        height=2, 
+                                                        width=20)
 
         # Serial Configuration frame components packing.
         self.load_serial_button.place(relx=0.5, rely=0.2, anchor='center')
@@ -144,6 +161,9 @@ class SerialConfigurationFrame(GeneralFrame):
         self.baudrate_entry.place(relx=0.5, rely=0.6, anchor='center')
         self.update_serial_configuration_button.place(relx=0.5, rely=0.7, anchor='center')
         self.home_serial_configuration_button.place(relx=0.5, rely=0.8, anchor='center')
+
+        # Loading the available ports.
+        self.load_ports()
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Methods - - - - - - - - - - - - -
@@ -155,7 +175,7 @@ class SerialConfigurationFrame(GeneralFrame):
         current available port list in order for these to be selected
         in the combobox (combo_serial).
         '''
-        ports_data = serial_configuration.get_ports()
+        ports_data = self.serial_conn.get_ports()
         
         self.available_ports_data = {}
 
@@ -166,6 +186,58 @@ class SerialConfigurationFrame(GeneralFrame):
 
         self.combo_serial.configure(values=listed_ports)
 
+    # ------------------------------------------------
+
+    def update_label_serial_port(self, _):
+        '''
+        This function updates the labels destinated to display the current selection
+        for the serial configuration in regards to the port information exclusively.
+        '''
+        # Extracting the information.
+        selected_port = self.combo_serial.get()
+        description = self.available_ports_data[selected_port]
+
+        # Labels update.
+        self.selected_port_name_label.configure(text=selected_port)
+        self.selected_port_desc_label.configure(text=description)
+
+    # ------------------------------------------------
+
+    def baudrate_entry_number_validation(self, new_value:str):
+        '''
+        Callback function that is called when a new entry is set for the baudrate.
+        This confirms if it is a number or a blank space in order to avoid chars in
+        the value required as int.
+        '''
+        if new_value.isdigit() or new_value == "":
+            return True
+        return False
+    
+    # ------------------------------------------------
+
+    def update_serial_configuration(self):
+        '''
+        Casting the value of the variable holding the baudrate from the entry
+        to an integer and updating the configuration for the serial port.
+        '''
+        # No baudrate specified.
+        if self.baudrate_entry.get() == '':
+            return
+        # No port selected.
+        if self.combo_serial.get() == None or self.combo_serial.get() == "":
+            print("No changes")
+            return
+        
+        self.serial_conn.port = self.combo_serial.get()
+        self.serial_conn.baudrate = int(self.serial_baudrate_value.get())
+        
+        # TODO: Remove.
+        print(f'PORT: {self.serial_conn.port} | BAUDRATE: {self.serial_conn.baudrate}')
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -177,11 +249,17 @@ class RoboticConfigurationFrame(GeneralFrame):
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 
 class DirectKinematicsFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
         GeneralFrame.__init__(self, root, 'direct_kinematics_frame', frame_handler)
 
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
