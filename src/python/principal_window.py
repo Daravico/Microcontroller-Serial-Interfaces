@@ -1,7 +1,11 @@
 import tkinter as tk
-from frames_gui import *
+import numpy as np
+
 from typing import List
+
+from frames_gui import *
 from serial_library import SerialObject
+from robotic_library import RoboticProperties
 
 
 
@@ -22,7 +26,12 @@ class PrincipalWindow:
 
         # Reference for the Serial Object, for both configuration and connection.
         self.serial_conn = SerialObject()
-        # self.serial_conn.establish_parameters('COM1', 9600)
+        self.serial_conn.establish_parameters('COM1', 9600)
+
+        # Robotic properties.
+        # TODO: Organize to keep this in other site.
+
+        self.robotic_properties = RoboticProperties()
 
         # Reference for the handler of the frames.
         self.frames_handler = FrameHandler()
@@ -30,7 +39,7 @@ class PrincipalWindow:
         # Frames used in this application.
         self.main_menu_frame = MainMenuFrame(root, self.frames_handler)
         self.serial_menu_frame = SerialConfigurationFrame(root, self.frames_handler, self.serial_conn)
-        self.robotic_configuration_frame = RoboticConfigurationFrame(root, self.frames_handler)
+        self.robotic_configuration_frame = RoboticConfigurationFrame(root, self.frames_handler, self.robotic_properties)
         self.direct_kinematics_frame = DirectKinematicsFrame(root, self.frames_handler)
         self.inverse_kinematics_frame = InverseKinematicsFrame(root, self.frames_handler)
 

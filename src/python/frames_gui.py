@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import List
 from serial_library import SerialObject
+from robotic_library import RoboticProperties
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -132,7 +133,7 @@ class SerialConfigurationFrame(GeneralFrame):
         self.combo_serial.bind('<<ComboboxSelected>>', self.update_label_serial_port)
 
         self.selected_port_name_label = tk.Label(self,
-                                                 text="NONE")
+                                                 text='NONE')
         
         self.selected_port_desc_label = tk.Label(self,
                                                 text="...")
@@ -164,6 +165,12 @@ class SerialConfigurationFrame(GeneralFrame):
 
         # Loading the available ports.
         self.load_ports()
+
+        if self.serial_conn.port != None and len(self.available_ports_data) != 0:
+            self.selected_port_name_label.configure(text=self.serial_conn.port)
+            self.selected_port_desc_label.configure(text=self.available_ports_data[self.serial_conn.port])
+            
+
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Methods - - - - - - - - - - - - -
@@ -243,7 +250,7 @@ class SerialConfigurationFrame(GeneralFrame):
 # -----------------------------------------------------------------------------------------------------------------------------
 
 class RoboticConfigurationFrame(GeneralFrame):
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties: RoboticProperties):
         GeneralFrame.__init__(self, root, 'robotic_configuration_frame', frame_handler)
 
 # -----------------------------------------------------------------------------------------------------------------------------

@@ -33,14 +33,7 @@ class ControlGUI:
         self.robotic_details_frame = tk.Frame(self.root, background='#DAF0D2')
 
         # DH Parameters and Homogeneous Matrix variables.
-        q = [0,         np.pi/2,     0]
-        d = [1,         0,           0]
-        l = [0,         5,           3]
-        A = [np.pi/2,   0,           0]
-        
-        ranges = [[-90, 90], [0, 90], [0, 90]]
-
-        self.robotic_properties = RoboticProperties(q, d, l, A, ranges)
+        self.robotic_properties = RoboticProperties()
 
         # Style configurations.
         style = ttk.Style()

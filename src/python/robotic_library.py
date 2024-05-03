@@ -1,13 +1,27 @@
 import numpy as np
 from typing import List
 
+# DEFAULT VALUES:
+# DH Parameters and Homogeneous Matrix variables.
+q = [0,         np.pi/2,     0]
+d = [1,         0,           0]
+a = [0,         5,           3]
+A = [np.pi/2,   0,           0]
+
+ranges = [[-90, 90], [0, 90], [0, 90]]
+
 # ------------------------------------------------------------------------
 class RoboticProperties:
     '''
     Conteiner for properties. Functions
     '''
 
-    def __init__(self, q:List[float], d:List[float], a:List[float], A:List[float], ranges:List[List[float]]):
+    def __init__(self, 
+                 q:List[float]=q, 
+                 d:List[float]=d, 
+                 a:List[float]=a, 
+                 A:List[float]=A, 
+                 ranges:List[List[float]]=ranges):
         '''
 
         '''
@@ -207,9 +221,9 @@ if __name__ == '__main__':
 
     q = [0,         np.pi/2,     0]
     d = [3,         0,           0]
-    l = [0,         5,           4]
+    a = [0,         5,           4]
     A = [np.pi/2,   0,           0]
 
     ranges = [[-90, 90], [0, 90], [0, 90]]
     
-    robotics = RoboticProperties(q, d, l, A, ranges)
+    robotics = RoboticProperties(q, d, a, A, ranges)
