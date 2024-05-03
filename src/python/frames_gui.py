@@ -8,6 +8,9 @@ from robotic_library import RoboticProperties
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 
+# TODO: Implement a method to check if the frame is direct or
+# inverse kinematics to update details from the robotic properties.
+
 class FrameHandler:
     def __init__(self):
         self.frames:List[GeneralFrame] = [] 
@@ -195,7 +198,7 @@ class SerialConfigurationFrame(GeneralFrame):
 
     # ------------------------------------------------
 
-    def update_label_serial_port(self, _):
+    def update_label_serial_port(self):
         '''
         This function updates the labels destinated to display the current selection
         for the serial configuration in regards to the port information exclusively.
