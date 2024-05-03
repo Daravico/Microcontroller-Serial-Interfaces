@@ -1,24 +1,56 @@
 import tkinter as tk
 from tkinter import ttk
 from typing import List
-from principal_window import FrameHandler
+import serial_configuration
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
+
+class FrameHandler:
+    def __init__(self):
+        self.frames:List[GeneralFrame] = [] 
+
+    def frame_packer(self, frame_name:str):
+        '''
+        Function used to update the frame that is being selected.
+        :selected_frame: is searched in the list of the available frames in order to be loaded. Any other frame is forgoten from the root.
+        '''
+        for frame in self.frames:
+            # Note: 'name' is a property created for the frames created in frames_gui.py
+            # TODO: Consideration: Organize in a new superclass to make this property globally available (tk.Frame > NewClass > EachClass).
+            if frame.name != frame_name:
+                frame.pack_forget()
+                continue
+            frame.pack(expand=True, fill='both')
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+
 
 class GeneralFrame(tk.Frame):
+    '''
+
+    '''
     def __init__(self, root:tk.Tk, name: str, frame_handler:FrameHandler):
         tk.Frame.__init__(self, root)
         self.frame_handler=frame_handler # NOTE: Not quite required. Just stored in case it is.
         self.root = root
         self.name = name
 
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+
 
 class MainMenuFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
-
         GeneralFrame.__init__(self, root, 'main_frame', frame_handler)
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - GUI Components- - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         self.serial_configuration_button = tk.Button(self,
                                                      text="Serial Configuration",
@@ -26,15 +58,21 @@ class MainMenuFrame(GeneralFrame):
                                                      height=2,
                                                      width=20)
         
+        self.robotic_configuration_button = tk.Button(self,
+                                                      text="Robotic Configuration",
+                                                      command=lambda: frame_handler.frame_packer('robotic_configuration_frame'),
+                                                      height=2,
+                                                      width=20)
+
         self.direct_kinematics_frame_button = tk.Button(self, 
                                                         text="Direct Kinematics", 
-                                                        command=None,
+                                                        command=lambda: frame_handler.frame_packer('direct_kinematics_frame'),
                                                         height=2, 
                                                         width=20)
         
         self.inverse_kinematics_frame_button = tk.Button(self, 
                                                         text="Inverse Kinematics", 
-                                                        command=None,
+                                                        command=lambda: frame_handler.frame_packer('inverse_kinematics_frame'),
                                                         height=2, 
                                                         width=20)
         
@@ -46,9 +84,10 @@ class MainMenuFrame(GeneralFrame):
 
         # Main frame components placing.
         self.serial_configuration_button.place(relx=0.5, rely=0.3, anchor='center')
-        self.direct_kinematics_frame_button.place(relx=0.5, rely=0.4, anchor='center')
-        self.inverse_kinematics_frame_button.place(relx=0.5, rely=0.5, anchor='center')
-        self.exit_window_button.place(relx=0.5, rely=0.7, anchor='center')
+        self.robotic_configuration_button.place(relx=0.5, rely=0.4, anchor='center')
+        self.direct_kinematics_frame_button.place(relx=0.5, rely=0.5, anchor='center')
+        self.inverse_kinematics_frame_button.place(relx=0.5, rely=0.6, anchor='center')
+        self.exit_window_button.place(relx=0.5, rely=0.8, anchor='center')
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -58,8 +97,13 @@ class MainMenuFrame(GeneralFrame):
 
 class SerialConfigurationFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
-
         GeneralFrame.__init__(self, root, 'serial_configuration_frame', frame_handler)
+
+        self.available_ports_data = {}
+        
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - GUI Components- - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         self.load_serial_button = tk.Button(self, 
                                             text="Load Ports", 
@@ -100,6 +144,27 @@ class SerialConfigurationFrame(GeneralFrame):
         self.baudrate_entry.place(relx=0.5, rely=0.6, anchor='center')
         self.update_serial_configuration_button.place(relx=0.5, rely=0.7, anchor='center')
         self.home_serial_configuration_button.place(relx=0.5, rely=0.8, anchor='center')
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    # - - - - - - - - - - Methods - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+    def load_ports(self):
+        '''
+        The function is used by a button who loads and refresh the
+        current available port list in order for these to be selected
+        in the combobox (combo_serial).
+        '''
+        ports_data = serial_configuration.get_ports()
+        
+        self.available_ports_data = {}
+
+        for port, description, _ in ports_data:
+            self.available_ports_data[port] = description
+        
+        listed_ports = list(self.available_ports_data.keys())
+
+        self.combo_serial.configure(values=listed_ports)
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------

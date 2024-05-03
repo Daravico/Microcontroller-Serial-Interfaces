@@ -6,48 +6,36 @@ from typing import List
 
 # TODO: 
 # Here define the window (Already done).
+
+# First define the robot properties, then update the frames.
+
 # Define the initial DH parameters and pass them as parameters.
 # Define initial configurations for robotics_properties.
 # Define initial configurations for serial_configuration.
 
-class FrameHandler:
-    def __init__(self):
-        self.frames:List[GeneralFrame] = [] #
-
-    def frame_packer(self, frame_name:str):
-        '''
-        Function used to update the frame that is being selected.
-        :selected_frame: is searched in the list of the available frames in order to be loaded. Any other frame is forgoten from the root.
-        '''
-        for frame in self.frames:
-            # Note: 'name' is a property created for the frames created in frames_gui.py
-            # TODO: Consideration: Organize in a new superclass to make this property globally available (tk.Frame > NewClass > EachClass).
-            if frame.name != frame_name:
-                frame.pack_forget()
-                continue
-            frame.pack(expand=True, fill='both')
-
 
 class PrincipalWindow:
-    def __init__(self, root):
-        self.root = root
+    def __init__(self, root:tk.Tk):
+        self.root:tk.Tk = root
 
         self.frames_handler = FrameHandler()
 
         self.main_menu_frame = MainMenuFrame(root, self.frames_handler)
         self.serial_menu_frame = SerialConfigurationFrame(root, self.frames_handler)
+        self.robotic_configuration_frame = RoboticConfigurationFrame(root, self.frames_handler)
+        self.direct_kinematics_frame = DirectKinematicsFrame(root, self.frames_handler)
+        self.inverse_kinematics_frame = InverseKinematicsFrame(root, self.frames_handler)
 
         frames:List[tk.Frame] = [
             self.main_menu_frame,
             self.serial_menu_frame,
-
-
-
+            self.robotic_configuration_frame,
+            self.direct_kinematics_frame,
+            self.inverse_kinematics_frame
             ]
         
         # Updating the frames container in the Handler.
         self.frames_handler.frames = frames
-        
         self.frames_handler.frame_packer('main_frame')
 
     # -------------------------------------------------------------------------------    
