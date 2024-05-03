@@ -16,7 +16,7 @@ from typing import List
 
 class PrincipalWindow:
     def __init__(self, root:tk.Tk):
-        self.root:tk.Tk = root
+        self.root = root
 
         self.frames_handler = FrameHandler()
 
