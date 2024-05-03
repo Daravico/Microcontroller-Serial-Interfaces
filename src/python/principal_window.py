@@ -2,6 +2,8 @@ import tkinter as tk
 from frames_gui import *
 from typing import List
 
+
+
 # TODO: 
 # Here define the window (Already done).
 # Define the initial DH parameters and pass them as parameters.
@@ -10,30 +12,7 @@ from typing import List
 
 class FrameHandler:
     def __init__(self):
-        self.frames:List[tk.Frame] = []
-
-
-
-
-
-
-
-    # FIXME: Recordar que ahora funciona con strings.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        self.frames:List[GeneralFrame] = [] #
 
     def frame_packer(self, frame_name:str):
         '''
@@ -41,6 +20,8 @@ class FrameHandler:
         :selected_frame: is searched in the list of the available frames in order to be loaded. Any other frame is forgoten from the root.
         '''
         for frame in self.frames:
+            # Note: 'name' is a property created for the frames created in frames_gui.py
+            # TODO: Consideration: Organize in a new superclass to make this property globally available (tk.Frame > NewClass > EachClass).
             if frame.name != frame_name:
                 frame.pack_forget()
                 continue

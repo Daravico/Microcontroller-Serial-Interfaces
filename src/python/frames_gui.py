@@ -7,20 +7,22 @@ from principal_window import FrameHandler
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 
+class GeneralFrame(tk.Frame):
+    def __init__(self, root:tk.Tk, name: str, frame_handler:FrameHandler):
+        tk.Frame.__init__(self, root)
+        self.frame_handler=frame_handler # NOTE: Not quite required. Just stored in case it is.
+        self.root = root
+        self.name = name
 
-class MainMenuFrame(tk.Frame):
+
+class MainMenuFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
 
-        # Calling the original constructor to keep the properties.
-        tk.Frame.__init__(self, root)
-
-        self.root = root
-
-        self.name = 'main_frame'
+        GeneralFrame.__init__(self, root, 'main_frame', frame_handler)
 
         self.serial_configuration_button = tk.Button(self,
                                                      text="Serial Configuration",
-                                                     command=lambda: frame_handler.frame_packer('serial_frame'),
+                                                     command=lambda: frame_handler.frame_packer('serial_configuration_frame'),
                                                      height=2,
                                                      width=20)
         
@@ -54,14 +56,10 @@ class MainMenuFrame(tk.Frame):
 # -----------------------------------------------------------------------------------------------------------------------------
 
 
-class SerialConfigurationFrame(tk.Frame):
+class SerialConfigurationFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
-        # Calling the original constructor to keep the properties.
-        tk.Frame.__init__(self, root)
 
-        self.root = root
-
-        self.name = 'serial_frame'
+        GeneralFrame.__init__(self, root, 'serial_configuration_frame', frame_handler)
 
         self.load_serial_button = tk.Button(self, 
                                             text="Load Ports", 
@@ -107,22 +105,22 @@ class SerialConfigurationFrame(tk.Frame):
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 
-class RoboticConfigurationFrame(tk.Frame):
-    def __init__(self):
-        tk.Frame.__init__(self)
+class RoboticConfigurationFrame(GeneralFrame):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+        GeneralFrame.__init__(self, root, 'robotic_configuration_frame', frame_handler)
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 
-class DirectKinematicsFrame(tk.Frame):
-    def __init__(self):
-        tk.Frame.__init__(self)
+class DirectKinematicsFrame(GeneralFrame):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+        GeneralFrame.__init__(self, root, 'direct_kinematics_frame', frame_handler)
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 
-class InverseKinematicsFrame(tk.Frame):
-    def __init__(self):
-        tk.Frame.__init__(self)
+class InverseKinematicsFrame(GeneralFrame):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+        GeneralFrame.__init__(self, root, 'inverse_kinematics_frame', frame_handler)
