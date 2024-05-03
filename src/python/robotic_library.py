@@ -31,6 +31,10 @@ class RoboticProperties:
         self.a = a
         self.A = A
 
+        # TODO: Add a note that this can be changed according to the user/developer/robot.
+        self.dof_upp_limit = 5
+        self.dof_inf_limit = 1
+
         # Extracted degrees of freedom from the previous list (All must be the same).
         self.degrees_of_freedom = len(q)
 
@@ -39,6 +43,15 @@ class RoboticProperties:
 
         # Initialization of DH table for the previous parameters.
         self.DH_parameters_table = np.empty((self.degrees_of_freedom, 4))
+
+        # Denavit-Hartenberg parameters.
+        self.DH_parameters_table[:,0] = q
+        self.DH_parameters_table[:,1] = d
+        self.DH_parameters_table[:,2] = a
+        self.DH_parameters_table[:,3] = A
+
+        # Default table for the DH parameters.
+        self.DH_default_table = self.DH_parameters_table
 
         # Initialization of N empty arrays depending on the degrees of freedom.
         self.DH_matrix_array = np.array([np.empty((4,4)) for _ in range(self.degrees_of_freedom)])
@@ -53,20 +66,25 @@ class RoboticProperties:
 
     # ------------------------------------------------------------------------
 
+    def update_DH_table(self):
+        pass
+
     def update_tables(self):
         '''
         
         '''
+        self.update_DH_table()
+
         # Final transformation matrix is reset.
         self.final_transformation_matrix = np.eye(4)
+        
+        # Denavit-Hartenberg parameters.
+        self.DH_parameters_table[:,0] = self.q
+        self.DH_parameters_table[:,1] = self.d
+        self.DH_parameters_table[:,2] = self.a
+        self.DH_parameters_table[:,3] = self.A
 
         for i in range(self.degrees_of_freedom):
-            # Denavit-Hartenberg parameters.
-            self.DH_parameters_table[i,0] = self.q[i]
-            self.DH_parameters_table[i,1] = self.d[i]
-            self.DH_parameters_table[i,2] = self.a[i]
-            self.DH_parameters_table[i,3] = self.A[i]
-
             # Homegeneous transformation matrix.
             self.DH_matrix_array[i] = self.DH(self.q[i], self.d[i], self.a[i], self.A[i])
             self.final_transformation_matrix = self.final_transformation_matrix @ self.DH_matrix_array[i]

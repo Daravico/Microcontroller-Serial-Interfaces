@@ -1,3 +1,4 @@
+import numpy as np
 import tkinter as tk
 from tkinter import ttk
 from typing import List
@@ -27,6 +28,28 @@ class FrameHandler:
                 frame.pack_forget()
                 continue
             frame.pack(expand=True, fill='both')
+
+    # ------------------------------------------------
+
+    # FIXME: Fix this function, depending on the new implementations.
+    # TODO: Posiblemente requiera recibir otro objeto para actualizar.
+    def direct_kinematic_frame_packer(self, frame_name:str):
+        '''
+        
+        '''
+        for frame in self.frames:
+
+            if frame == self.robotic_details_frame:
+                frame.pack(side="right", anchor="center", expand=True, fill='both')
+                continue
+
+            if frame != selected_frame:
+                frame.pack_forget()
+                continue
+
+            frame.pack(side="left", expand=True, fill='both')
+
+    # ------------------------------------------------
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -261,6 +284,10 @@ class RoboticConfigurationFrame(GeneralFrame):
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         self.DOF_entry = ttk.Spinbox(self, from_=1, to=5)
+        self.DOF_entry.set(self.robotic_properties.degrees_of_freedom)
+        self.DOF_entry.bind("<Key>", self.block_keys)
+        self.DOF_entry.bind("<<Increment>>", self.dof_increment)
+        self.DOF_entry.bind("<<Decrement>>", self.dof_decrement)
 
         self.home_return_button = ttk.Button(self, 
                                             text="Return", 
@@ -270,6 +297,55 @@ class RoboticConfigurationFrame(GeneralFrame):
         # Packing components.
         self.DOF_entry.place(relx=0.5, rely=0.1, anchor='center')
         self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    # - - - - - - - - - - Methods - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    
+    def delete_table(self):
+        pass
+
+    def update_table(self):
+        pass
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    # - - - - - - - - - - Bindings- - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    def block_keys(self, _):
+        return "break"
+    
+    def dof_increment(self, _):
+        if int(self.DOF_entry.get()) == self.robotic_properties.dof_upp_limit:
+            return
+        
+        new_line = np.array([0,0,0,0])
+
+        self.robotic_properties.degrees_of_freedom += 1
+
+        self.robotic_properties.DH_parameters_table = np.append(self.robotic_properties.DH_parameters_table, 
+                                                                [new_line], axis=0)
+        
+        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
+
+        print(self.robotic_properties.DH_parameters_table)
+        print()
+        
+    
+    def dof_decrement(self, _):
+        if int(self.DOF_entry.get()) == self.robotic_properties.dof_inf_limit:
+            return
+        
+        self.robotic_properties.degrees_of_freedom -= 1
+
+        self.robotic_properties.DH_parameters_table = np.delete(self.robotic_properties.DH_parameters_table,
+                                                                self.robotic_properties.degrees_of_freedom - 1,
+                                                                axis=0)
+        
+        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
+        
+        print(self.robotic_properties.DH_parameters_table)
+        print()
+        
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
