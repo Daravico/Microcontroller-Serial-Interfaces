@@ -60,43 +60,43 @@ class MainMenuFrame(GeneralFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.serial_configuration_button = tk.Button(self,
+        self.serial_configuration_button = ttk.Button(self,
                                                      text="Serial Configuration",
                                                      command=lambda: frame_handler.frame_packer('serial_configuration_frame'),
-                                                     height=2,
-                                                     width=20)
+                                                     padding=(5,15),
+                                                     width=30)
         
-        # TODO: Add functionalities.
-        self.robotic_configuration_button = tk.Button(self,
+        self.robotic_configuration_button = ttk.Button(self,
                                                       text="Robotic Configuration",
-                                                      command=None,#lambda: frame_handler.frame_packer('robotic_configuration_frame'),
-                                                      height=2,
-                                                      width=20)
+                                                      command=lambda: frame_handler.frame_packer('robotic_configuration_frame'),
+                                                      padding=(5,15),
+                                                     width=30)
 
-        self.direct_kinematics_frame_button = tk.Button(self, 
+        # TODO: Change for the other frame packer.
+        self.direct_kinematics_frame_button = ttk.Button(self, 
                                                         text="Direct Kinematics", 
                                                         command=lambda: frame_handler.frame_packer('direct_kinematics_frame'),
-                                                        height=2, 
-                                                        width=20)
+                                                        padding=(5,15),
+                                                     width=30)
         
-        # TODO: Add functionalities.
-        self.inverse_kinematics_frame_button = tk.Button(self, 
+        # TODO: Change for the other frame packer.
+        self.inverse_kinematics_frame_button = ttk.Button(self, 
                                                         text="Inverse Kinematics", 
-                                                        command=None,#lambda: frame_handler.frame_packer('inverse_kinematics_frame'),
-                                                        height=2, 
-                                                        width=20)
+                                                        command=lambda: frame_handler.frame_packer('inverse_kinematics_frame'),
+                                                        padding=(5,15),
+                                                     width=30)
         
-        self.exit_window_button = tk.Button(self, 
-                                            text="Exit", 
-                                            command=self.root.destroy,
-                                            height=2, 
-                                            width=20)
+        self.exit_window_button = ttk.Button(self, 
+                                             text="Exit", 
+                                             command=self.root.destroy,
+                                             padding=(5,15),
+                                                     width=30)
 
         # Main frame components placing.
-        self.serial_configuration_button.place(relx=0.5, rely=0.3, anchor='center')
-        self.robotic_configuration_button.place(relx=0.5, rely=0.4, anchor='center')
-        self.direct_kinematics_frame_button.place(relx=0.5, rely=0.5, anchor='center')
-        self.inverse_kinematics_frame_button.place(relx=0.5, rely=0.6, anchor='center')
+        self.serial_configuration_button.place(relx=0.5, rely=0.2, anchor='center')
+        self.robotic_configuration_button.place(relx=0.5, rely=0.3, anchor='center')
+        self.direct_kinematics_frame_button.place(relx=0.5, rely=0.4, anchor='center')
+        self.inverse_kinematics_frame_button.place(relx=0.5, rely=0.5, anchor='center')
         self.exit_window_button.place(relx=0.5, rely=0.8, anchor='center')
 
 
@@ -151,11 +151,11 @@ class SerialConfigurationFrame(GeneralFrame):
                                                             text="Update",
                                                             command=self.update_serial_configuration)
         
-        self.home_serial_configuration_button = tk.Button(self, 
-                                                        text="Return", 
-                                                        command=lambda: frame_handler.frame_packer('main_frame'),
-                                                        height=2, 
-                                                        width=20)
+        self.home_return_button = tk.Button(self, 
+                                            text="Return", 
+                                            command=lambda: frame_handler.frame_packer('main_frame'),
+                                            height=2, 
+                                            width=20)
 
         # Serial Configuration frame components packing.
         self.load_serial_button.place(relx=0.5, rely=0.2, anchor='center')
@@ -164,7 +164,7 @@ class SerialConfigurationFrame(GeneralFrame):
         self.combo_serial.place(relx=0.5, rely=0.5, anchor='center')
         self.baudrate_entry.place(relx=0.5, rely=0.6, anchor='center')
         self.update_serial_configuration_button.place(relx=0.5, rely=0.7, anchor='center')
-        self.home_serial_configuration_button.place(relx=0.5, rely=0.8, anchor='center')
+        self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
 
         # Loading the available ports.
         self.load_ports()
@@ -256,6 +256,23 @@ class RoboticConfigurationFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties: RoboticProperties):
         GeneralFrame.__init__(self, root, 'robotic_configuration_frame', frame_handler)
 
+        self.robotic_properties = robotic_properties
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - GUI Components- - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        self.DOF_entry = ttk.Spinbox(self, from_=1, to=5)
+
+        self.home_return_button = ttk.Button(self, 
+                                            text="Return", 
+                                            command=lambda: frame_handler.frame_packer('main_frame'),
+                                            width=20, padding=(10,20))
+        
+        # Packing components.
+        self.DOF_entry.place(relx=0.5, rely=0.1, anchor='center')
+        self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
+
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -267,6 +284,22 @@ class DirectKinematicsFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
         GeneralFrame.__init__(self, root, 'direct_kinematics_frame', frame_handler)
 
+
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - GUI Components- - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        self.home_return_button = tk.Button(self, 
+                                            text="Return", 
+                                            command=lambda: frame_handler.frame_packer('main_frame'),
+                                            height=2, 
+                                            width=20)
+        
+        # Packing components.
+        self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
+        
+
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -277,3 +310,17 @@ class DirectKinematicsFrame(GeneralFrame):
 class InverseKinematicsFrame(GeneralFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
         GeneralFrame.__init__(self, root, 'inverse_kinematics_frame', frame_handler)
+
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - GUI Components- - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        self.home_return_button = tk.Button(self, 
+                                            text="Return", 
+                                            command=lambda: frame_handler.frame_packer('main_frame'),
+                                            height=2, 
+                                            width=20)
+        
+        # Packing components.
+        self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
