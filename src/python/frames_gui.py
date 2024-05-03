@@ -70,27 +70,26 @@ class MainMenuFrame(GeneralFrame):
                                                       text="Robotic Configuration",
                                                       command=lambda: frame_handler.frame_packer('robotic_configuration_frame'),
                                                       padding=(5,15),
-                                                     width=30)
+                                                      width=30)
 
         # TODO: Change for the other frame packer.
         self.direct_kinematics_frame_button = ttk.Button(self, 
                                                         text="Direct Kinematics", 
                                                         command=lambda: frame_handler.frame_packer('direct_kinematics_frame'),
-                                                        padding=(5,15),
-                                                     width=30)
+                                                        padding=(5,15), 
+                                                        width=30)
         
         # TODO: Change for the other frame packer.
         self.inverse_kinematics_frame_button = ttk.Button(self, 
-                                                        text="Inverse Kinematics", 
-                                                        command=lambda: frame_handler.frame_packer('inverse_kinematics_frame'),
-                                                        padding=(5,15),
-                                                     width=30)
+                                                          text="Inverse Kinematics", 
+                                                          command=lambda: frame_handler.frame_packer('inverse_kinematics_frame'),
+                                                          padding=(5,15),
+                                                          width=30)
         
         self.exit_window_button = ttk.Button(self, 
                                              text="Exit", 
                                              command=self.root.destroy,
-                                             padding=(5,15),
-                                                     width=30)
+                                             width=20, padding=(5,10))
 
         # Main frame components placing.
         self.serial_configuration_button.place(relx=0.5, rely=0.2, anchor='center')
@@ -125,37 +124,36 @@ class SerialConfigurationFrame(GeneralFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.load_serial_button = tk.Button(self, 
-                                            text="Load Ports", 
-                                            command=self.load_ports,
-                                            height=2, 
-                                            width=20)
+        self.load_serial_button = ttk.Button(self, 
+                                             text="Load Ports",
+                                             command=self.load_ports,
+                                             width=20, padding=(5,10))
 
         self.combo_serial = ttk.Combobox(self)
         
         self.combo_serial.bind('<<ComboboxSelected>>', self.update_label_serial_port)
 
-        self.selected_port_name_label = tk.Label(self,
-                                                 text='NONE')
+        self.selected_port_name_label = ttk.Label(self,
+                                                  text='NONE')
         
-        self.selected_port_desc_label = tk.Label(self,
-                                                text="...")
+        self.selected_port_desc_label = ttk.Label(self,
+                                                  text="...")
         
         # TODO: Add correct validations. Add the starting value.
-        self.baudrate_entry = tk.Entry(self, 
-                                    textvariable=self.serial_baudrate_value,
-                                    validate="key",
-                                    validatecommand=(self.root.register(self.baudrate_entry_number_validation), "%P"))
+        self.baudrate_entry = ttk.Entry(self, 
+                                        textvariable=self.serial_baudrate_value,
+                                        validate="key",
+                                        validatecommand=(self.root.register(self.baudrate_entry_number_validation), "%P"))
         
-        self.update_serial_configuration_button = tk.Button(self,
-                                                            text="Update",
-                                                            command=self.update_serial_configuration)
+        self.update_serial_configuration_button = ttk.Button(self, 
+                                                             text="Update",
+                                                             command=self.update_serial_configuration,
+                                                             width=20, padding=(5,10))
         
-        self.home_return_button = tk.Button(self, 
+        self.home_return_button = ttk.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
-                                            height=2, 
-                                            width=20)
+                                            width=20, padding=(10,20))
 
         # Serial Configuration frame components packing.
         self.load_serial_button.place(relx=0.5, rely=0.2, anchor='center')
@@ -290,11 +288,10 @@ class DirectKinematicsFrame(GeneralFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.home_return_button = tk.Button(self, 
+        self.home_return_button = ttk.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
-                                            height=2, 
-                                            width=20)
+                                            width=20, padding=(10,20))
         
         # Packing components.
         self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
@@ -316,11 +313,10 @@ class InverseKinematicsFrame(GeneralFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.home_return_button = tk.Button(self, 
+        self.home_return_button = ttk.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
-                                            height=2, 
-                                            width=20)
+                                            width=20, padding=(10,20))
         
         # Packing components.
         self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
