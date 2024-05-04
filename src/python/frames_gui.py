@@ -166,7 +166,7 @@ class SerialConfigurationFrame(GeneralFrame):
         self.baudrate_entry = ttk.Entry(self, 
                                         textvariable=self.serial_baudrate_value,
                                         validate="key",
-                                        validatecommand=(self.root.register(self.baudrate_entry_number_validation), "%P"))
+                                        validatecommand=(self.root.register(self.number_validation), "%P"))
         
         self.update_serial_configuration_button = ttk.Button(self, 
                                                              text="Update",
@@ -234,7 +234,7 @@ class SerialConfigurationFrame(GeneralFrame):
 
     # ------------------------------------------------
 
-    def baudrate_entry_number_validation(self, new_value:str):
+    def number_validation(self, new_value:str):
         '''
         Callback function that is called when a new entry is set for the baudrate.
         This confirms if it is a number or a blank space in order to avoid chars in
@@ -279,6 +279,9 @@ class RoboticConfigurationFrame(GeneralFrame):
 
         self.robotic_properties = robotic_properties
 
+        self.entries_table = []
+        self.first_time = True
+
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -294,25 +297,61 @@ class RoboticConfigurationFrame(GeneralFrame):
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
         
+        headings = ['θ', 'd', 'a', 'α']
+        for col, head in enumerate(headings):
+            print(head)
+            label = ttk.Label(self, text=head, justify='right')
+            label.place(relx=0.4 + col * 0.05, rely=0.2,
+                        anchor='center', width=40,)
+        
         # Packing components.
-        self.DOF_entry.place(relx=0.5, rely=0.1, anchor='center')
-        self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
+        self.DOF_entry.place(relx=0.3, rely=0.1, anchor='center')
+        self.home_return_button.place(relx=0.3, rely=0.8, anchor='center')
+
+        # Starting methods.
+        self.update_table()
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Methods - - - - - - - - - - - - -
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     
     def delete_table(self):
-        pass
+        for row in self.entries_table:
+            for entry in row:
+                entry.destroy()
 
     def update_table(self):
-        pass
+        
+        self.delete_table()
+
+        self.entries_table = []
+
+        for row in range(0, self.robotic_properties.degrees_of_freedom):  
+            new_row = []
+            for col in range(4):  
+
+                idx = 0.4 + col * 0.05
+                idy = 0.3 + row * 0.1
+
+                validate_numbers_only = self.register(self.validate_entry)
+                                
+                entry = ttk.Entry(self, validate='key', validatecommand=(validate_numbers_only, "%P"))
+                entry.place(relx=idx, rely=idy, 
+                            anchor='center', width=40)
+                new_row.append(entry)
+
+            self.entries_table.append(new_row)
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Bindings- - - - - - - - - - - - -
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    def block_keys(self, _):
+    def block_keys(self, event):
+        print(event)
         return "break"
+    
+    def validate_entry(self, value:str):
+        # Verificar si el valor ingresado es un número o está vacío
+        return value == "" or value.replace(".", "", 1).isdigit()
     
     def dof_increment(self, _):
         if int(self.DOF_entry.get()) == self.robotic_properties.dof_upp_limit:
@@ -327,8 +366,7 @@ class RoboticConfigurationFrame(GeneralFrame):
         
         self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
 
-        print(self.robotic_properties.DH_parameters_table)
-        print()
+        self.update_table()
         
     
     def dof_decrement(self, _):
@@ -343,8 +381,9 @@ class RoboticConfigurationFrame(GeneralFrame):
         
         self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
         
-        print(self.robotic_properties.DH_parameters_table)
-        print()
+        self.update_table()
+
+    
         
 
 # -----------------------------------------------------------------------------------------------------------------------------
