@@ -280,7 +280,7 @@ class RoboticConfigurationFrame(GeneralFrame):
         self.robotic_properties = robotic_properties
 
         self.entries_table = []
-        self.first_time = True
+        self.pointer_actuator_vector = []
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - GUI Components- - - - - - - - - -
@@ -297,11 +297,11 @@ class RoboticConfigurationFrame(GeneralFrame):
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
         
+        # Placing the components for the DH table.
         headings = ['θ', 'd', 'a', 'α']
         for col, head in enumerate(headings):
-            print(head)
             label = ttk.Label(self, text=head, justify='right')
-            label.place(relx=0.4 + col * 0.05, rely=0.2,
+            label.place(relx=0.6 + col * 0.05, rely=0.2,
                         anchor='center', width=40,)
         
         # Packing components.
@@ -309,7 +309,7 @@ class RoboticConfigurationFrame(GeneralFrame):
         self.home_return_button.place(relx=0.3, rely=0.8, anchor='center')
 
         # Starting methods.
-        self.update_table()
+        self.update_visual_table()
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Methods - - - - - - - - - - - - -
@@ -320,24 +320,36 @@ class RoboticConfigurationFrame(GeneralFrame):
             for entry in row:
                 entry.destroy()
 
-    def update_table(self):
-        
+    # ------------------------------------------------
+
+    def update_visual_table(self):
+
         self.delete_table()
 
         self.entries_table = []
 
         for row in range(0, self.robotic_properties.degrees_of_freedom):  
             new_row = []
-            for col in range(4):  
+            for col in range(5):  
 
-                idx = 0.4 + col * 0.05
+                idx = 0.6 + col * 0.05
                 idy = 0.3 + row * 0.1
 
-                validate_numbers_only = self.register(self.validate_entry)
+                # Final Button to change the pointer.
+                if col == 4:
+                    button = ttk.Button(self, text='Rotatory')
+                    button.place(relx=idx, rely=idy, anchor='center', width=80)
+                    continue
+
+                validate_numbers = self.register(self.validate_entry)
                                 
-                entry = ttk.Entry(self, validate='key', validatecommand=(validate_numbers_only, "%P"))
-                entry.place(relx=idx, rely=idy, 
-                            anchor='center', width=40)
+                entry = ttk.Entry(self, validate='all', validatecommand=(validate_numbers, "%P", "%V"))
+                entry.bind("<FocusOut>", self.focus_out_update_table_zeros)
+                entry.place(relx=idx, rely=idy, anchor='center', width=40)
+                
+                value = self.robotic_properties.DH_parameters_table[row, col]
+                entry.insert(0, value)
+                
                 new_row.append(entry)
 
             self.entries_table.append(new_row)
@@ -346,28 +358,46 @@ class RoboticConfigurationFrame(GeneralFrame):
     # - - - - - - - - - - Bindings- - - - - - - - - - - - -
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def block_keys(self, event):
-        print(event)
         return "break"
     
-    def validate_entry(self, value:str):
-        # Verificar si el valor ingresado es un número o está vacío
-        return value == "" or value.replace(".", "", 1).isdigit()
+    # ------------------------------------------------
+
+    def validate_entry(self, value:str, motive):
+        if motive == "focusout":  
+            self.focus_out_update_table_zeros(None)
+            # TODO: Update DH table.
+            return True
+        elif value == "" or value.replace(".", "", 1).isdigit():
+            # TODO: Update DH table.
+            return True
+        else:
+            return False
+    
+    # ------------------------------------------------
+
+    def focus_out_update_table_zeros(self, _):
+        for row in self.entries_table:
+            for entry in row:
+                if entry.get() == "":
+                    entry.insert(0,"0")
+
+    # ------------------------------------------------
     
     def dof_increment(self, _):
         if int(self.DOF_entry.get()) == self.robotic_properties.dof_upp_limit:
             return
-        
-        new_line = np.array([0,0,0,0])
 
         self.robotic_properties.degrees_of_freedom += 1
-
+        
+        new_line = np.array([0,0,0,0])
         self.robotic_properties.DH_parameters_table = np.append(self.robotic_properties.DH_parameters_table, 
                                                                 [new_line], axis=0)
         
         self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
 
-        self.update_table()
-        
+        self.update_visual_table()
+
+    # ------------------------------------------------    
     
     def dof_decrement(self, _):
         if int(self.DOF_entry.get()) == self.robotic_properties.dof_inf_limit:
@@ -381,9 +411,9 @@ class RoboticConfigurationFrame(GeneralFrame):
         
         self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
         
-        self.update_table()
+        self.update_visual_table()
 
-    
+    # ------------------------------------------------
         
 
 # -----------------------------------------------------------------------------------------------------------------------------
