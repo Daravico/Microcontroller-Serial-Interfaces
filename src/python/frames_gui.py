@@ -44,7 +44,7 @@ class FrameHandler:
                 continue
 
             # FIXME: Check from where this problem comes from.
-            if frame != selected_frame:
+            if frame.name != frame_name:
                 frame.pack_forget()
                 continue
 
