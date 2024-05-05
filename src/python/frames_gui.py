@@ -339,7 +339,7 @@ class RoboticConfigurationFrame(GeneralFrame):
                 # Final Button to change the pointer.
                 if col == 4:
                     button = ttk.Button(self, text='Rotatory')
-                    button.place(relx=idx, rely=idy, anchor='center', width=80)
+                    button.place(relx=idx + 0.05, rely=idy, anchor='center', width=80)
                     continue
 
                 validate_numbers = self.register(self.validate_entry)
@@ -368,7 +368,12 @@ class RoboticConfigurationFrame(GeneralFrame):
             self.focus_out_update_table_zeros(None)
             # TODO: Update DH table.
             return True
-        elif value == "" or value.replace(".", "", 1).isdigit():
+        elif value == "":
+            return True
+        elif value == "-" and not value[1:].isdigit():
+            # TODO: Update DH table.
+            return True
+        elif value.replace(".", "", 1).isdigit() or (value.startswith("-") and value[1:].replace(".", "", 1).isdigit()):
             # TODO: Update DH table.
             return True
         else:

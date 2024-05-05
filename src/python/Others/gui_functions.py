@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from serial import Serial
-import serial_configuration
+import python.Others.serial_configuration as serial_configuration
 from robotic_library import *
 import numpy as np
 

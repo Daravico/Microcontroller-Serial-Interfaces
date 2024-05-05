@@ -7,18 +7,6 @@ from frames_gui import *
 from serial_library import SerialObject
 from robotic_library import RoboticProperties
 
-
-
-# TODO: 
-# Here define the window (Already done).
-
-# First define the robot properties, then update the frames.
-
-# Define the initial DH parameters and pass them as parameters.
-# Define initial configurations for robotics_properties.
-# Define initial configurations for serial_configuration.
-
-
 class PrincipalWindow:
     def __init__(self, root:tk.Tk):
         # Reference to the main application.

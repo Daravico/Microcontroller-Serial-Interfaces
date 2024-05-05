@@ -1,4 +1,4 @@
-import serial_configuration
+import python.Others.serial_configuration as serial_configuration
 import serial
 import os
 
