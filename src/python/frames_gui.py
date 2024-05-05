@@ -43,6 +43,7 @@ class FrameHandler:
                 frame.pack(side="right", anchor="center", expand=True, fill='both')
                 continue
 
+            # FIXME: Check from where this problem comes from.
             if frame != selected_frame:
                 frame.pack_forget()
                 continue
