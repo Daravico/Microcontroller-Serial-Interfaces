@@ -3,7 +3,7 @@ import numpy as np
 
 from typing import List
 
-from frames_gui import *
+from frames_library import *
 from serial_library import SerialObject
 from robotic_library import RoboticProperties
 
