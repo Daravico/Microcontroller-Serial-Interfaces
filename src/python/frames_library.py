@@ -320,6 +320,9 @@ class RoboticConfigurationFrame(GeneralFrame):
         self.step_x = 0.05
         self.step_y = 0.1
 
+        # Visualization of degrees or radians.
+        self.radians_state = tk.BooleanVar()
+
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -330,6 +333,11 @@ class RoboticConfigurationFrame(GeneralFrame):
         self.DOF_entry.bind("<<Increment>>", self.dof_increment)
         self.DOF_entry.bind("<<Decrement>>", self.dof_decrement)
 
+        self.radians_Checkbutton = ttk.Checkbutton(self, 
+                                                   text='Radians', 
+                                                   command=self.radians_visual_update,
+                                                   variable=self.radians_state)
+
         self.home_return_button = ttk.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
@@ -337,6 +345,7 @@ class RoboticConfigurationFrame(GeneralFrame):
         
         # Placing components.
         self.DOF_entry.place(relx=0.3, rely=0.1, anchor='center')
+        self.radians_Checkbutton.place(relx=0.4, rely=0.1, anchor='center')
         self.home_return_button.place(relx=0.3, rely=0.8, anchor='center')
 
         # Placing the headings for the DH table.
@@ -360,7 +369,7 @@ class RoboticConfigurationFrame(GeneralFrame):
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Methods - - - - - - - - - - - - -
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    
+
     def clean_screen(self):
         '''
         
@@ -375,7 +384,21 @@ class RoboticConfigurationFrame(GeneralFrame):
         for col in self.entries_ranges_table:
             for entry in col:
                 entry.destroy()
-            
+
+    # ------------------------------------------------
+    def update_information(self):
+        '''
+        
+        '''
+        self.focus_out_update_table_triggers(None)
+        self.update_visual_tables()
+
+        # Updating the default configuration as well.
+        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
+
+        print(self.robotic_properties.DH_parameters_table)
+
+
     # ------------------------------------------------
 
     def update_visual_tables(self):
@@ -400,7 +423,6 @@ class RoboticConfigurationFrame(GeneralFrame):
             new_row_params = []
             new_row_ranges = []
 
-            
             # Looping for the ranges of each line.
             for col in range(2):
                 # Index for positional.
@@ -413,8 +435,14 @@ class RoboticConfigurationFrame(GeneralFrame):
                 range_entry.bind("<FocusOut>", self.focus_out_update_table_triggers)
                 range_entry.place(relx=idx-0.1, rely=idy, anchor='center', width=40)
 
-                # Inserting the value from the properties table.
+                # Extracting the value from the table.
                 value = self.robotic_properties.ranges[row, col]
+
+                # Visualization as degrees instead of radians.
+                #TODO: Implement this condition to transform.
+                if self.robotic_properties.pointer_actuators[row] == 0 and self.radians_state.get():
+                    value = np.rad2deg(value)
+
                 range_entry.insert(0, value)
 
                 new_row_ranges.append(range_entry)
@@ -437,8 +465,15 @@ class RoboticConfigurationFrame(GeneralFrame):
                 if col == self.robotic_properties.pointer_actuators[row]:
                     entry.configure(style="dh_params_config.TEntry")
 
-                # Inserting the value from the properties table.
+                
+                # Extracting the value from the table.
                 value = self.robotic_properties.DH_parameters_table[row, col]
+
+                # Visualization as degrees instead of radians.
+                #TODO: Implement this condition to transform.
+                #if (col == 0 or col == 3) and self.radians_state.get():
+                #    value = np.rad2deg(value)
+
                 entry.insert(0, value)
                 
                 new_row_params.append(entry)
@@ -472,11 +507,17 @@ class RoboticConfigurationFrame(GeneralFrame):
         # Toggle the variable with boolean logic and back to int.
         self.robotic_properties.pointer_actuators[row] = int(not(current_value))
 
-        self.focus_out_update_table_triggers(None)
-        self.update_visual_tables()
+        self.update_information()
+
+    # ------------------------------------------------
+    
+    def radians_visual_update(self):
+        '''
         
-        # Updating the default configuration as well.
-        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
+        '''
+        print(self.radians_state.get())
+        self.update_information()
+
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Bindings- - - - - - - - - - - - -
@@ -501,11 +542,7 @@ class RoboticConfigurationFrame(GeneralFrame):
 
         # Lost focus on the entry, verifying changes.
         if motive == "focusout":  
-            self.focus_out_update_table_triggers(None)
-            self.update_visual_tables()
-
-            # Updating the default configuration as well.
-            self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
+            self.update_information()
             
             # TODO: If required to optimize, save the value and compare it to see if changes had been made.
             return True
@@ -534,21 +571,32 @@ class RoboticConfigurationFrame(GeneralFrame):
         # Updates validation in the ranges table.
         for row, pair in enumerate(self.entries_ranges_table):
             for col, entry in enumerate(pair):
+                # Extracted for readability.
+                value = entry.get()
+
                 # Emtpy entry.
-                if entry.get() == "":
+                if value == "":
                     entry.insert(0,"0")
 
                 # Only minus sign in the entry.
-                if entry.get() == "-":
+                if value == "-":
                     entry.delete(0, tk.END)
                     entry.insert(0,"0")
 
                 # Not letting passing to the other sides (Min/Max).
-                if col == 0 and float(entry.get()) > self.robotic_properties.ranges[row, 1]:
+                max_range = self.robotic_properties.ranges[row, 1]
+                min_range = self.robotic_properties.ranges[row, 0]
+
+                # In case the conversion is required.
+                if self.robotic_properties.pointer_actuators[row] == 0 and self.radians_state:
+                    value = str(np.deg2rad(float(value)))
+
+                if col == 0 and float(value) > max_range:
                     entry.delete(0, tk.END)
+                    # TODO: The insertion needs to be in degrees if specified.
                     entry.insert(0, self.robotic_properties.ranges[row, 1] - 1)
 
-                if col == 1 and float(entry.get()) < self.robotic_properties.ranges[row, 0]:
+                if col == 1 and float(value) < min_range:
                     entry.delete(0, tk.END)
                     entry.insert(0, self.robotic_properties.ranges[row, 0] + 1)
 
