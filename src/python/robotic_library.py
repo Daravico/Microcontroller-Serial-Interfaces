@@ -38,6 +38,10 @@ class RoboticProperties:
         # Extracted degrees of freedom from the previous list (All must be the same).
         self.degrees_of_freedom = len(q)
 
+        # Pointer to the actuators, active axis in the DH parameters (Either index 0 or 1). By default, Q's.
+        self.pointer_actuators = np.zeros(3)
+        self.pointer_actuators[1] = 1
+
         # Saving the information about the ranges for the joints.
         self.ranges = ranges
 

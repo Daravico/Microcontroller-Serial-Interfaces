@@ -18,6 +18,18 @@ class PrincipalWindow:
 
         # Robotic properties.
         # TODO: Organize to keep this in other site.
+        
+        # ________________________________________________________________________
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - TTK Styles- - - - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        self.entry_dh_params_style = ttk.Style()
+        self.entry_dh_params_style.configure("dh_params_config.TEntry", 
+                                             foreground = 'red', fieldbackground="#ff0000")
+
+        # ________________________________________________________________________
 
         self.robotic_properties = RoboticProperties()
 
