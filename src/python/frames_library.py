@@ -202,7 +202,7 @@ class SerialConfigurationFrame(GeneralFrame):
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
 
-        # Serial Configuration frame components packing.
+        # Serial Configuration frame components placing.
         self.load_serial_button.place(relx=0.5, rely=0.2, anchor='center')
         self.selected_port_name_label.place(relx=0.5, rely=0.3, anchor='center')
         self.selected_port_desc_label.place(relx=0.5, rely=0.4, anchor='center')
@@ -335,19 +335,26 @@ class RoboticConfigurationFrame(GeneralFrame):
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
         
-        # Placing the components for the DH table.
-        headings = ['θ', 'd', 'a', 'α']
-        for col, head in enumerate(headings):
-            label = ttk.Label(self, text=head, justify='right')
-            label.place(relx=self.start_x + col * self.step_x, rely=self.start_y - self.step_y,
-                        anchor='center', width=40)
-        
-        # Packing components.
+        # Placing components.
         self.DOF_entry.place(relx=0.3, rely=0.1, anchor='center')
         self.home_return_button.place(relx=0.3, rely=0.8, anchor='center')
 
+        # Placing the headings for the DH table.
+        headings = ['θ', 'd', 'a', 'α']
+        for col, head in enumerate(headings):
+            label = ttk.Label(self, text=head, justify='right')
+            label.place(relx=self.start_x + col * self.step_x, 
+                        rely=self.start_y - self.step_y,
+                        anchor='center', width=80)
+            
+        # Placing the heading for the Ranges.
+        label = ttk.Label(self, text="Ranges", justify='center')
+        label.place(relx=self.start_x - self.step_x * 3.5,
+                    rely=self.start_y - self.step_y,
+                    anchor='center', width=50)
+
         # Starting methods.
-        self.update_visual_table()
+        self.update_visual_tables()
 
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -371,7 +378,7 @@ class RoboticConfigurationFrame(GeneralFrame):
             
     # ------------------------------------------------
 
-    def update_visual_table(self):
+    def update_visual_tables(self):
         '''
         
         '''
@@ -379,33 +386,51 @@ class RoboticConfigurationFrame(GeneralFrame):
         # The table is first deleted to later be refreshed.
         self.clean_screen()
 
-        # Entries table is reset.
+        # Entries tables are reset.
         self.entries_parameters_table = []
+        self.entries_ranges_table = []
+        self.button_actuator_table = []
+
+        # Function registration for its binding.
+        validate_numbers = self.register(self.validate_entry)
 
         # Looping each line according to the DOF.
         for row in range(0, self.robotic_properties.degrees_of_freedom):  
             # Empty row on each iteration.
             new_row_params = []
+            new_row_ranges = []
 
             
-            # TODO: new row for entries for ranges
+            # Looping for the ranges of each line.
+            for col in range(2):
+                # Index for positional.
+                idx = self.start_x - self.step_x * 2 + col * self.step_x
+                idy = self.start_y + row * self.step_y
 
-            # TODO: implement for loop for the ranges entries.
-            # NOTE: FOR LOOP NOT QUITE REQUIRED, AS THERE IS MIN AN MAX RANGES.
+                # Entry for each of the range selection.
+                range_entry = ttk.Entry(self, validate='all', 
+                                        validatecommand=(validate_numbers, "%P", "%V"))
+                range_entry.bind("<FocusOut>", self.focus_out_update_table_triggers)
+                range_entry.place(relx=idx-0.1, rely=idy, anchor='center', width=40)
+
+                # Inserting the value from the properties table.
+                value = self.robotic_properties.ranges[row, col]
+                range_entry.insert(0, value)
+
+                new_row_ranges.append(range_entry)
+
 
             # Loop for the DH parameters table.
             for col in range(4):  
                 
-                # Index for positional
+                # Index for positional.
                 idx = self.start_x + col * self.step_x
                 idy = self.start_y + row * self.step_y
-                
-                # Function registration for its binding.
-                validate_numbers = self.register(self.validate_entry)
 
                 # Singular entry being created, bound and placed.
-                entry = ttk.Entry(self, validate='all', validatecommand=(validate_numbers, "%P", "%V"))
-                entry.bind("<FocusOut>", self.focus_out_update_table_zeros)
+                entry = ttk.Entry(self, validate='all', 
+                                  validatecommand=(validate_numbers, "%P", "%V"))
+                entry.bind("<FocusOut>", self.focus_out_update_table_triggers)
                 entry.place(relx=idx, rely=idy, anchor='center', width=40)
                 
                 # In case it is the entry for a configurated actuator.
@@ -418,31 +443,53 @@ class RoboticConfigurationFrame(GeneralFrame):
                 
                 new_row_params.append(entry)
 
+
             # Final Button to change the pointer.
             button = ttk.Button(self)
             button.configure(command=partial(self.button_toggle_actuator, button, row))
             button.place(relx=self.start_x + 5 * self.step_x, 
                          rely=self.start_y + row * self.step_y, 
                          anchor='center', width=80)
-            self.button_actuator_table.append(button)
+            
 
             # Text configuration according to the current settings for the actuators.
             button.configure(text='Linear' if self.robotic_properties.pointer_actuators[row] else 'Rotatory')
+            
+            # Appending to the lists of components.
+            self.button_actuator_table.append(button)
             self.entries_parameters_table.append(new_row_params)
-
+            self.entries_ranges_table.append(new_row_ranges)
 
 
     # ------------------------------------------------
+
     def button_toggle_actuator(self, button:ttk.Button, row:int):
         '''
         
         '''
-        pass
         current_value = self.robotic_properties.pointer_actuators[row]
 
         # Toggle the variable with boolean logic and back to int.
         self.robotic_properties.pointer_actuators[row] = int(not(current_value))
-        self.update_visual_table()
+        self.update_visual_tables()
+
+    # ------------------------------------------------
+
+    # TODO: Make this function to update the values (When focus-out is accomplished)
+    # Update the tables for self.robotics_parameters with the tables on this configuration.
+    def values_update(self):
+        # Update Ranges table.
+        # Update DH parameters table.
+        # Pointers do not require to be updated.
+        for row in self.entries_parameters_table:
+            for col, entry in enumerate(row):
+                print(entry.get())
+
+        for row in self.entries_ranges_table:
+            for col, range in enumerate(row):
+                print(range.get())
+                
+        return
 
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -468,7 +515,10 @@ class RoboticConfigurationFrame(GeneralFrame):
 
         # Lost focus on the entry, verifying changes.
         if motive == "focusout":  
-            self.focus_out_update_table_zeros(None)
+            self.focus_out_update_table_triggers(None)
+            self.values_update()
+            self.update_visual_tables()
+            
             # TODO: Update DH table. (ONLY HERE IS REQUIRED, WHEN THE FOCUS OF THE ENTRY HAS BEEN LOST).
             # If required to optimize, save the value and compare it to see if changes had been made.
             return True
@@ -487,7 +537,7 @@ class RoboticConfigurationFrame(GeneralFrame):
     
     # ------------------------------------------------
 
-    def focus_out_update_table_zeros(self, _):
+    def focus_out_update_table_triggers(self, _):
         '''
         Binding callback called when the entries from the DH table has no parameters.
         It is also triggered when only the minus has been set, but there is no other number.
@@ -504,6 +554,17 @@ class RoboticConfigurationFrame(GeneralFrame):
                     entry.delete(0, tk.END)
                     entry.insert(0,"0")
 
+        for pair in self.entries_ranges_table:
+            for entry in pair:
+                # Emtpy entry.
+                if entry.get() == "":
+                    entry.insert(0,"0")
+
+                # Only minus sign in the entry.
+                if entry.get() == "-":
+                    entry.delete(0, tk.END)
+                    entry.insert(0,"0")
+
     # ------------------------------------------------
     
     def dof_increment(self, _):
@@ -511,7 +572,8 @@ class RoboticConfigurationFrame(GeneralFrame):
         If the entry for the Degrees of Freedom configuration is incremented, the robotics
         parameters is updated, as well for the DH table. Visually, a new row is added as well.
         This new row has the default values set to zero. The established limits in the 
-        robotic properties can not be passed. The pointer to the actuator is also updated.
+        robotic properties can not be passed. The pointer to the actuator and the list for the
+        ranges are also updated.
         '''
 
         # Verifying not passing the upper limit.
@@ -520,10 +582,15 @@ class RoboticConfigurationFrame(GeneralFrame):
 
         self.robotic_properties.degrees_of_freedom += 1
 
-        # Adding the new empty row.        
+        # Adding the new empty row for the DH parameters.        
         new_line = np.array([0,0,0,0])
         self.robotic_properties.DH_parameters_table = np.append(self.robotic_properties.DH_parameters_table, 
                                                                 [new_line], axis=0)
+        
+        # Adding the new empty row for the ranges.
+        new_line = np.array([0,0])
+        self.robotic_properties.ranges = np.append(self.robotic_properties.ranges, 
+                                                   [new_line], axis=0)
         
         # Adding another pointer to the vector.
         self.robotic_properties.pointer_actuators = np.append(self.robotic_properties.pointer_actuators, 0)
@@ -532,7 +599,7 @@ class RoboticConfigurationFrame(GeneralFrame):
         self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
 
         # Self visual table is also updated with these changes.
-        self.update_visual_table()
+        self.update_visual_tables()
 
     # ------------------------------------------------    
     
@@ -541,7 +608,7 @@ class RoboticConfigurationFrame(GeneralFrame):
         If the entry for the Degrees of Freedom configuration is decreased, the robotics
         parameters is updated, as well for the DH table. Visually, the last row is deleted.
         The established limits in the robotic properties can not be passed. The pointer to 
-        the actuator is also updated.
+        the actuator and the list for the ranges are also updated.
         '''
         # Verifying not passing the inferior limit.
         if int(self.DOF_entry.get()) == self.robotic_properties.dof_inf_limit:
@@ -549,20 +616,25 @@ class RoboticConfigurationFrame(GeneralFrame):
         
         self.robotic_properties.degrees_of_freedom -= 1
 
-        # Removing last row.  
+        # Removing last row for the DH parameters.  
         self.robotic_properties.DH_parameters_table = np.delete(self.robotic_properties.DH_parameters_table,
-                                                                self.robotic_properties.degrees_of_freedom - 1,
+                                                                self.robotic_properties.degrees_of_freedom,
                                                                 axis=0)
+        
+        # Removing last row for the ranges.  
+        self.robotic_properties.ranges = np.delete(self.robotic_properties.ranges,
+                                                   self.robotic_properties.degrees_of_freedom,
+                                                   axis=0)
         
         # Removing the last pointer from the vector.
         self.robotic_properties.pointer_actuators = np.delete(self.robotic_properties.pointer_actuators, 
-                                                              self.robotic_properties.degrees_of_freedom - 1)
+                                                              self.robotic_properties.degrees_of_freedom)
         
         # Updating the default DH table values.
         self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
         
         # Self visual table is also updated with these changes.
-        self.update_visual_table()
+        self.update_visual_tables()
         
 
 # -----------------------------------------------------------------------------------------------------------------------------
