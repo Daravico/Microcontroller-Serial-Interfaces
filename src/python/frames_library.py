@@ -471,7 +471,12 @@ class RoboticConfigurationFrame(GeneralFrame):
 
         # Toggle the variable with boolean logic and back to int.
         self.robotic_properties.pointer_actuators[row] = int(not(current_value))
+
+        self.focus_out_update_table_triggers(None)
         self.update_visual_tables()
+        
+        # Updating the default configuration as well.
+        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Bindings- - - - - - - - - - - - -
@@ -525,8 +530,6 @@ class RoboticConfigurationFrame(GeneralFrame):
         It is also triggered when only the minus has been set, but there is no other number.
         Automatically sets the entry to zero.
         '''
-
-        # TODO: Make the updates here, as well.
 
         # Updates validation in the ranges table.
         for row, pair in enumerate(self.entries_ranges_table):
