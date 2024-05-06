@@ -463,7 +463,7 @@ class RoboticConfigurationFrame(GeneralFrame):
 
     # ------------------------------------------------
 
-    def button_toggle_actuator(self, button:ttk.Button, row:int):
+    def button_toggle_actuator(self, _:ttk.Button, row:int):
         '''
         
         '''
@@ -472,31 +472,6 @@ class RoboticConfigurationFrame(GeneralFrame):
         # Toggle the variable with boolean logic and back to int.
         self.robotic_properties.pointer_actuators[row] = int(not(current_value))
         self.update_visual_tables()
-
-    # ------------------------------------------------
-
-    def values_update(self):
-        '''
-        
-        '''
-        # Update for the DH parameters table.
-        for row, set_values in enumerate(self.entries_parameters_table):
-            for col, entry in enumerate(set_values):
-                self.robotic_properties.DH_parameters_table[row, col] = entry.get()
-
-        # Updating the default configuration as well.
-        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
-
-        # Updating the ranges table.
-        for row, pair_ranges in enumerate(self.entries_ranges_table):
-            for col, range in enumerate(pair_ranges):
-                self.robotic_properties.ranges[row, col] = range.get()
-
-    # ------------------------------------------------
-
-    def ranges_verification(self):
-        pass
-
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Bindings- - - - - - - - - - - - -
@@ -522,11 +497,12 @@ class RoboticConfigurationFrame(GeneralFrame):
         # Lost focus on the entry, verifying changes.
         if motive == "focusout":  
             self.focus_out_update_table_triggers(None)
-            self.values_update()
             self.update_visual_tables()
+
+            # Updating the default configuration as well.
+            self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
             
-            # TODO: Update DH table. (ONLY HERE IS REQUIRED, WHEN THE FOCUS OF THE ENTRY HAS BEEN LOST).
-            # If required to optimize, save the value and compare it to see if changes had been made.
+            # TODO: If required to optimize, save the value and compare it to see if changes had been made.
             return True
         
         # Characters validation.
@@ -549,6 +525,35 @@ class RoboticConfigurationFrame(GeneralFrame):
         It is also triggered when only the minus has been set, but there is no other number.
         Automatically sets the entry to zero.
         '''
+
+        # TODO: Make the updates here, as well.
+
+        # Updates validation in the ranges table.
+        for row, pair in enumerate(self.entries_ranges_table):
+            for col, entry in enumerate(pair):
+                # Emtpy entry.
+                if entry.get() == "":
+                    entry.insert(0,"0")
+
+                # Only minus sign in the entry.
+                if entry.get() == "-":
+                    entry.delete(0, tk.END)
+                    entry.insert(0,"0")
+
+                # Not letting passing to the other sides (Min/Max).
+                if col == 0 and float(entry.get()) > self.robotic_properties.ranges[row, 1]:
+                    entry.delete(0, tk.END)
+                    entry.insert(0, self.robotic_properties.ranges[row, 1] - 1)
+
+                if col == 1 and float(entry.get()) < self.robotic_properties.ranges[row, 0]:
+                    entry.delete(0, tk.END)
+                    entry.insert(0, self.robotic_properties.ranges[row, 0] + 1)
+
+                # Once verified, making the updates.
+                self.robotic_properties.ranges[row, col] = entry.get()
+
+
+        # Updates validation in the DH parameters table.
         for row, line_entries in enumerate(self.entries_parameters_table):
             for col, entry in enumerate(line_entries):
                 
@@ -565,31 +570,21 @@ class RoboticConfigurationFrame(GeneralFrame):
                     entry.insert(0,"0")
 
                 # Out of ranges bounds. Only verified for parameters of actuators.
-                if col != self.robotic_properties.pointer_actuators[row]:
-                    continue
+                if col == self.robotic_properties.pointer_actuators[row]:
+                    min_range = self.robotic_properties.ranges[row, 0]
+                    max_range = self.robotic_properties.ranges[row, 1]
 
-                min_range = self.robotic_properties.ranges[row, 0]
-                max_range = self.robotic_properties.ranges[row, 1]
+                    if float(value) < min_range:
+                        entry.delete(0, tk.END)
+                        entry.insert(0, min_range)
 
-                if float(value) < min_range:
-                    entry.delete(0, tk.END)
-                    entry.insert(0, min_range)
+                    if float(value) > max_range:
+                        entry.delete(0, tk.END)
+                        entry.insert(0, max_range)
 
-                if float(value) > max_range:
-                    entry.delete(0, tk.END)
-                    entry.insert(0, max_range)
-
-        for pair in self.entries_ranges_table:
-            for entry in pair:
-                # Emtpy entry.
-                if entry.get() == "":
-                    entry.insert(0,"0")
-
-                # Only minus sign in the entry.
-                if entry.get() == "-":
-                    entry.delete(0, tk.END)
-                    entry.insert(0,"0")
-
+                # Once verified, making the updates.
+                self.robotic_properties.DH_parameters_table[row, col] = entry.get()
+        
     # ------------------------------------------------
     
     def dof_increment(self, _):
