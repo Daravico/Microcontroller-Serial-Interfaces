@@ -309,8 +309,16 @@ class RoboticConfigurationFrame(GeneralFrame):
         # Saving the information of the robotic properties. Futher changes are also updated.
         self.robotic_properties = robotic_properties
 
-        # Entry tables that are displayed for DH parameters configuration.
-        self.entries_parameters_table = []
+        # Table lists to be able to clean the screen by deleting these objects.
+        self.entries_parameters_table:List[List[ttk.Entry]] = []
+        self.button_actuator_table:List[ttk.Button] = []
+        self.entries_ranges_table:List[List[ttk.Entry]] = []
+
+        # Placing variables.
+        self.start_x = 0.3
+        self.start_y = 0.3
+        self.step_x = 0.05
+        self.step_y = 0.1
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - GUI Components- - - - - - - - - -
@@ -331,7 +339,7 @@ class RoboticConfigurationFrame(GeneralFrame):
         headings = ['θ', 'd', 'a', 'α']
         for col, head in enumerate(headings):
             label = ttk.Label(self, text=head, justify='right')
-            label.place(relx=0.6 + col * 0.05, rely=0.2,
+            label.place(relx=self.start_x + col * self.step_x, rely=self.start_y - self.step_y,
                         anchor='center', width=40)
         
         # Packing components.
@@ -346,7 +354,7 @@ class RoboticConfigurationFrame(GeneralFrame):
     # - - - - - - - - - - Methods - - - - - - - - - - - - -
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     
-    def delete_table(self):
+    def clean_screen(self):
         '''
         
         '''
@@ -354,6 +362,13 @@ class RoboticConfigurationFrame(GeneralFrame):
             for entry in row:
                 entry.destroy()
 
+        for button in self.button_actuator_table:
+            button.destroy()
+
+        for col in self.entries_ranges_table:
+            for entry in col:
+                entry.destroy()
+            
     # ------------------------------------------------
 
     def update_visual_table(self):
@@ -362,14 +377,10 @@ class RoboticConfigurationFrame(GeneralFrame):
         '''
 
         # The table is first deleted to later be refreshed.
-        self.delete_table()
+        self.clean_screen()
 
         # Entries table is reset.
         self.entries_parameters_table = []
-
-        # Index for the position of the parameters entries.
-        start_x = 0.6
-        start_y = 0.3
 
         # Looping each line according to the DOF.
         for row in range(0, self.robotic_properties.degrees_of_freedom):  
@@ -377,20 +388,17 @@ class RoboticConfigurationFrame(GeneralFrame):
             new_row_params = []
 
             
-            # TODO: new row for entries for ranges.
-            step_x = 0.05
-            step_y = 0.1
+            # TODO: new row for entries for ranges
 
             # TODO: implement for loop for the ranges entries.
             # NOTE: FOR LOOP NOT QUITE REQUIRED, AS THERE IS MIN AN MAX RANGES.
-
 
             # Loop for the DH parameters table.
             for col in range(4):  
                 
                 # Index for positional
-                idx = start_x + col * step_x
-                idy = start_y + row * step_y
+                idx = self.start_x + col * self.step_x
+                idy = self.start_y + row * self.step_y
                 
                 # Function registration for its binding.
                 validate_numbers = self.register(self.validate_entry)
@@ -404,7 +412,6 @@ class RoboticConfigurationFrame(GeneralFrame):
                 if col == self.robotic_properties.pointer_actuators[row]:
                     entry.configure(style="dh_params_config.TEntry")
 
-
                 # Inserting the value from the properties table.
                 value = self.robotic_properties.DH_parameters_table[row, col]
                 entry.insert(0, value)
@@ -414,11 +421,16 @@ class RoboticConfigurationFrame(GeneralFrame):
             # Final Button to change the pointer.
             button = ttk.Button(self)
             button.configure(command=partial(self.button_toggle_actuator, button, row))
-            button.place(relx=start_x + 5 * step_x, rely=start_y + row * step_y, anchor='center', width=80)
+            button.place(relx=self.start_x + 5 * self.step_x, 
+                         rely=self.start_y + row * self.step_y, 
+                         anchor='center', width=80)
+            self.button_actuator_table.append(button)
 
             # Text configuration according to the current settings for the actuators.
             button.configure(text='Linear' if self.robotic_properties.pointer_actuators[row] else 'Rotatory')
             self.entries_parameters_table.append(new_row_params)
+
+
 
     # ------------------------------------------------
     def button_toggle_actuator(self, button:ttk.Button, row:int):
