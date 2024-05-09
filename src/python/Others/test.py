@@ -1,19 +1,3 @@
-'''
-import numpy as np
-
-# Tamaño del array principal
-size = 5
-
-# Crear un array NumPy principal de tamaño específico con matrices NumPy 4x4 sin inicializar valores
-array = np.array([np.empty((4, 4)) for _ in range(size)])
-
-# Realizar el producto cruz entre todas las matrices 4x4
-result = np.eye(4)  # Matriz de resultados inicializada con ceros
-for matrix in array:
-    result = result @ matrix
-
-print(result)
-'''
 import tkinter as tk
 from tkinter import ttk
 
@@ -37,26 +21,28 @@ class TablaDH:
                 validar_numeros = self.master.register(self.validar_entrada)
                 entry = ttk.Entry(self.frame, validate="all", validatecommand=(validar_numeros, "%P", "%V"))
                 entry.grid(row=i, column=j, padx=5, pady=5)
-                entry.bind("<FocusOut>", self.validar_salida_foco)
+                # Pasar argumentos adicionales al bind de FocusOut utilizando una función lambda
+                entry.bind("<FocusOut>", lambda event, fila=i, columna=j: self.validar_salida_foco(event, fila, columna))
                 fila.append(entry)
             self.tabla.append(fila)
 
     def validar_entrada(self, valor, motivo):
         if motivo == "focusout":  # Si el evento es focusout
-            self.validar_salida_foco()
+            return True
+            # Llamar a validar_salida_foco con los parámetros adecuados
+            self.validar_salida_foco(None, None, None)
             return True
         elif valor == "" or valor.replace(".", "", 1).isdigit():
             return True
-        elif valor == "":  # Si el valor está vacío después de borrar manualmente
+        elif valor == "-":  # Permitir solo un signo negativo al principio
+            return True
+        elif valor.replace(".", "", 1).isdigit() or (valor.startswith("-") and valor[1:].replace(".", "", 1).isdigit()):
             return True
         else:
             return False
 
-    def validar_salida_foco(self, event=None):
-        for fila in self.tabla:
-            for entry in fila:
-                if entry.get() == "":
-                    entry.insert(0, "0")
+    def validar_salida_foco(self, event, fila, columna):
+        print("Se perdió el foco en la fila {}, columna {}".format(fila, columna))
 
 def main():
     root = tk.Tk()

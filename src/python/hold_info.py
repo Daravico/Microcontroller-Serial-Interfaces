@@ -64,30 +64,6 @@ class RoboticConfigurationFrame(CustomGrame):
         # Starting methods.
         self.update_information() # FIXME: Working prior.
 
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    # - - - - - - -Tested New Methods - - - - - - - - - - -
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-    def full_loop_iteration(self):
-        # TODO: If prior configurations are required.
-        pass
-        #for row, line in 
-
-
-    def update_dh_table(self):
-        pass
-
-    def update_rg_table(self):
-        pass
-
-    def refresh_visual_table_dh(self):
-        pass
-
-    def refresh_visual_table_rg(self):
-        pass
-
-
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # - - - - - - - - - - Methods - - - - - - - - - - - - -
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
