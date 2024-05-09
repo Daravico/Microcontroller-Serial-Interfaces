@@ -27,12 +27,12 @@ class TablaDH:
             self.tabla.append(fila)
 
     def validar_entrada(self, valor, motivo):
-        if motivo == "focusout":  # Si el evento es focusout
-            return True
+        #if motivo == "focusout":  # Si el evento es focusout
+        #    return True
             # Llamar a validar_salida_foco con los parámetros adecuados
-            self.validar_salida_foco(None, None, None)
-            return True
-        elif valor == "" or valor.replace(".", "", 1).isdigit():
+        #    self.validar_salida_foco(None, None, None)
+        #    return True
+        if valor == "" or valor.replace(".", "", 1).isdigit():
             return True
         elif valor == "-":  # Permitir solo un signo negativo al principio
             return True

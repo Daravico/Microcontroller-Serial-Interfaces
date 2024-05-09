@@ -344,13 +344,13 @@ class RoboticConfigurationFrame(CustomGrame):
 
         self.DOF_entry = ttk.Spinbox(self, from_=1, to=5)
         self.DOF_entry.set(self.robotic_properties.degrees_of_freedom)
-        #self.DOF_entry.bind("<Key>", self.block_keys) # FIXME: Working prior.
-        self.DOF_entry.bind("<<Increment>>", self.dof_modify_increase) # FIXME: Working prior.
-        self.DOF_entry.bind("<<Decrement>>", self.dof_modify_decrease) # FIXME: Working prior.
+        self.DOF_entry.bind("<Key>", self.block_keys) 
+        self.DOF_entry.bind("<<Increment>>", self.dof_modify_increase) 
+        self.DOF_entry.bind("<<Decrement>>", self.dof_modify_decrease) 
 
         self.degrees_Checkbutton = ttk.Checkbutton(self, 
                                                    text='Degrees', 
-                                                   command=self.degrees_toggle_checkbutton, # FIXME: Working prior.
+                                                   command=self.degrees_toggle_checkbutton, 
                                                    variable=self.degrees_state)
 
         self.home_return_button = ttk.Button(self, 
@@ -427,20 +427,28 @@ class RoboticConfigurationFrame(CustomGrame):
             
     # ------------------------------------------------
 
+    def block_keys(self, _):
+        '''
+        Event that triggers when any key is tried to be introduced. 
+        Fully blocked functionality.
+        '''
+        return "break"
+
     def create_entry_component(self, row:int, col:int, type_request:str):
         
         idx = 0
-        idy = 0
+        idy = self.start_y + row * self.step_y
         value = 0
 
-        # validate_numbers = self.register(True)#self.validate_entry) #TODO: Set the validate_entry function.
+        validate_numbers = self.register(self.entry_validation) 
         
         entry = CustomEntry(self, row, col, type_request)
+        entry.configure(validate="all", validatecommand=(validate_numbers, "%P", "%V"))
+        entry.bind("<FocusOut>", lambda event, row=row, col=col: self.entry_focus_out(event, row, col))
         
-        idy = self.start_y + row * self.step_y
 
         if type_request == "RANGE":
-            idx = self.start_x - self.step_x * 2 + col * self.step_x - 0.1
+            idx = self.start_x - self.step_x * 4 + col * self.step_x 
             
             value = self.robotic_properties.ranges[row, col]
 
@@ -456,11 +464,11 @@ class RoboticConfigurationFrame(CustomGrame):
 
         entry.place(relx=idx, rely=idy, anchor='center', width=40)
 
-
+        # TODO: NOT NEEDED, REMOVE.
         # Visualization as degrees instead of radians.
-        #TODO: Implement this condition to transform.
-        if self.robotic_properties.pointer_actuators[row] == 0 and self.degrees_state.get():
-            value = np.rad2deg(value)
+        #if self.robotic_properties.pointer_actuators[row] == 0 and self.degrees_state.get():
+        #    pass
+            #value = np.rad2deg(value)
 
         entry.insert(0, value)
         return entry
@@ -612,8 +620,19 @@ class RoboticConfigurationFrame(CustomGrame):
     # @@@ Entry Validation @@@
     # @@@@@@@@@@@@@@@@@@@@@@@@
 
-    def entry_changes(self):
-        pass
+    def entry_validation(self, value:str, _:str):
+
+        if value == "" or value.replace(".", "", 1).isdigit():
+            return True
+        elif value == "-":  
+            return True
+        elif value.replace(".", "", 1).isdigit() or (value.startswith("-") and value[1:].replace(".", "", 1).isdigit()):
+            return True
+        else:
+            return False
+
+    def entry_focus_out(self, _:tk.Event, row:int, col:int):
+        print(f"Focus out from {row} - {col}")
 
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@
     # @@@ Degrees/Radians Mode @@@
@@ -622,7 +641,6 @@ class RoboticConfigurationFrame(CustomGrame):
     def degrees_toggle_checkbutton(self):
         self.toggle_angles_ranges()
         self.toggle_angles_params()
-        
         
 
     def toggle_angles_ranges(self):
@@ -646,9 +664,6 @@ class RoboticConfigurationFrame(CustomGrame):
 
             sup_range_entry.delete(0, tk.END)
             sup_range_entry.insert(0, value_sup_range)
-
-
-
 
 
     def toggle_angles_params(self):
