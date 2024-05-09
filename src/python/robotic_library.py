@@ -8,7 +8,6 @@ d = [1,         0,           0]
 a = [0,         5,           3]
 A = [np.pi/2,   0,           0]
 
-# ranges = [[-90, 90], [0, 90], [0, 90]]
 ranges = np.array([[-np.pi/2, np.pi/2], [0, np.pi/2], [0, np.pi/2]])
 
 # ------------------------------------------------------------------------
@@ -41,7 +40,6 @@ class RoboticProperties:
 
         # Pointer to the actuators, active axis in the DH parameters (Either index 0 or 1). By default, Q's.
         self.pointer_actuators = np.zeros(3)
-        self.pointer_actuators[1] = 1
 
         # Saving the information about the ranges for the joints.
         self.ranges = ranges
@@ -67,18 +65,14 @@ class RoboticProperties:
         # Initialization of the position for the final efector.
         self.final_efector_vector = np.array([0,0,0])
 
-        self.update_tables()
+        self.initial_tables_creation()
 
     # ------------------------------------------------------------------------
 
-    def update_DH_table(self):
-        pass
-
-    def update_tables(self):
+    def initial_tables_creation(self):
         '''
         
         '''
-        self.update_DH_table()
 
         # Final transformation matrix is reset.
         self.final_transformation_matrix = np.eye(4)

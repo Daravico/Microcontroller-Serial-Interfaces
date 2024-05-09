@@ -620,7 +620,55 @@ class RoboticConfigurationFrame(CustomGrame):
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     def degrees_toggle_checkbutton(self):
-        print(self.degrees_state.get())
+        self.toggle_angles_ranges()
+        self.toggle_angles_params()
+        
+        
+
+    def toggle_angles_ranges(self):
+        for row in range(0, self.robotic_properties.degrees_of_freedom):
+            # In case the ranges are set for a linear actuator, not updating the row.
+            if self.robotic_properties.pointer_actuators[row] == 1:
+                continue
+
+            value_inf_range = self.robotic_properties.ranges[row, 0]
+            value_sup_range = self.robotic_properties.ranges[row, 1]
+
+            if self.degrees_state.get():
+                value_inf_range = np.rad2deg(value_inf_range)
+                value_sup_range = np.rad2deg(value_sup_range)
+
+            inf_range_entry = self.entries_ranges_table[row][0]
+            sup_range_entry = self.entries_ranges_table[row][1]
+
+            inf_range_entry.delete(0, tk.END)
+            inf_range_entry.insert(0, value_inf_range)
+
+            sup_range_entry.delete(0, tk.END)
+            sup_range_entry.insert(0, value_sup_range)
+
+
+
+
+
+    def toggle_angles_params(self):
+        for row in range(0, self.robotic_properties.degrees_of_freedom):
+            value_theta = self.robotic_properties.DH_default_table[row, 0]
+            value_alpha = self.robotic_properties.DH_default_table[row, 3]
+
+            if self.degrees_state.get():
+                value_theta = np.rad2deg(value_theta)
+                value_alpha = np.rad2deg(value_alpha)
+
+            theta_entry = self.entries_parameters_table[row][0]
+            alpha_entry = self.entries_parameters_table[row][3]
+
+            theta_entry.delete(0, tk.END)
+            theta_entry.insert(0, value_theta)
+
+            alpha_entry.delete(0, tk.END)
+            alpha_entry.insert(0, value_alpha)
+            
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     # SECONDARY FUNCTIONS.
