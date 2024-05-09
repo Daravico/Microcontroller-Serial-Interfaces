@@ -570,8 +570,6 @@ class RoboticConfigurationFrame(CustomGrame):
     # @@@ Toggle Actuator Selection @@@
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-
-
     def actuator_toggle_button(self, button:tk.Button, row:int):
         
         current_value = self.robotic_properties.pointer_actuators[row]
@@ -582,10 +580,31 @@ class RoboticConfigurationFrame(CustomGrame):
         # Text configuration according to the current settings for the actuators.
         button.configure(text='Linear' if self.robotic_properties.pointer_actuators[row] else 'Rotatory')
 
+        self.toggle_reset_entries(row)
+
     # ------------------------------------------------
 
-    def toggle_change_entry_visuals(self):
-        pass
+    def toggle_reset_entries(self, row:int):
+        # Pointer for the new parameter set as the actuator.
+        pointer = int(self.robotic_properties.pointer_actuators[row])
+
+        # Reset to the inferior range.
+        self.entries_ranges_table[row][0].delete(0, tk.END)
+        self.entries_ranges_table[row][0].insert(0,"0.0")
+        self.robotic_properties.ranges[row, 0] = 0
+
+        # Reset to the upper range.
+        self.entries_ranges_table[row][1].delete(0, tk.END)
+        self.entries_ranges_table[row][1].insert(0,"0.0")
+        self.robotic_properties.ranges[row, 1] = 0
+
+        # Reset of the new assigned parameter. Changing styles as well.
+        self.entries_parameters_table[row][pointer].delete(0, tk.END)
+        self.entries_parameters_table[row][pointer].insert(0,"0.0")
+        self.entries_parameters_table[row][pointer].configure(style="dh_params_config.TEntry")
+        self.entries_parameters_table[row][int(not pointer)].configure(style="default.TEntry")
+        self.robotic_properties.DH_parameters_table[row, pointer] = 0
+
 
     # ------------------------------------------------
 

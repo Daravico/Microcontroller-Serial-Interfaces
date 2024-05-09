@@ -28,6 +28,8 @@ class PrincipalWindow:
         self.entry_dh_params_style = ttk.Style()
         self.entry_dh_params_style.configure("dh_params_config.TEntry", 
                                              foreground = 'red', fieldbackground="#ff0000")
+        self.entry_dh_params_style.configure("default.TEntry", 
+                                             foreground = 'black', fieldbackground="#ff0000")
 
         # ________________________________________________________________________
 
