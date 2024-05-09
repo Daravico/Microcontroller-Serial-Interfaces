@@ -345,8 +345,8 @@ class RoboticConfigurationFrame(CustomGrame):
         self.DOF_entry = ttk.Spinbox(self, from_=1, to=5)
         self.DOF_entry.set(self.robotic_properties.degrees_of_freedom)
         #self.DOF_entry.bind("<Key>", self.block_keys) # FIXME: Working prior.
-        #self.DOF_entry.bind("<<Increment>>", self.dof_increment) # FIXME: Working prior.
-        #self.DOF_entry.bind("<<Decrement>>", self.dof_decrement) # FIXME: Working prior.
+        self.DOF_entry.bind("<<Increment>>", self.dof_modify_increase) # FIXME: Working prior.
+        self.DOF_entry.bind("<<Decrement>>", self.dof_modify_decrease) # FIXME: Working prior.
 
         self.degrees_Checkbutton = ttk.Checkbutton(self, 
                                                    text='Degrees', 
@@ -385,46 +385,10 @@ class RoboticConfigurationFrame(CustomGrame):
     # MAIN FUNCTIONS.
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-    def dof_modify_increase(self):
-        pass
-        # Function to increase the DOF
-        # Add a new line to the table, add visual entries.
-        # Function to Refresh Visual Tables (Both, with Degrees mode consideration) 
-
-
-
-    def dof_modify_decrease(self):
-        pass
-        # Function to decrease the DOF
-        # Remove last line on the table, remove/destroy visual entries.
-        # Function to Refresh Visual Tables (Both, with Degrees mode consideration) 
-
-
-
-    def actuator_toggle_button(self, button, row):
-        print(button)
-        print(row)
-
-
-
-    def entry_changes(self):
-        pass
-
-
-
-    def degrees_toggle_checkbutton(self):
-        print(self.degrees_state.get())
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    # SECONDARY FUNCTIONS.
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-    
-# TODO: Create 3 funtions for initial creation of the entries (Ranges, parameters and buttons, store in the arrays).
-
-
+    # -----------------------------
+    # @@@        General        @@@
+    # -----------------------------
     def initial_ranges_entries_request(self):
-        print(self.robotic_properties.ranges)
 
         for row in range(0, self.robotic_properties.degrees_of_freedom):
             new_row = []
@@ -436,11 +400,10 @@ class RoboticConfigurationFrame(CustomGrame):
             self.entries_ranges_table.append(new_row)
 
 
-
+    # ------------------------------------------------
 
 
     def initial_parameters_entries_request(self):
-        print(self.robotic_properties.DH_parameters_table)
 
         for row in range(0, self.robotic_properties.degrees_of_freedom):
             new_row = []
@@ -452,17 +415,17 @@ class RoboticConfigurationFrame(CustomGrame):
             self.entries_parameters_table.append(new_row)
 
 
-
+    # ------------------------------------------------
 
 
     def initial_pointer_buttons_request(self):
-        print(self.robotic_properties.pointer_actuators)
 
         for row in range(0, self.robotic_properties.degrees_of_freedom):
             button = self.create_button_component(row)
 
             self.button_actuator_table.append(button)
             
+    # ------------------------------------------------
 
     def create_entry_component(self, row:int, col:int, type_request:str):
         
@@ -502,8 +465,7 @@ class RoboticConfigurationFrame(CustomGrame):
         entry.insert(0, value)
         return entry
 
-
-
+    # ------------------------------------------------
 
     def create_button_component(self, row:int):
         button = ttk.Button(self)
@@ -516,6 +478,140 @@ class RoboticConfigurationFrame(CustomGrame):
         button.configure(text='Linear' if self.robotic_properties.pointer_actuators[row] else 'Rotatory')
 
         return button
+    
+
+    # -----------------------------
+    # @@@ Increase/Decrease DOF @@@
+    # -----------------------------
+
+    def dof_modify_increase(self, _:tk.Event):
+        # Verifying not passing the upper limit.
+        if int(self.DOF_entry.get()) == self.robotic_properties.dof_upp_limit:
+            return
+        
+        # Degrees of freedom increase.
+        self.robotic_properties.degrees_of_freedom += 1
+
+        # Setting the value for the new row.
+        row = self.robotic_properties.degrees_of_freedom - 1 
+
+        # Adding the new empty row for the DH parameters.        
+        new_line = np.array([0,0,0,0])
+        self.robotic_properties.DH_parameters_table = np.append(self.robotic_properties.DH_parameters_table, 
+                                                                [new_line], axis=0)
+        
+        # Adding the new empty row for the ranges.
+        new_line = np.array([0,0])
+        self.robotic_properties.ranges = np.append(self.robotic_properties.ranges, 
+                                                   [new_line], axis=0)
+        
+        # Adding another pointer to the vector.
+        self.robotic_properties.pointer_actuators = np.append(self.robotic_properties.pointer_actuators, 0)
+        
+        # Add a new line to the table, add visual entries. (RANGES, PARAMS Y BUTTON)
+        new_row_ranges = []
+        new_row_params = []
+
+        # Ranges
+        for col in range(2):
+            entry = self.create_entry_component(row, col, 'RANGE')
+            new_row_ranges.append(entry)
+
+        # Params
+        for col in range(4):
+            entry = self.create_entry_component(row, col, 'PARAMETER')
+            new_row_params.append(entry)
+
+        # Button
+        button = self.create_button_component(row)
+        
+        self.entries_ranges_table.append(new_row_ranges)
+        self.entries_parameters_table.append(new_row_params)
+        self.button_actuator_table.append(button)
+
+
+    def dof_modify_decrease(self, _:tk.Event):
+        # Verifying not passing the inferior limit.
+        if int(self.DOF_entry.get()) == self.robotic_properties.dof_inf_limit:
+            return
+        
+        self.robotic_properties.degrees_of_freedom -= 1
+
+        previous_last_row = self.robotic_properties.degrees_of_freedom
+        
+        # Removing last row for the DH parameters.  
+        self.robotic_properties.DH_parameters_table = np.delete(self.robotic_properties.DH_parameters_table,
+                                                                previous_last_row,
+                                                                axis=0)
+        
+        # Removing last row for the ranges.  
+        self.robotic_properties.ranges = np.delete(self.robotic_properties.ranges,
+                                                   self.robotic_properties.degrees_of_freedom,
+                                                   axis=0)
+        
+        # Removing the last pointer from the vector.
+        self.robotic_properties.pointer_actuators = np.delete(self.robotic_properties.pointer_actuators, 
+                                                              previous_last_row)
+
+        for entry in self.entries_ranges_table[previous_last_row]:
+            entry.destroy()
+
+        for entry in self.entries_parameters_table[previous_last_row]:
+            entry.destroy()
+
+        self.button_actuator_table[previous_last_row].destroy()
+
+        
+        self.entries_ranges_table.pop()
+        self.entries_parameters_table.pop()
+        self.button_actuator_table.pop()
+
+    # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    # @@@ Toggle Actuator Selection @@@
+    # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+    def actuator_toggle_button(self, button:tk.Button, row:int):
+        
+        current_value = self.robotic_properties.pointer_actuators[row]
+
+        # Toggle the variable with boolean logic and back to int.
+        self.robotic_properties.pointer_actuators[row] = int(not(current_value))
+
+        # Text configuration according to the current settings for the actuators.
+        button.configure(text='Linear' if self.robotic_properties.pointer_actuators[row] else 'Rotatory')
+
+    # ------------------------------------------------
+
+    def toggle_change_entry_visuals(self):
+        pass
+
+    # ------------------------------------------------
+
+    # @@@@@@@@@@@@@@@@@@@@@@@@
+    # @@@ Entry Validation @@@
+    # @@@@@@@@@@@@@@@@@@@@@@@@
+
+    def entry_changes(self):
+        pass
+
+    # @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    # @@@ Degrees/Radians Mode @@@
+    # @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    def degrees_toggle_checkbutton(self):
+        print(self.degrees_state.get())
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    # SECONDARY FUNCTIONS.
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+    
+# TODO: Create 3 funtions for initial creation of the entries (Ranges, parameters and buttons, store in the arrays).
+
+
+    
     
 
     
