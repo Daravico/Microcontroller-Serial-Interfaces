@@ -256,7 +256,7 @@ class ControlGUI:
         self.final_efector_position_label.place(relx=0.5, rely=0.73, anchor='center')
         self.final_efector_position_table.place(relx=0.5, rely=0.8, anchor='center')
 
-        self.update_table(self.robotic_properties.DH_parameters_table, self.dh_parameters_table)
+        self.update_table(self.robotic_properties.dh_params_save_table, self.dh_parameters_table)
         self.update_table(self.robotic_properties.final_transformation_matrix, self.transformation_matrix_table)
         self.update_table(self.robotic_properties.final_efector_vector, self.final_efector_position_table)
 
@@ -459,7 +459,7 @@ class ControlGUI:
 
         self.robotic_properties.initial_tables_creation()
 
-        self.update_table(self.robotic_properties.DH_parameters_table, self.dh_parameters_table)
+        self.update_table(self.robotic_properties.dh_params_save_table, self.dh_parameters_table)
         self.update_table(self.robotic_properties.final_transformation_matrix, self.transformation_matrix_table)
         self.update_table(self.robotic_properties.final_efector_vector, self.final_efector_position_table)
 

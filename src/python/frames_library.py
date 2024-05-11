@@ -434,6 +434,8 @@ class RoboticConfigurationFrame(CustomGrame):
         '''
         return "break"
 
+    # ------------------------------------------------
+
     def create_entry_component(self, row:int, col:int, type_request:str):
         
         idx = 0
@@ -444,20 +446,20 @@ class RoboticConfigurationFrame(CustomGrame):
         
         entry = CustomEntry(self, row, col, type_request)
         entry.configure(validate="all", validatecommand=(validate_numbers, "%P", "%V"))
-        entry.bind("<FocusOut>", lambda event, row=row, col=col: self.entry_focus_out(event, row, col))
+        
         
 
         if type_request == "RANGE":
             idx = self.start_x - self.step_x * 4 + col * self.step_x 
-            
+            entry.bind("<FocusOut>", lambda event, row=row, col=col: self.entry_ranges_focus_out(event, entry, row, col))
             value = self.robotic_properties.ranges[row, col]
 
         if type_request == "PARAMETER":
             idx = self.start_x + col * self.step_x
+            entry.bind("<FocusOut>", lambda event, row=row, col=col: self.entry_params_focus_out(event, entry, row, col))
+            value = self.robotic_properties.dh_params_save_table[row, col]
             
-            value = self.robotic_properties.DH_parameters_table[row, col]
-            
-            # In case it is the entry for a configurated actuator.
+            # Styling in case it is the entry for a configurated actuator.
             if col == self.robotic_properties.pointer_actuators[row]:
                 entry.configure(style="dh_params_config.TEntry")
 
@@ -505,7 +507,7 @@ class RoboticConfigurationFrame(CustomGrame):
 
         # Adding the new empty row for the DH parameters.        
         new_line = np.array([0,0,0,0])
-        self.robotic_properties.DH_parameters_table = np.append(self.robotic_properties.DH_parameters_table, 
+        self.robotic_properties.dh_params_save_table = np.append(self.robotic_properties.dh_params_save_table, 
                                                                 [new_line], axis=0)
         
         # Adding the new empty row for the ranges.
@@ -548,7 +550,7 @@ class RoboticConfigurationFrame(CustomGrame):
         previous_last_row = self.robotic_properties.degrees_of_freedom
         
         # Removing last row for the DH parameters.  
-        self.robotic_properties.DH_parameters_table = np.delete(self.robotic_properties.DH_parameters_table,
+        self.robotic_properties.dh_params_save_table = np.delete(self.robotic_properties.dh_params_save_table,
                                                                 previous_last_row,
                                                                 axis=0)
         
@@ -611,7 +613,10 @@ class RoboticConfigurationFrame(CustomGrame):
         self.entries_parameters_table[row][pointer].insert(0,"0.0")
         self.entries_parameters_table[row][pointer].configure(style="dh_params_config.TEntry")
         self.entries_parameters_table[row][int(not pointer)].configure(style="default.TEntry")
-        self.robotic_properties.DH_parameters_table[row, pointer] = 0
+        self.robotic_properties.dh_params_save_table[row, pointer] = 0
+
+        # The active table is also set.
+        self.robotic_properties.dh_params_active_table = self.robotic_properties.dh_params_save_table
 
 
     # ------------------------------------------------
@@ -631,8 +636,123 @@ class RoboticConfigurationFrame(CustomGrame):
         else:
             return False
 
-    def entry_focus_out(self, _:tk.Event, row:int, col:int):
-        print(f"Focus out from {row} - {col}")
+    def entry_ranges_focus_out(self, _:tk.Event, entry:CustomEntry, row:int, col:int):
+        
+        max_range = self.robotic_properties.ranges[row, 1]
+        min_range = self.robotic_properties.ranges[row, 0]
+
+        value = entry.get()
+
+        param_actuator_affected = int(self.robotic_properties.pointer_actuators[row])
+        value_parameter = self.robotic_properties.dh_params_save_table[row, param_actuator_affected]
+
+        # Empty.
+        if value == "":
+            value = 0
+            entry.insert(0,"0.0")
+
+        # Only minus.
+        elif value == "-":
+            value = 0
+            entry.delete(0, tk.END)
+            entry.insert(0,"0.0")
+
+        value = float(value)
+
+        if self.degrees_state.get() and param_actuator_affected == 0:
+            value = np.deg2rad(value)
+        
+        # Limits verification.
+        
+        # Max limit passed.
+        if col == 0 and value > max_range:
+            value = max_range - 1
+            entry.delete(0, tk.END)
+            if self.degrees_state.get():
+                entry.insert(0, np.rad2deg(value))
+            else:
+                entry.insert(0, value)
+
+        # Min limit passed.
+        elif col == 1 and value < min_range:
+            value = min_range + 1
+            entry.delete(0, tk.END)
+            if self.degrees_state.get():
+                entry.insert(0, np.rad2deg(value))
+            else:
+                entry.insert(0, value)
+        
+        # Update table.
+        self.robotic_properties.ranges[row][col] = value
+
+        # Updating the ranges for the next function.
+        max_range = self.robotic_properties.ranges[row, 1]
+        min_range = self.robotic_properties.ranges[row, 0]
+        
+        # Adjusting the parameter if required.
+        if value_parameter < min_range or value_parameter > max_range:
+            value_parameter = (min_range + max_range) / 2
+            
+            entry_parameter = self.entries_parameters_table[row][param_actuator_affected]
+            entry_parameter.delete(0, tk.END)
+            if self.degrees_state.get():
+                entry_parameter.insert(0, np.rad2deg(value_parameter))
+            else:
+                entry_parameter.insert(0, value_parameter)
+            
+            # The active table is also set.
+            self.robotic_properties.dh_params_active_table = self.robotic_properties.dh_params_save_table
+  
+
+    def entry_params_focus_out(self, _:tk.Event, entry:CustomEntry, row:int, col:int):
+        
+        value = entry.get()
+
+        max_range = self.robotic_properties.ranges[row, 1]
+        min_range = self.robotic_properties.ranges[row, 0]
+
+        # Empty.
+        if value == "":
+            value = 0
+            entry.insert(0,"0.0")
+
+        # Only minus.
+        elif value == "-":
+            value = 0
+            entry.delete(0, tk.END)
+            entry.insert(0,"0.0")
+
+        value = float(value)
+
+        if self.degrees_state.get() and (col == 0 or col == 3):
+            value = np.deg2rad(value)
+
+        # Limits verification.
+
+        # Max limit passed.
+        if col == 0 and value > max_range:
+            value = max_range
+            entry.delete(0, tk.END)
+            if self.degrees_state.get():
+                entry.insert(0, np.rad2deg(value))
+            else:
+                entry.insert(0, value)
+
+        # Min limit passed.
+        elif col == 0 and value < min_range:
+            value = min_range
+            entry.delete(0, tk.END)
+            if self.degrees_state.get():
+                entry.insert(0, np.rad2deg(value))
+            else:
+                entry.insert(0, value)
+
+        # Update table.
+        self.robotic_properties.dh_params_save_table[row][col] = value
+
+        # The active table is also set.
+        self.robotic_properties.dh_params_active_table = self.robotic_properties.dh_params_save_table
+
 
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@
     # @@@ Degrees/Radians Mode @@@
@@ -668,8 +788,8 @@ class RoboticConfigurationFrame(CustomGrame):
 
     def toggle_angles_params(self):
         for row in range(0, self.robotic_properties.degrees_of_freedom):
-            value_theta = self.robotic_properties.DH_default_table[row, 0]
-            value_alpha = self.robotic_properties.DH_default_table[row, 3]
+            value_theta = self.robotic_properties.dh_params_active_table[row, 0]
+            value_alpha = self.robotic_properties.dh_params_active_table[row, 3]
 
             if self.degrees_state.get():
                 value_theta = np.rad2deg(value_theta)
@@ -801,7 +921,7 @@ class RoboticConfigurationFrame2(CustomGrame):
         self.update_visual_tables()
 
         # Updating the default configuration as well.
-        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
+        self.robotic_properties.dh_params_active_table = self.robotic_properties.dh_params_save_table
 
 
     # ------------------------------------------------
@@ -874,7 +994,7 @@ class RoboticConfigurationFrame2(CustomGrame):
 
                 
                 # Extracting the value from the table.
-                value = self.robotic_properties.DH_parameters_table[row, col]
+                value = self.robotic_properties.dh_params_save_table[row, col]
 
                 # Visualization as degrees instead of radians.
                 #TODO: Implement this condition to transform.
@@ -1053,7 +1173,7 @@ class RoboticConfigurationFrame2(CustomGrame):
                         entry.insert(0, max_range)
 
                 # Once verified, making the updates.
-                self.robotic_properties.DH_parameters_table[row, col] = value
+                self.robotic_properties.dh_params_save_table[row, col] = value
         
     # ------------------------------------------------
     
@@ -1074,7 +1194,7 @@ class RoboticConfigurationFrame2(CustomGrame):
 
         # Adding the new empty row for the DH parameters.        
         new_line = np.array([0,0,0,0])
-        self.robotic_properties.DH_parameters_table = np.append(self.robotic_properties.DH_parameters_table, 
+        self.robotic_properties.dh_params_save_table = np.append(self.robotic_properties.dh_params_save_table, 
                                                                 [new_line], axis=0)
         
         # Adding the new empty row for the ranges.
@@ -1086,7 +1206,7 @@ class RoboticConfigurationFrame2(CustomGrame):
         self.robotic_properties.pointer_actuators = np.append(self.robotic_properties.pointer_actuators, 0)
         
         # Updating the default DH table values.
-        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
+        self.robotic_properties.dh_params_active_table = self.robotic_properties.dh_params_save_table
 
         # Self visual table is also updated with these changes.
         self.update_visual_tables()
@@ -1107,7 +1227,7 @@ class RoboticConfigurationFrame2(CustomGrame):
         self.robotic_properties.degrees_of_freedom -= 1
 
         # Removing last row for the DH parameters.  
-        self.robotic_properties.DH_parameters_table = np.delete(self.robotic_properties.DH_parameters_table,
+        self.robotic_properties.dh_params_save_table = np.delete(self.robotic_properties.dh_params_save_table,
                                                                 self.robotic_properties.degrees_of_freedom,
                                                                 axis=0)
         
@@ -1121,7 +1241,7 @@ class RoboticConfigurationFrame2(CustomGrame):
                                                               self.robotic_properties.degrees_of_freedom)
         
         # Updating the default DH table values.
-        self.robotic_properties.DH_default_table = self.robotic_properties.DH_parameters_table
+        self.robotic_properties.dh_params_active_table = self.robotic_properties.dh_params_save_table
         
         # Self visual table is also updated with these changes.
         self.update_visual_tables()

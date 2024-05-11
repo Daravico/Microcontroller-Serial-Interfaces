@@ -45,16 +45,16 @@ class RoboticProperties:
         self.ranges = ranges
 
         # Initialization of DH table for the previous parameters.
-        self.DH_parameters_table = np.empty((self.degrees_of_freedom, 4))
+        self.dh_params_save_table = np.empty((self.degrees_of_freedom, 4))
 
         # Denavit-Hartenberg parameters.
-        self.DH_parameters_table[:,0] = q
-        self.DH_parameters_table[:,1] = d
-        self.DH_parameters_table[:,2] = a
-        self.DH_parameters_table[:,3] = A
+        self.dh_params_save_table[:,0] = q
+        self.dh_params_save_table[:,1] = d
+        self.dh_params_save_table[:,2] = a
+        self.dh_params_save_table[:,3] = A
 
         # Default table for the DH parameters.
-        self.DH_default_table = self.DH_parameters_table
+        self.dh_params_active_table = self.dh_params_save_table
 
         # Initialization of N empty arrays depending on the degrees of freedom.
         self.DH_matrix_array = np.array([np.empty((4,4)) for _ in range(self.degrees_of_freedom)])
@@ -78,10 +78,10 @@ class RoboticProperties:
         self.final_transformation_matrix = np.eye(4)
         
         # Denavit-Hartenberg parameters.
-        self.DH_parameters_table[:,0] = self.q
-        self.DH_parameters_table[:,1] = self.d
-        self.DH_parameters_table[:,2] = self.a
-        self.DH_parameters_table[:,3] = self.A
+        self.dh_params_save_table[:,0] = self.q
+        self.dh_params_save_table[:,1] = self.d
+        self.dh_params_save_table[:,2] = self.a
+        self.dh_params_save_table[:,3] = self.A
 
         for i in range(self.degrees_of_freedom):
             # Homegeneous transformation matrix.
