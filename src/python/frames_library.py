@@ -62,6 +62,7 @@ class FrameHandler:
 
             # Placing the controller on the left.
             frame.pack(side="left", expand=True, fill='both')
+            frame.initial_info_request()
 
     # ------------------------------------------------
 
@@ -137,10 +138,15 @@ class MainMenuFrame(CustomFrame):
                                                         padding=(5,15), 
                                                         width=30)
         
-        # TODO: Change for the other frame packer.
         self.inverse_kinematics_frame_button = ttk.Button(self, 
                                                           text="Inverse Kinematics", 
-                                                          command=lambda: frame_handler.frame_packer('inverse_kinematics_frame'),
+                                                          command=lambda: None,
+                                                          padding=(5,15),
+                                                          width=30)
+        
+        self.guided_programming_frame_button = ttk.Button(self, 
+                                                          text="Guided Programming Sample", 
+                                                          command=lambda: None,
                                                           padding=(5,15),
                                                           width=30)
         
@@ -154,6 +160,7 @@ class MainMenuFrame(CustomFrame):
         self.robotic_configuration_button.place(relx=0.5, rely=0.3, anchor='center')
         self.direct_kinematics_frame_button.place(relx=0.5, rely=0.4, anchor='center')
         self.inverse_kinematics_frame_button.place(relx=0.5, rely=0.5, anchor='center')
+        self.guided_programming_frame_button.place(relx=0.5, rely=0.6, anchor='center')
         self.exit_window_button.place(relx=0.5, rely=0.8, anchor='center')
 
 
@@ -931,6 +938,8 @@ class RoboticParamsFrame(CustomFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties:RoboticProperties):
         CustomFrame.__init__(self,root, 'robotic_params_frame', frame_handler)
 
+        self.robotic_properties = robotic_properties
+
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -945,12 +954,22 @@ class DirectKinematicsFrame(CustomFrame):
     def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties:RoboticProperties, robotic_params_frame:RoboticParamsFrame):
         CustomFrame.__init__(self, root, 'direct_kinematics_frame', frame_handler)
 
+        # Robotic properties shared by all frames.
         self.robotic_properties = robotic_properties
 
+        # Variable to hold the state of the checkbutton.
         self.continous_mode_state = tk.BooleanVar()
         self.continous_mode_state.set(False)
 
-        scales_table:List[ttk.Scale] = []
+        # Storage for scales for controllers of each actuator.
+        self.scales_table:List[ttk.Scale] = []
+        self.labels_table:List[ttk.Label] = []
+
+        # Placing index variables.
+        self.start_x = 0.5
+        self.separation_x = 0.2
+        self.start_y = 0.3
+        self.step_y = 0.1
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - GUI Components- - - - - - - - - -
@@ -960,8 +979,6 @@ class DirectKinematicsFrame(CustomFrame):
                                                          text='Auto',
                                                          command=None,
                                                          variable=self.continous_mode_state)
-
-
 
         self.send_command_button = ttk.Button(self, 
                                      text="Send Command", 
@@ -981,14 +998,74 @@ class DirectKinematicsFrame(CustomFrame):
     # MAIN FUNCTIONS.
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-    def initial_params_request(self):
-        pass
+    def initial_info_request(self):
+        print("Hello there")
+        # Clearing the list, in case it was previously used.
+        for scale in self.scales_table:
+            scale.destroy()
+        for label in self.labels_table:
+            label.destroy()
 
-    def initial_scales_request(self):
-        pass
+        self.scales_table = []
+        self.labels_table = []
 
-    def create_scale_component(self):
-        pass
+        # TODO: Reset the DH active table to the save table.
+
+        # Gathering the available degrees of freedom.
+        degrees_of_freedom = self.robotic_properties.degrees_of_freedom
+
+        # Creating individual scales for each actuator.
+        for row in range(degrees_of_freedom):
+            scale = self.create_scale_component(row)
+            label = self.create_label_component(row)
+            self.scales_table.append(scale)
+            self.labels_table.append(label)
+
+    def create_scale_component(self, row:int):
+        
+        # Positional variables.
+        idx = self.start_x + self.separation_x
+        idy = self.start_y + row * self.step_y
+
+        
+        # Pointer values extraction.
+        actuator_pointer = int(self.robotic_properties.pointer_actuators[row])
+        default_value = self.robotic_properties.dh_params_save_table[row, actuator_pointer]
+        min_range = self.robotic_properties.ranges[row, 0]
+        max_range = self.robotic_properties.ranges[row, 1]
+
+        print(min_range)
+        print(max_range)
+
+
+        # Creation of individual scale component.
+        scale = ttk.LabeledScale(self,
+                          from_= min_range,
+                          to=max_range,
+                          # orient=tk.HORIZONTAL,
+                          # length=300,
+                          
+                          command=None) #TODO: Implement the command
+        # scale.set(default_value)
+        scale.place(relx=idx, rely=idy, anchor=tk.CENTER)
+        
+        return scale
+
+    def create_label_component(self, row:int):
+        # Positional variables.
+        idx = self.start_x - self.separation_x
+        idy = self.start_y + row * self.step_y
+
+        # Title.
+        title = f'Actuator {row + 1}'
+
+        # Label configuration.
+        label = ttk.Label(self, text=title)
+        label.place(relx=idx, rely=idy, anchor=tk.CENTER)
+
+        return label
+
+
         
     def default_position_request(self):
         pass
@@ -1053,3 +1130,10 @@ class GuidedProgrammingFrame(CustomFrame):
         # Packing components.
         self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
         
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
