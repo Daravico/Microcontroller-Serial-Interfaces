@@ -4,6 +4,7 @@ from tkinter import ttk
 from typing import List
 from serial_library import SerialObject
 from robotic_library import RoboticProperties
+import ttkbootstrap as tb
 
 from functools import partial
 
@@ -75,27 +76,27 @@ class FrameHandler:
 
 # CUSTOMIZATIONS TO HOLD VALUES.
 
-class CustomFrame(ttk.Frame):
+class CustomFrame(tb.Frame):
     '''
     General class for the frames, inherited from tk.Frame to add some characteristics
     required by other classes, such as the name and the frame_handler asigned by the
     main window.
     '''
-    def __init__(self, root:tk.Tk, name: str, frame_handler:FrameHandler):
-        ttk.Frame.__init__(self, root)
+    def __init__(self, root:tb.Window, name: str, frame_handler:FrameHandler):
+        tb.Frame.__init__(self, root)
         self.frame_handler = frame_handler 
         self.root = root
         self.name = name
 
 
-class CustomEntry(ttk.Entry):
+class CustomEntry(tb.Entry):
     '''
-    General class for the entries, inherited from ttk.Entry to add some characteristics
+    General class for the entries, inherited from tb.Entry to add some characteristics
     required bu other classes, such as the row and column of the Entry and the type of
     details that it will be used for.
     '''
-    def __init__(self, frame:tk.Frame, row:int, col:int, entry_type:str):
-        ttk.Entry.__init__(self, frame)
+    def __init__(self, frame:tb.Frame, row:int, col:int, entry_type:str):
+        tb.Entry.__init__(self, frame)
         self.row = row
         self.col = col
         self.entry_type = entry_type
@@ -112,7 +113,7 @@ class MainMenuFrame(CustomFrame):
     First frame that is loaded that redirects to the other available options
     for configurations and working setups.
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+    def __init__(self, root:tb.Window, frame_handler:FrameHandler):
         CustomFrame.__init__(self, root, 'main_frame', frame_handler)
 
 
@@ -120,37 +121,37 @@ class MainMenuFrame(CustomFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.serial_configuration_button = ttk.Button(self,
+        self.serial_configuration_button = tb.Button(self,
                                                      text="Serial Configuration",
                                                      command=lambda: frame_handler.frame_packer('serial_configuration_frame'),
                                                      padding=(5,15),
                                                      width=30)
         
-        self.robotic_configuration_button = ttk.Button(self,
+        self.robotic_configuration_button = tb.Button(self,
                                                       text="Robotic Configuration",
                                                       command=lambda: frame_handler.frame_packer('robotic_configuration_frame'),
                                                       padding=(5,15),
                                                       width=30)
 
-        self.direct_kinematics_frame_button = ttk.Button(self, 
+        self.direct_kinematics_frame_button = tb.Button(self, 
                                                         text="Direct Kinematics", 
                                                         command=lambda: frame_handler.direct_kinematic_frame_packer('direct_kinematics_frame'),
                                                         padding=(5,15), 
                                                         width=30)
         
-        self.inverse_kinematics_frame_button = ttk.Button(self, 
+        self.inverse_kinematics_frame_button = tb.Button(self, 
                                                           text="Inverse Kinematics", 
                                                           command=lambda: None,
                                                           padding=(5,15),
                                                           width=30)
         
-        self.guided_programming_frame_button = ttk.Button(self, 
+        self.guided_programming_frame_button = tb.Button(self, 
                                                           text="Guided Programming Sample", 
                                                           command=lambda: None,
                                                           padding=(5,15),
                                                           width=30)
         
-        self.exit_window_button = ttk.Button(self, 
+        self.exit_window_button = tb.Button(self, 
                                              text="Exit", 
                                              command=self.root.destroy,
                                              width=20, padding=(5,10))
@@ -176,7 +177,7 @@ class SerialConfigurationFrame(CustomFrame):
     Frame that has functionalities to make modifications to the Serial Communication, as well
     for loading some variables related to this.
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, serial_conn:SerialObject):
+    def __init__(self, root:tb.Window, frame_handler:FrameHandler, serial_conn:SerialObject):
         CustomFrame.__init__(self, root, 'serial_configuration_frame', frame_handler)
 
         # Serial object reference.
@@ -186,7 +187,7 @@ class SerialConfigurationFrame(CustomFrame):
         self.available_ports_data = {}
 
         # Baudrate values reference.
-        self.serial_baudrate_value = tk.StringVar(self.root)
+        self.serial_baudrate_value = tb.StringVar(self.root)
         self.serial_baudrate_value.set(self.serial_conn.baudrate)
         
 
@@ -194,33 +195,33 @@ class SerialConfigurationFrame(CustomFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.load_serial_button = ttk.Button(self, 
+        self.load_serial_button = tb.Button(self, 
                                              text="Load Ports",
                                              command=self.load_ports,
                                              width=20, padding=(5,10))
 
-        self.combo_serial = ttk.Combobox(self)
+        self.combo_serial = tb.Combobox(self)
         
         self.combo_serial.bind('<<ComboboxSelected>>', self.update_label_serial_port)
 
-        self.selected_port_name_label = ttk.Label(self,
+        self.selected_port_name_label = tb.Label(self,
                                                   text='NONE')
         
-        self.selected_port_desc_label = ttk.Label(self,
+        self.selected_port_desc_label = tb.Label(self,
                                                   text="...")
         
         # TODO: Add correct validations. Add the starting value.
-        self.baudrate_entry = ttk.Entry(self, 
+        self.baudrate_entry = tb.Entry(self, 
                                         textvariable=self.serial_baudrate_value,
                                         validate="key",
                                         validatecommand=(self.root.register(self.number_validation), "%P"))
         
-        self.update_serial_configuration_button = ttk.Button(self, 
+        self.update_serial_configuration_button = tb.Button(self, 
                                                              text="Update",
                                                              command=self.update_serial_configuration,
                                                              width=20, padding=(5,10))
         
-        self.home_return_button = ttk.Button(self, 
+        self.home_return_button = tb.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
@@ -327,7 +328,7 @@ class RoboticConfigurationFrame(CustomFrame):
     Frame that has functionalities to make modifications to the robotic parameters.
     Degrees or Radians visualization is available. 
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties: RoboticProperties):
+    def __init__(self, root:tb.Window, frame_handler:FrameHandler, robotic_properties: RoboticProperties):
         CustomFrame.__init__(self, root, 'robotic_configuration_frame', frame_handler)
 
         # Saving the information of the robotic properties. Futher changes are also updated.
@@ -335,7 +336,7 @@ class RoboticConfigurationFrame(CustomFrame):
 
         # Table lists to be able to clean the screen by deleting these objects.
         self.entries_parameters_table:List[List[CustomEntry]] = []
-        self.button_actuator_table:List[ttk.Button] = []
+        self.button_actuator_table:List[tb.Button] = []
         self.entries_ranges_table:List[List[CustomEntry]] = []
 
         # Placing variables.
@@ -345,24 +346,24 @@ class RoboticConfigurationFrame(CustomFrame):
         self.step_y = 0.1
 
         # Visualization of degrees or radians.
-        self.degrees_state = tk.BooleanVar()
+        self.degrees_state = tb.BooleanVar()
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.DOF_entry = ttk.Spinbox(self, from_=self.robotic_properties.dof_inf_limit, to=self.robotic_properties.dof_upp_limit)
+        self.DOF_entry = tb.Spinbox(self, from_=self.robotic_properties.dof_inf_limit, to=self.robotic_properties.dof_upp_limit)
         self.DOF_entry.set(self.robotic_properties.degrees_of_freedom)
         self.DOF_entry.bind("<Key>", self.block_keys) 
         self.DOF_entry.bind("<<Increment>>", self.dof_modify_increase) 
         self.DOF_entry.bind("<<Decrement>>", self.dof_modify_decrease) 
 
-        self.degrees_Checkbutton = ttk.Checkbutton(self, 
+        self.degrees_Checkbutton = tb.Checkbutton(self, 
                                                    text='Degrees', 
                                                    command=self.degrees_toggle_checkbutton, 
                                                    variable=self.degrees_state)
 
-        self.home_return_button = ttk.Button(self, 
+        self.home_return_button = tb.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
@@ -375,13 +376,13 @@ class RoboticConfigurationFrame(CustomFrame):
         # Placing the headings for the DH table.
         headings = ['θ', 'd', 'a', 'α']
         for col, head in enumerate(headings):
-            label = ttk.Label(self, text=head, justify='right')
+            label = tb.Label(self, text=head, justify='right')
             label.place(relx=self.start_x + col * self.step_x + 0.02, 
                         rely=self.start_y - self.step_y,
                         anchor='center', width=80)
             
         # Placing the heading for the Ranges.
-        label = ttk.Label(self, text="Ranges", justify='center')
+        label = tb.Label(self, text="Ranges", justify='center')
         label.place(relx=self.start_x - self.step_x * 3.5,
                     rely=self.start_y - self.step_y,
                     anchor='center', width=50)
@@ -510,7 +511,7 @@ class RoboticConfigurationFrame(CustomFrame):
         locate the object in the vector list and modify any required detail.
         '''
         # Button creation and initial configuration.
-        button = ttk.Button(self)
+        button = tb.Button(self)
         button.configure(command=partial(self.actuator_toggle_button, button, row))
         button.place(relx=self.start_x + 5 * self.step_x, 
                      rely=self.start_y + row * self.step_y, 
@@ -630,7 +631,7 @@ class RoboticConfigurationFrame(CustomFrame):
     # @@@ Toggle Actuator Selection @@@
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-    def actuator_toggle_button(self, button:tk.Button, row:int):
+    def actuator_toggle_button(self, button:tb.Button, row:int):
         '''
         This method changes the current state of the vector that determinates the parameter 
         assigned for the actuator (Rotatory or linear). The color style is also changed, and the 
@@ -660,17 +661,17 @@ class RoboticConfigurationFrame(CustomFrame):
         pointer = int(self.robotic_properties.pointer_actuators[row])
 
         # Reset to the inferior range.
-        self.entries_ranges_table[row][0].delete(0, tk.END)
+        self.entries_ranges_table[row][0].delete(0, tb.END)
         self.entries_ranges_table[row][0].insert(0,"0.0")
         self.robotic_properties.ranges[row, 0] = 0
 
         # Reset to the upper range.
-        self.entries_ranges_table[row][1].delete(0, tk.END)
+        self.entries_ranges_table[row][1].delete(0, tb.END)
         self.entries_ranges_table[row][1].insert(0,"0.0")
         self.robotic_properties.ranges[row, 1] = 0
 
         # Reset of the new assigned parameter. Changing styles as well.
-        self.entries_parameters_table[row][pointer].delete(0, tk.END)
+        self.entries_parameters_table[row][pointer].delete(0, tb.END)
         self.entries_parameters_table[row][pointer].insert(0,"0.0")
         self.entries_parameters_table[row][pointer].configure(style="dh_params_config.TEntry")
         self.entries_parameters_table[row][int(not pointer)].configure(style="default.TEntry")
@@ -730,7 +731,7 @@ class RoboticConfigurationFrame(CustomFrame):
         # Only minus condition.
         elif value == "-":
             value = 0
-            entry.delete(0, tk.END)
+            entry.delete(0, tb.END)
             entry.insert(0,"0.0")
 
         # Numeric value validations.
@@ -743,7 +744,7 @@ class RoboticConfigurationFrame(CustomFrame):
         # Max limit passed verification.
         if col == 0 and value > max_range:
             value = max_range - 1
-            entry.delete(0, tk.END)
+            entry.delete(0, tb.END)
             if self.degrees_state.get():
                 entry.insert(0, np.rad2deg(value))
             else:
@@ -752,7 +753,7 @@ class RoboticConfigurationFrame(CustomFrame):
         # Min limit verification.
         elif col == 1 and value < min_range:
             value = min_range + 1
-            entry.delete(0, tk.END)
+            entry.delete(0, tb.END)
             if self.degrees_state.get():
                 entry.insert(0, np.rad2deg(value))
             else:
@@ -771,7 +772,7 @@ class RoboticConfigurationFrame(CustomFrame):
 
             # Entry variable modificaton.
             entry_parameter = self.entries_parameters_table[row][param_actuator_affected]
-            entry_parameter.delete(0, tk.END)
+            entry_parameter.delete(0, tb.END)
             if self.degrees_state.get():
                 entry_parameter.insert(0, np.rad2deg(value_parameter))
             else:
@@ -804,7 +805,7 @@ class RoboticConfigurationFrame(CustomFrame):
         # Only minus condition.
         elif value == "-":
             value = 0
-            entry.delete(0, tk.END)
+            entry.delete(0, tb.END)
             entry.insert(0,"0.0")
 
         # Numeric value validations.
@@ -817,7 +818,7 @@ class RoboticConfigurationFrame(CustomFrame):
         # Max limit passed verification.
         if col == 0 and value > max_range:
             value = max_range
-            entry.delete(0, tk.END)
+            entry.delete(0, tb.END)
             if self.degrees_state.get():
                 entry.insert(0, np.rad2deg(value))
             else:
@@ -826,7 +827,7 @@ class RoboticConfigurationFrame(CustomFrame):
         # Min limit passed verification.
         elif col == 0 and value < min_range:
             value = min_range
-            entry.delete(0, tk.END)
+            entry.delete(0, tb.END)
             if self.degrees_state.get():
                 entry.insert(0, np.rad2deg(value))
             else:
@@ -882,11 +883,11 @@ class RoboticConfigurationFrame(CustomFrame):
             sup_range_entry = self.entries_ranges_table[row][1]
 
             # Updating inferior limit entry.
-            inf_range_entry.delete(0, tk.END)
+            inf_range_entry.delete(0, tb.END)
             inf_range_entry.insert(0, value_inf_range)
 
             # Updating superior limit entry.
-            sup_range_entry.delete(0, tk.END)
+            sup_range_entry.delete(0, tb.END)
             sup_range_entry.insert(0, value_sup_range)
 
 
@@ -913,11 +914,11 @@ class RoboticConfigurationFrame(CustomFrame):
             alpha_entry = self.entries_parameters_table[row][3]
 
             # Updating theta entry.
-            theta_entry.delete(0, tk.END)
+            theta_entry.delete(0, tb.END)
             theta_entry.insert(0, value_theta)
 
             # Updating alpha entry.
-            alpha_entry.delete(0, tk.END)
+            alpha_entry.delete(0, tb.END)
             alpha_entry.insert(0, value_alpha)
             
 
@@ -935,7 +936,7 @@ class RoboticParamsFrame(CustomFrame):
     '''
     
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties:RoboticProperties):
+    def __init__(self, root:tb.Window, frame_handler:FrameHandler, robotic_properties:RoboticProperties):
         CustomFrame.__init__(self,root, 'robotic_params_frame', frame_handler)
 
         self.robotic_properties = robotic_properties
@@ -951,19 +952,19 @@ class DirectKinematicsFrame(CustomFrame):
     '''
     
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties:RoboticProperties, robotic_params_frame:RoboticParamsFrame):
+    def __init__(self, root:tb.Window, frame_handler:FrameHandler, robotic_properties:RoboticProperties, robotic_params_frame:RoboticParamsFrame):
         CustomFrame.__init__(self, root, 'direct_kinematics_frame', frame_handler)
 
         # Robotic properties shared by all frames.
         self.robotic_properties = robotic_properties
 
         # Variable to hold the state of the checkbutton.
-        self.continous_mode_state = tk.BooleanVar()
+        self.continous_mode_state = tb.BooleanVar()
         self.continous_mode_state.set(False)
 
         # Storage for scales for controllers of each actuator.
-        self.scales_table:List[ttk.Scale] = []
-        self.labels_table:List[ttk.Label] = []
+        self.scales_table:List[tb.Scale] = []
+        self.labels_table:List[tb.Label] = []
 
         # Placing index variables.
         self.start_x = 0.5
@@ -975,16 +976,17 @@ class DirectKinematicsFrame(CustomFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.continous_mode_checkbutton = ttk.Checkbutton(self, 
+        self.continous_mode_checkbutton = tb.Checkbutton(self, 
                                                          text='Auto',
                                                          command=None,
                                                          variable=self.continous_mode_state)
 
-        self.send_command_button = ttk.Button(self, 
+        # TODO: change to floodgauge from ttkbootsrap
+        self.send_command_button = tb.Button(self, 
                                      text="Send Command", 
                                      command=None)
 
-        self.home_return_button = ttk.Button(self, 
+        self.home_return_button = tb.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
@@ -1039,17 +1041,24 @@ class DirectKinematicsFrame(CustomFrame):
 
 
         # Creation of individual scale component.
-        scale = ttk.LabeledScale(self,
-                          from_= min_range,
+        '''
+        scale = tb.Meter(self,
+                          from_=min_range,
                           to=max_range,
+                         # resolution=0.1,
                           # orient=tk.HORIZONTAL,
                           # length=300,
                           
                           command=None) #TODO: Implement the command
         # scale.set(default_value)
-        scale.place(relx=idx, rely=idy, anchor=tk.CENTER)
-        
-        return scale
+        scale.scale.configure(from_=min_range, to=max_range, resolution=0.1)
+        scale.bind("<Motion>", self.grabbing)
+        scale.place(relx=idx, rely=idy, anchor=tb.CENTER)
+        '''
+
+        meter = tb.Meter(self)
+
+        return meter
 
     def create_label_component(self, row:int):
         # Positional variables.
@@ -1060,10 +1069,13 @@ class DirectKinematicsFrame(CustomFrame):
         title = f'Actuator {row + 1}'
 
         # Label configuration.
-        label = ttk.Label(self, text=title)
-        label.place(relx=idx, rely=idy, anchor=tk.CENTER)
+        label = tb.Label(self, text=title)
+        label.place(relx=idx, rely=idy, anchor=tb.CENTER)
 
         return label
+    
+    def grabbing(self, _):
+        print("Hello there")
 
 
         
@@ -1085,7 +1097,7 @@ class InverseKinematicsFrame(CustomFrame):
     '''
     
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties:RoboticProperties):
+    def __init__(self, root:tb.Window, frame_handler:FrameHandler, robotic_properties:RoboticProperties):
         CustomFrame.__init__(self, root, 'inverse_kinematics_frame', frame_handler)
 
         self.robotic_properties = robotic_properties
@@ -1094,7 +1106,7 @@ class InverseKinematicsFrame(CustomFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.home_return_button = ttk.Button(self, 
+        self.home_return_button = tb.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
@@ -1114,7 +1126,7 @@ class GuidedProgrammingFrame(CustomFrame):
     '''
     
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+    def __init__(self, root:tb.Window, frame_handler:FrameHandler):
         CustomFrame.__init__(self, root, 'guided_programming_frame', frame_handler)
 
 
@@ -1122,7 +1134,7 @@ class GuidedProgrammingFrame(CustomFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.home_return_button = ttk.Button(self, 
+        self.home_return_button = tb.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))

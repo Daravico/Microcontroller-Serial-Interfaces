@@ -1,5 +1,5 @@
 import tkinter as tk
-import numpy as np
+import ttkbootstrap as tb
 
 from typing import List
 
@@ -8,7 +8,7 @@ from serial_library import SerialObject
 from robotic_library import RoboticProperties
 
 class PrincipalWindow:
-    def __init__(self, root:tk.Tk):
+    def __init__(self, root:tb.Window):
         # Reference to the main application.
         self.root = root
 
@@ -25,11 +25,11 @@ class PrincipalWindow:
         # - - - - - - - - - - TTK Styles- - - - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.entry_dh_params_style = ttk.Style()
+        self.entry_dh_params_style = tb.Style()
         self.entry_dh_params_style.configure("dh_params_config.TEntry", 
-                                             foreground = 'red', fieldbackground="#ff0000")
+                                             foreground = 'red', fieldbackground="gray")
         self.entry_dh_params_style.configure("default.TEntry", 
-                                             foreground = 'black', fieldbackground="#ff0000")
+                                             foreground = 'black', fieldbackground="white")
 
         # ________________________________________________________________________
 
@@ -46,7 +46,7 @@ class PrincipalWindow:
         self.direct_kinematics_frame = DirectKinematicsFrame(root, self.frames_handler, self.robotic_properties, self.robotic_params_frame)
         self.inverse_kinematics_frame = InverseKinematicsFrame(root, self.frames_handler, self.robotic_properties)
 
-        frames:List[tk.Frame] = [
+        frames:List[tb.Frame] = [
             self.main_menu_frame,
             self.serial_menu_frame,
             self.robotic_configuration_frame,
@@ -65,7 +65,7 @@ class PrincipalWindow:
 
 if __name__ == '__main__':
 
-    root = tk.Tk()
+    root = tb.Window()
     root.title("Robot Serial Interface")
     root.geometry('1200x600')
     root.configure(background='#F0ECD2')
