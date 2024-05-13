@@ -32,7 +32,7 @@ class RoboticProperties:
         self.A = A
 
         # TODO: Add a note that this can be changed according to the user/developer/robot.
-        self.dof_upp_limit = 5
+        self.dof_upp_limit = 6
         self.dof_inf_limit = 1
 
         # Extracted degrees of freedom from the previous list (All must be the same).

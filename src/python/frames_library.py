@@ -50,15 +50,17 @@ class FrameHandler:
         '''
         for frame in self.frames:
 
-            if frame == self.robotic_details_frame:
+            # Placing the details of the parameters for the robotic configuration to the right.
+            if frame.name == 'robotic_params_frame':
                 frame.pack(side="right", anchor="center", expand=True, fill='both')
                 continue
 
-            # FIXME: Check from where this problem comes from.
+            # Anything other than the controller is omitted.
             if frame.name != frame_name:
                 frame.pack_forget()
                 continue
 
+            # Placing the controller on the left.
             frame.pack(side="left", expand=True, fill='both')
 
     # ------------------------------------------------
@@ -129,10 +131,9 @@ class MainMenuFrame(CustomFrame):
                                                       padding=(5,15),
                                                       width=30)
 
-        # TODO: Change for the other frame packer.
         self.direct_kinematics_frame_button = ttk.Button(self, 
                                                         text="Direct Kinematics", 
-                                                        command=lambda: frame_handler.frame_packer('direct_kinematics_frame'),
+                                                        command=lambda: frame_handler.direct_kinematic_frame_packer('direct_kinematics_frame'),
                                                         padding=(5,15), 
                                                         width=30)
         
@@ -343,7 +344,7 @@ class RoboticConfigurationFrame(CustomFrame):
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self.DOF_entry = ttk.Spinbox(self, from_=1, to=5)
+        self.DOF_entry = ttk.Spinbox(self, from_=self.robotic_properties.dof_inf_limit, to=self.robotic_properties.dof_upp_limit)
         self.DOF_entry.set(self.robotic_properties.degrees_of_freedom)
         self.DOF_entry.bind("<Key>", self.block_keys) 
         self.DOF_entry.bind("<<Increment>>", self.dof_modify_increase) 
@@ -362,7 +363,7 @@ class RoboticConfigurationFrame(CustomFrame):
         # Placing components.
         self.DOF_entry.place(relx=0.3, rely=0.1, anchor='center')
         self.degrees_Checkbutton.place(relx=0.4, rely=0.1, anchor='center')
-        self.home_return_button.place(relx=0.3, rely=0.8, anchor='center')
+        self.home_return_button.place(relx=0.8, rely=0.5, anchor='center')
 
         # Placing the headings for the DH table.
         headings = ['θ', 'd', 'a', 'α']
@@ -923,27 +924,78 @@ class RoboticConfigurationFrame(CustomFrame):
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 
+class RoboticParamsFrame(CustomFrame):
+    '''
+    
+    '''
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties:RoboticProperties):
+        CustomFrame.__init__(self,root, 'robotic_params_frame', frame_handler)
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+
 class DirectKinematicsFrame(CustomFrame):
     '''
     
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties:RoboticProperties, robotic_params_frame:RoboticParamsFrame):
         CustomFrame.__init__(self, root, 'direct_kinematics_frame', frame_handler)
 
+        self.robotic_properties = robotic_properties
 
+        self.continous_mode_state = tk.BooleanVar()
+        self.continous_mode_state.set(False)
+
+        scales_table:List[ttk.Scale] = []
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - GUI Components- - - - - - - - - -
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        self.continous_mode_checkbutton = ttk.Checkbutton(self, 
+                                                         text='Auto',
+                                                         command=None,
+                                                         variable=self.continous_mode_state)
+
+
+
+        self.send_command_button = ttk.Button(self, 
+                                     text="Send Command", 
+                                     command=None)
 
         self.home_return_button = ttk.Button(self, 
                                             text="Return", 
                                             command=lambda: frame_handler.frame_packer('main_frame'),
                                             width=20, padding=(10,20))
         
-        # Packing components.
-        self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
+        # Placing components.
+        self.continous_mode_checkbutton.place(relx=0.5, rely=0.15, anchor='center')
+        self.home_return_button.place(relx=0.85, rely=0.15, anchor='center', width=150, height=50)
+        self.send_command_button.place(relx=0.15, rely=0.15, anchor='center', width=150, height=50)
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    # MAIN FUNCTIONS.
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+    def initial_params_request(self):
+        pass
+
+    def initial_scales_request(self):
+        pass
+
+    def create_scale_component(self):
+        pass
         
+    def default_position_request(self):
+        pass
+
+    def send_command_request(self):
+        pass
+
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -956,8 +1008,37 @@ class InverseKinematicsFrame(CustomFrame):
     '''
     
     '''
-    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler, robotic_properties:RoboticProperties):
         CustomFrame.__init__(self, root, 'inverse_kinematics_frame', frame_handler)
+
+        self.robotic_properties = robotic_properties
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - GUI Components- - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        self.home_return_button = ttk.Button(self, 
+                                            text="Return", 
+                                            command=lambda: frame_handler.frame_packer('main_frame'),
+                                            width=20, padding=(10,20))
+        
+        # Packing components.
+        self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+
+class GuidedProgrammingFrame(CustomFrame):
+    '''
+    
+    '''
+    def __init__(self, root:tk.Tk, frame_handler:FrameHandler):
+        CustomFrame.__init__(self, root, 'guided_programming_frame', frame_handler)
 
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -971,3 +1052,4 @@ class InverseKinematicsFrame(CustomFrame):
         
         # Packing components.
         self.home_return_button.place(relx=0.5, rely=0.8, anchor='center')
+        

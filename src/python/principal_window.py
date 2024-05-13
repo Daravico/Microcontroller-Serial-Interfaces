@@ -42,13 +42,15 @@ class PrincipalWindow:
         self.main_menu_frame = MainMenuFrame(root, self.frames_handler)
         self.serial_menu_frame = SerialConfigurationFrame(root, self.frames_handler, self.serial_conn)
         self.robotic_configuration_frame = RoboticConfigurationFrame(root, self.frames_handler, self.robotic_properties)
-        self.direct_kinematics_frame = DirectKinematicsFrame(root, self.frames_handler)
-        self.inverse_kinematics_frame = InverseKinematicsFrame(root, self.frames_handler)
+        self.robotic_params_frame = RoboticParamsFrame(root, self.frames_handler, self.robotic_properties)
+        self.direct_kinematics_frame = DirectKinematicsFrame(root, self.frames_handler, self.robotic_properties, self.robotic_params_frame)
+        self.inverse_kinematics_frame = InverseKinematicsFrame(root, self.frames_handler, self.robotic_properties)
 
         frames:List[tk.Frame] = [
             self.main_menu_frame,
             self.serial_menu_frame,
             self.robotic_configuration_frame,
+            self.robotic_params_frame,
             self.direct_kinematics_frame,
             self.inverse_kinematics_frame
             ]
