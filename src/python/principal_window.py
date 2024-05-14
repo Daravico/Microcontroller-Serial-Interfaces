@@ -1,4 +1,3 @@
-import tkinter as tk
 import ttkbootstrap as tb
 
 from typing import List
@@ -17,7 +16,7 @@ class PrincipalWindow:
         self.serial_conn.establish_parameters('COM1', 9600)
 
         # Robotic properties.
-        # TODO: Organize to keep this in other site.
+        self.robotic_properties = RoboticProperties()
         
         # ________________________________________________________________________
 
@@ -32,8 +31,6 @@ class PrincipalWindow:
                                              foreground = 'black', fieldbackground="white")
 
         # ________________________________________________________________________
-
-        self.robotic_properties = RoboticProperties()
 
         # Reference for the handler of the frames.
         self.frames_handler = FrameHandler()

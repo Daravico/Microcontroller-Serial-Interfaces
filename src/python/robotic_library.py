@@ -64,7 +64,7 @@ class RoboticProperties:
 
         # Initialization of the position for the final efector.
         self.final_efector_vector = np.array([0,0,0])
-
+        
         self.initial_tables_creation()
 
     # ------------------------------------------------------------------------
@@ -226,6 +226,19 @@ class RoboticProperties:
         return position
 
     # ------------------------------------------------------------------------
+
+    def default_configuration_request(self):
+        # Setting the default DH parameters.
+        self.dh_params_active_table = self.dh_params
+
+        # Setting the starting transformation matrix and end effector position vector.
+        self.update_matrices_request()
+
+    def update_matrices_request(self):
+        pass
+    # TODO: Reset the transformation matrices list.
+        # TODO: Update the transformation matrix
+        # TODO: Update the end effector position.
 
     # ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     # I N V E R S E   K I N E M A T I C S

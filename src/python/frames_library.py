@@ -56,6 +56,7 @@ class FrameHandler:
             # Placing the details of the parameters for the robotic configuration to the right.
             if frame.name == "robotic_params_frame":
                 frame.pack(side="right", anchor="center", expand=True, fill="both")
+                frame.initial_tables_request()
                 continue
 
             # Anything other than the controller is omitted.
@@ -371,6 +372,7 @@ class RoboticConfigurationFrame(CustomFrame):
     Degrees or Radians visualization is available.
     """
 
+    # TODO: Possible integration of end effector offset entries.
     def __init__(
         self,
         root: tb.Window,
@@ -766,10 +768,8 @@ class RoboticConfigurationFrame(CustomFrame):
         )
         self.robotic_properties.dh_params[row, pointer] = 0
 
-        # The active table is also set.
-        self.robotic_properties.dh_params_active_table = (
-            self.robotic_properties.dh_params
-        )
+        # The default configuration is calculated.
+        self.robotic_properties.default_configuration_request()
 
     # ------------------------------------------------
 
@@ -875,10 +875,8 @@ class RoboticConfigurationFrame(CustomFrame):
             else:
                 entry_parameter.insert(0, value_parameter)
 
-            # The active table is also set.
-            self.robotic_properties.dh_params_active_table = (
-                self.robotic_properties.dh_params
-            )
+            # The default configuration is calculated.
+        self.robotic_properties.default_configuration_request()
 
     # ------------------------------------------------
 
@@ -936,10 +934,8 @@ class RoboticConfigurationFrame(CustomFrame):
         # Updating configuration for robot.
         self.robotic_properties.dh_params[row][col] = value
 
-        # The active table is also set.
-        self.robotic_properties.dh_params_active_table = (
-            self.robotic_properties.dh_params
-        )
+        # The default configuration is calculated.
+        self.robotic_properties.default_configuration_request()
 
     # ------------------------------------------------
 
@@ -1042,7 +1038,143 @@ class RoboticParamsFrame(CustomFrame):
     ):
         CustomFrame.__init__(self, root, "robotic_params_frame", frame_handler)
 
+        # Shared robotic properties by all classes.
         self.robotic_properties = robotic_properties
+
+        # TODO: idx but mainly idy to place the matrices.
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # - - - - - - - - - - GUI Components- - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        # DH PARAMETERS TABLE.
+        self.dh_parameters_label = tb.Label(self, text="DH Parameters")
+
+        self.dh_parameters_table = tb.Treeview(
+            self,
+            columns=("theta", "d", "a", "alpha"),
+            show="headings",
+            height=self.robotic_properties.degrees_of_freedom,
+        )
+
+        self.dh_parameters_table.heading("theta", text="θ")
+        self.dh_parameters_table.column(
+            "theta", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER
+        )
+
+        self.dh_parameters_table.heading("d", text="d")
+        self.dh_parameters_table.column(
+            "d", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER
+        )
+
+        self.dh_parameters_table.heading("a", text="a")
+        self.dh_parameters_table.column(
+            "a", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER
+        )
+
+        self.dh_parameters_table.heading("alpha", text="α")
+        self.dh_parameters_table.column(
+            "alpha", minwidth=100, width=100, stretch=tk.NO, anchor=tk.CENTER
+        )
+
+        # TRANSFORMATION MATRIX TABLE.
+        self.transformation_matrix_label = tb.Label(self, text="Transformation Matrix")
+
+        self.transformation_matrix_table = tb.Treeview(
+            self, columns=("A", "B", "C", "D"), show="tree", height=4
+        )
+        self.transformation_matrix_table.column("#0", width=0)
+        self.transformation_matrix_table.column(
+            "A", minwidth=0, width=100, anchor=tk.CENTER
+        )
+        self.transformation_matrix_table.column(
+            "B", minwidth=0, width=100, anchor=tk.CENTER
+        )
+        self.transformation_matrix_table.column(
+            "C", minwidth=0, width=100, anchor=tk.CENTER
+        )
+        self.transformation_matrix_table.column(
+            "D", minwidth=0, width=100, anchor=tk.CENTER
+        )
+
+        # END EFFECTOR TABLE.
+        self.final_efector_position_label = tb.Label(
+            self, text="Final Efector Position", background="green"
+        )
+
+        self.final_efector_position_table = tb.Treeview(
+            self, columns=("X", "Y", "Z"), show="headings", height=1
+        )
+        self.final_efector_position_table.heading("X", text="X")
+        self.final_efector_position_table.column(
+            "X", minwidth=0, width=100, anchor=tk.CENTER
+        )
+
+        self.final_efector_position_table.heading("Y", text="Y")
+        self.final_efector_position_table.column(
+            "Y", minwidth=0, width=100, anchor=tk.CENTER
+        )
+
+        self.final_efector_position_table.heading("Z", text="Z")
+        self.final_efector_position_table.column(
+            "Z", minwidth=0, width=100, anchor=tk.CENTER
+        )
+
+        # Placing components.
+        self.dh_parameters_label.place(relx=0.5, rely=0.1, anchor="center")
+        self.dh_parameters_table.place(relx=0.5, rely=0.25, anchor="center")
+
+        self.transformation_matrix_label.place(relx=0.5, rely=0.5, anchor="center")
+        self.transformation_matrix_table.place(relx=0.5, rely=0.6, anchor="center")
+
+        self.final_efector_position_label.place(relx=0.5, rely=0.7, anchor="center")
+        self.final_efector_position_table.place(relx=0.5, rely=0.8, anchor="center")
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # MAIN FUNCTIONS.
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    def initial_tables_request(self):
+        # Reset the DH active table to the save table. Action performed on both initial requests.
+        self.robotic_properties.default_configuration_request()
+
+        # Resize according to the set DOF size.
+        self.dh_parameters_table.configure(
+            height=self.robotic_properties.degrees_of_freedom
+        )
+
+        # Updating the available tables.
+        self.update_all_tables()
+
+    def individual_table_update(
+        self, num_table: np.ndarray, visual_table: ttk.Treeview
+    ):
+        # Taking each element of the table and applying the delete function.
+        visual_table.delete(*visual_table.get_children())
+
+        # Iterating items of the numeric table.
+        for row, items in enumerate(num_table):
+            # In case the table is the end effector vector, appending as a simple list and exiting.
+            if visual_table == self.final_efector_position_table:
+                visual_table.insert("", tk.END, values=list(num_table))
+                break
+            
+            # If the table is the DH params or the transformation matrix, performing updates.
+            rounded_items = np.around(items, decimals=3)
+            visual_table.insert("", tk.END, iid=row, values=list(rounded_items))
+
+    def update_all_tables(self):
+        self.individual_table_update(
+            self.robotic_properties.dh_params_active_table, self.dh_parameters_table
+        )
+        self.individual_table_update(
+            self.robotic_properties.final_transformation_matrix,
+            self.transformation_matrix_table,
+        )
+        self.individual_table_update(
+            self.robotic_properties.final_efector_vector,
+            self.final_efector_position_table,
+        )
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -1067,6 +1199,7 @@ class DirectKinematicsFrame(CustomFrame):
 
         # Robotic properties shared by all frames.
         self.robotic_properties = robotic_properties
+        self.robotic_params_frame = robotic_params_frame
 
         # Variable to hold the state of the checkbuttons.
         self.continous_mode_state = tb.BooleanVar()
@@ -1171,6 +1304,10 @@ class DirectKinematicsFrame(CustomFrame):
 
     def initial_info_request(self):
         """ """
+
+        # Reset to the default configuration of the robot.
+        self.robotic_properties.default_configuration_request()
+
         # Clearing the list, in case it was previously used.
         for scale in self.scales_table:
             scale.destroy()
@@ -1183,15 +1320,9 @@ class DirectKinematicsFrame(CustomFrame):
         self.title_labels_table = []
         self.value_labels_table = []
 
-        # Reset the DH active table to the save table.
-        self.robotic_properties.dh_params_active_table = (
-            self.robotic_properties.dh_params
-        )
-
         # Gathering the available degrees of freedom.
         degrees_of_freedom = self.robotic_properties.degrees_of_freedom
 
-        print(self.robotic_properties.dh_params)
         # Creating individual scales for each actuator.
         for row in range(degrees_of_freedom):
             scale, value_label = self.create_scale_component(row)
@@ -1322,8 +1453,9 @@ class DirectKinematicsFrame(CustomFrame):
             scale.set(default_value)
             self.degree_labeling(value_label, default_value)
 
-        # TODO: Set the scales and labels back to default position.
-        # Reset the DH table.
+        # Set the tables also to the default position.
+        self.robotic_properties.default_configuration_request()
+        self.robotic_params_frame.update_all_tables()
 
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     # @@@     Scale Update      @@@
@@ -1348,14 +1480,19 @@ class DirectKinematicsFrame(CustomFrame):
     def individual_command_request(self, value: str, row: int):
         print(f"{row} - {value}")
 
-    # TODO: Serial Send with indiviual code.
-    # TODO: Update DH table, as well.
+        # TODO: Serial Send with indiviual code.
+        # TODO: Update DH table, as well.
+        self.robotic_properties.update_matrices_request()
+        self.robotic_params_frame.update_all_tables()
 
     # ------------------------------------------------
 
     def send_multiple_command_request(self):
         for row, scale in enumerate(self.scales_table):
             print(row)
+
+        self.robotic_properties.update_matrices_request()
+        self.robotic_params_frame.update_all_tables()
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
