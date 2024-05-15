@@ -1144,12 +1144,15 @@ class RoboticParamsFrame(CustomFrame):
         )
 
         # Updating the available tables.
-        self.update_all_tables()
+        self.update_all_tables(False)
 
     # ------------------------------------------------
 
     def individual_table_update(
-        self, num_table: np.ndarray, visual_table: ttk.Treeview
+        self,
+        num_table: np.ndarray,
+        visual_table: ttk.Treeview,
+        degrees_mode_state: bool,
     ):
         # Taking each element of the table and applying the delete function.
         visual_table.delete(*visual_table.get_children())
@@ -1158,29 +1161,40 @@ class RoboticParamsFrame(CustomFrame):
         for row, items in enumerate(num_table):
             # In case the table is the end effector vector, appending as a simple list and exiting.
             if visual_table == self.final_efector_position_table:
-                visual_table.insert("", tk.END, values=list(num_table))
+                rounded_items = np.around(num_table, decimals=3)
+                visual_table.insert("", tk.END, values=list(rounded_items))
                 break
-            
+
             # If the table is the DH params or the transformation matrix, performing updates.
             rounded_items = np.around(items, decimals=3)
+            
+            # If degrees visualization, affecting only the DH params table.
+            if degrees_mode_state and visual_table == self.dh_parameters_table:
+                rounded_items[0] = np.rad2deg(items[0])
+                rounded_items[0] = np.around(rounded_items[0], decimals=3)
+
             visual_table.insert("", tk.END, iid=row, values=list(rounded_items))
 
     # ------------------------------------------------
 
-    def update_all_tables(self):
+    def update_all_tables(self, degrees_mode_state: bool):
         # DH parameters.
         self.individual_table_update(
-            self.robotic_properties.dh_params_active_table, self.dh_parameters_table
+            self.robotic_properties.dh_params_active_table,
+            self.dh_parameters_table,
+            degrees_mode_state,
         )
         # Transformation matrix.
         self.individual_table_update(
             self.robotic_properties.final_transformation_matrix,
             self.transformation_matrix_table,
+            degrees_mode_state,
         )
         # End effector position.
         self.individual_table_update(
             self.robotic_properties.final_efector_vector,
             self.final_efector_position_table,
+            degrees_mode_state,
         )
 
 
@@ -1190,6 +1204,7 @@ class RoboticParamsFrame(CustomFrame):
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
+
 
 class DirectKinematicsFrame(CustomFrame):
     """ """
@@ -1311,9 +1326,9 @@ class DirectKinematicsFrame(CustomFrame):
     def initial_info_request(self):
         """
         Sets the default configuration for the robot, clears the available
-        scales if any, and creates and appends the scales and labels for the 
-        actuators according to the degrees of freedom and the current 
-        configuration for these actuators. 
+        scales if any, and creates and appends the scales and labels for the
+        actuators according to the degrees of freedom and the current
+        configuration for these actuators.
         """
 
         # Reset to the default configuration of the robot.
@@ -1454,6 +1469,8 @@ class DirectKinematicsFrame(CustomFrame):
 
             self.degree_labeling(label, value)
 
+        self.robotic_params_frame.update_all_tables(self.degrees_mode_state.get())
+
     # ------------------------------------------------
 
     def default_position_request(self):
@@ -1471,7 +1488,7 @@ class DirectKinematicsFrame(CustomFrame):
 
         # Set the tables also to the default position.
         self.robotic_properties.default_configuration_request()
-        self.robotic_params_frame.update_all_tables()
+        self.robotic_params_frame.update_all_tables(self.degrees_mode_state.get())
 
         # Sending the default configuration signal to the robot.
         self.send_multiple_command_request()
@@ -1504,17 +1521,17 @@ class DirectKinematicsFrame(CustomFrame):
         self.robotic_properties.update_dh_table_request(float(value), row)
 
         self.robotic_properties.update_matrices_request()
-        self.robotic_params_frame.update_all_tables()
+        self.robotic_params_frame.update_all_tables(self.degrees_mode_state.get())
 
     # ------------------------------------------------
 
     def send_multiple_command_request(self):
         for row, scale in enumerate(self.scales_table):
             value = scale.get()
-            # self.robotic_properties.update_dh_table_request(float(value), row)
+            self.robotic_properties.update_dh_table_request(float(value), row)
 
         self.robotic_properties.update_matrices_request()
-        self.robotic_params_frame.update_all_tables()
+        self.robotic_params_frame.update_all_tables(self.degrees_mode_state.get())
 
 
 # -----------------------------------------------------------------------------------------------------------------------------

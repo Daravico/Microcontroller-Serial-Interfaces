@@ -219,9 +219,6 @@ class RoboticProperties:
         # Updating the value.
         self.dh_params_active_table[row, actuator_col] = value
 
-        print(self.dh_params_active_table)
-        print(self.dh_params)
-
     # ------------------------------------------------------------------------
 
     def update_matrices_request(self):
