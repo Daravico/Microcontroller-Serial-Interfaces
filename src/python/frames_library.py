@@ -1,19 +1,18 @@
-import numpy as np
 import tkinter as tk
 from tkinter import ttk
-from typing import List
-from serial_library import SerialObject
-from robotic_library import RoboticProperties
 import ttkbootstrap as tb
 
+import numpy as np
 from functools import partial
 
-# -----------------------------------------------------------------------------------------------------------------------------
-# -----------------------------------------------------------------------------------------------------------------------------
-# -----------------------------------------------------------------------------------------------------------------------------
+from serial_library import SerialObject
+from robotic_library import RoboticProperties
 
-# TODO: Implement a method to check if the frame is direct or
-# inverse kinematics to update details from the robotic properties.
+from typing import List
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 
 
 class FrameHandler:
@@ -43,8 +42,6 @@ class FrameHandler:
 
     # ------------------------------------------------
 
-    # FIXME: Fix this function, depending on the new implementations.
-    # TODO: Posiblemente requiera recibir otro objeto para actualizar.
     def direct_kinematic_frame_packer(self, frame_name: str):
         """
         This function handles the loading of the direct kinematics frame so that
@@ -94,6 +91,8 @@ class CustomFrame(tb.Frame):
         self.root = root
         self.name = name
 
+    # ------------------------------------------------
+
 
 class CustomEntry(tb.Entry):
     """
@@ -107,6 +106,8 @@ class CustomEntry(tb.Entry):
         self.row = row
         self.col = col
         self.entry_type = entry_type
+
+    # ------------------------------------------------
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -166,7 +167,7 @@ class MainMenuFrame(CustomFrame):
             padding=(5, 15),
             width=30,
             bootstyle="dark",
-            state="disabled",  # FIXME: Not available yet.
+            state="disabled",  # TODO: Not available yet.
         )
 
         self.guided_programming_frame_button = tb.Button(
@@ -176,7 +177,7 @@ class MainMenuFrame(CustomFrame):
             padding=(5, 15),
             width=30,
             bootstyle="dark",
-            state="disabled",  # FIXME: Not available yet.
+            state="disabled",  # TODO: Not available yet.
         )
 
         self.exit_window_button = tb.Button(
@@ -195,6 +196,8 @@ class MainMenuFrame(CustomFrame):
         self.inverse_kinematics_frame_button.place(relx=0.5, rely=0.5, anchor="center")
         self.guided_programming_frame_button.place(relx=0.5, rely=0.6, anchor="center")
         self.exit_window_button.place(relx=0.5, rely=0.8, anchor="center")
+
+    # ------------------------------------------------
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -242,7 +245,6 @@ class SerialConfigurationFrame(CustomFrame):
 
         self.selected_port_desc_label = tb.Label(self, text="...")
 
-        # TODO: Add correct validations. Add the starting value.
         self.baudrate_entry = tb.Entry(
             self,
             textvariable=self.serial_baudrate_value,
@@ -340,7 +342,7 @@ class SerialConfigurationFrame(CustomFrame):
         self.serial_conn.port = self.combo_serial.get()
         self.serial_conn.baudrate = int(self.serial_baudrate_value.get())
 
-        # TODO: Remove.
+        # Printing Serial details, remove if not required.
         print(f"PORT: {self.serial_conn.port} | BAUDRATE: {self.serial_conn.baudrate}")
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -356,6 +358,8 @@ class SerialConfigurationFrame(CustomFrame):
         if new_value.isdigit() or new_value == "":
             return True
         return False
+
+    # ------------------------------------------------
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -452,6 +456,7 @@ class RoboticConfigurationFrame(CustomFrame):
             width=50,
         )
 
+        # Initial methods.
         self.initial_ranges_entries_request()
         self.initial_parameters_entries_request()
         self.initial_pointer_buttons_request()
@@ -1028,7 +1033,11 @@ class RoboticConfigurationFrame(CustomFrame):
 
 
 class RoboticParamsFrame(CustomFrame):
-    """ """
+    """
+    Frame to visualize the Robotic Parameters in the Direct Kinematics mode.
+    On each update for the commands being sent to the robot the visual tables
+    are also modified.
+    """
 
     def __init__(
         self,
@@ -1040,8 +1049,6 @@ class RoboticParamsFrame(CustomFrame):
 
         # Shared robotic properties by all classes.
         self.robotic_properties = robotic_properties
-
-        # TODO: idx but mainly idy to place the matrices.
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - -
         # - - - - - - - - - - GUI Components- - - - - - - - - -
@@ -1135,6 +1142,10 @@ class RoboticParamsFrame(CustomFrame):
     # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def initial_tables_request(self):
+        """
+        Initial display of tables at the starting of the frame. The robotic properties
+        are also updated (Setting the default configuration). This method is only called once.
+        """
         # Reset the DH active table to the save table. Action performed on both initial requests.
         self.robotic_properties.default_configuration_request()
 
@@ -1154,6 +1165,12 @@ class RoboticParamsFrame(CustomFrame):
         visual_table: ttk.Treeview,
         degrees_mode_state: bool,
     ):
+        """
+        Function to update one of the three available tables in the screen. The given table
+        (Numeric Table) is from where the information will be taken, the visual table is the
+        one to be updated. The boolean parameter sets the visuals for the first column and last
+        columns in degrees or radians.
+        """
         # Taking each element of the table and applying the delete function.
         visual_table.delete(*visual_table.get_children())
 
@@ -1167,17 +1184,24 @@ class RoboticParamsFrame(CustomFrame):
 
             # If the table is the DH params or the transformation matrix, performing updates.
             rounded_items = np.around(items, decimals=3)
-            
+
             # If degrees visualization, affecting only the DH params table.
             if degrees_mode_state and visual_table == self.dh_parameters_table:
                 rounded_items[0] = np.rad2deg(items[0])
                 rounded_items[0] = np.around(rounded_items[0], decimals=3)
+                rounded_items[3] = np.rad2deg(items[3])
+                rounded_items[3] = np.around(rounded_items[3], decimals=3)
 
             visual_table.insert("", tk.END, iid=row, values=list(rounded_items))
 
     # ------------------------------------------------
 
     def update_all_tables(self, degrees_mode_state: bool):
+        """
+        Request to update all the tables in scene (Direct Kinematics details). These are
+        the DH parameters, transformation matrix and final effector position. The update also
+        takes the modifications of the parameters in consideration.
+        """
         # DH parameters.
         self.individual_table_update(
             self.robotic_properties.dh_params_active_table,
@@ -1207,7 +1231,11 @@ class RoboticParamsFrame(CustomFrame):
 
 
 class DirectKinematicsFrame(CustomFrame):
-    """ """
+    """
+    Frame to handle the request of the Direct Kinematics controller. Different buttons and
+    checkbuttons are set, as well for the scales according to the DoF and settings for each of
+    the actuators that can be controlled.
+    """
 
     def __init__(
         self,
@@ -1410,7 +1438,8 @@ class DirectKinematicsFrame(CustomFrame):
 
     def create_label_component(self, row: int):
         """
-        A
+        Individual label creation for the actuator title. The row is sent to
+        indicate the actuator being affected (Starting from 1).
         """
         # Positional variables.
         idx = self.start_x - 2 * self.separation_x
@@ -1430,7 +1459,8 @@ class DirectKinematicsFrame(CustomFrame):
 
     def degree_labeling(self, label: tk.Label, value: str):
         """
-        A
+        Function called when the toggle for the degrees mode is set or called from
+        other functions to check the specific visualization required (Deg or Rad).
         """
         # Checking with is the current mode.
         if self.degrees_mode_state.get():
@@ -1474,6 +1504,11 @@ class DirectKinematicsFrame(CustomFrame):
     # ------------------------------------------------
 
     def default_position_request(self):
+        """
+        Action to set the default configuration of the robot both in the parameters and
+        the visual tables. An instruction is also sent to the robot to set the starting
+        position (Either when the DK Frame is starting or as per user request).
+        """
         for row, scale in enumerate(self.scales_table):
             # Setting the pointer values.
             actuator_pointer = int(self.robotic_properties.pointer_actuators[row])
@@ -1498,7 +1533,11 @@ class DirectKinematicsFrame(CustomFrame):
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     def scale_updates(self, value: str, label: ttk.Label, row: int):
-        """ """
+        """
+        Individual update of the scale binded to each of them. The label is
+        always updated on change. The degrees or radian configuration is also
+        checked to update the information as well.
+        """
 
         # Updating text always.
         self.degree_labeling(label, value)
@@ -1514,10 +1553,14 @@ class DirectKinematicsFrame(CustomFrame):
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     def individual_command_request(self, value: str, row: int):
+        """
+        Method to send an individual command over the serial communication. This
+        functions is used by the continous mode to send the changes to individual scales
+        over the robot.
+        """
         print(f"{row} - {value}")
 
         # TODO: Serial Send with indiviual code.
-        # TODO: Update DH table, as well.
         self.robotic_properties.update_dh_table_request(float(value), row)
 
         self.robotic_properties.update_matrices_request()
@@ -1526,12 +1569,17 @@ class DirectKinematicsFrame(CustomFrame):
     # ------------------------------------------------
 
     def send_multiple_command_request(self):
+        """ 
+        Method to send the information from all the scales when called. Is used when setting 
+        the default configuration and when the user request it not in the Continous Mode. 
+        """
         for row, scale in enumerate(self.scales_table):
             value = scale.get()
             self.robotic_properties.update_dh_table_request(float(value), row)
 
         self.robotic_properties.update_matrices_request()
         self.robotic_params_frame.update_all_tables(self.degrees_mode_state.get())
+        # TODO: Send comands.
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
