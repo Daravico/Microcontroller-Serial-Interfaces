@@ -1146,6 +1146,8 @@ class RoboticParamsFrame(CustomFrame):
         # Updating the available tables.
         self.update_all_tables()
 
+    # ------------------------------------------------
+
     def individual_table_update(
         self, num_table: np.ndarray, visual_table: ttk.Treeview
     ):
@@ -1163,14 +1165,19 @@ class RoboticParamsFrame(CustomFrame):
             rounded_items = np.around(items, decimals=3)
             visual_table.insert("", tk.END, iid=row, values=list(rounded_items))
 
+    # ------------------------------------------------
+
     def update_all_tables(self):
+        # DH parameters.
         self.individual_table_update(
             self.robotic_properties.dh_params_active_table, self.dh_parameters_table
         )
+        # Transformation matrix.
         self.individual_table_update(
             self.robotic_properties.final_transformation_matrix,
             self.transformation_matrix_table,
         )
+        # End effector position.
         self.individual_table_update(
             self.robotic_properties.final_efector_vector,
             self.final_efector_position_table,
@@ -1183,7 +1190,6 @@ class RoboticParamsFrame(CustomFrame):
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------
-
 
 class DirectKinematicsFrame(CustomFrame):
     """ """
@@ -1303,7 +1309,12 @@ class DirectKinematicsFrame(CustomFrame):
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     def initial_info_request(self):
-        """ """
+        """
+        Sets the default configuration for the robot, clears the available
+        scales if any, and creates and appends the scales and labels for the 
+        actuators according to the degrees of freedom and the current 
+        configuration for these actuators. 
+        """
 
         # Reset to the default configuration of the robot.
         self.robotic_properties.default_configuration_request()
@@ -1412,13 +1423,17 @@ class DirectKinematicsFrame(CustomFrame):
         else:
             label.config(text=f"{float(value):.4f}")
 
+    # ------------------------------------------------
+
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     # @@@       Requests        @@@
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     def continous_mode_toggle(self):
         """
-        A
+        Condition to check the current mode of the system in order to send the command
+        when passing from OFF to ON, to update the values to the current configuration
+        of the scales.
         """
         self.degrees_mode_toggle()
 
@@ -1430,7 +1445,8 @@ class DirectKinematicsFrame(CustomFrame):
 
     def degrees_mode_toggle(self):
         """
-        A
+        When toggle or called, the labeling is updated according to the current state
+        of the checkbutton. Information is presented as Degrees or Radians.
         """
         for row, label in enumerate(self.value_labels_table):
             scale = self.scales_table[row]
@@ -1457,6 +1473,9 @@ class DirectKinematicsFrame(CustomFrame):
         self.robotic_properties.default_configuration_request()
         self.robotic_params_frame.update_all_tables()
 
+        # Sending the default configuration signal to the robot.
+        self.send_multiple_command_request()
+
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     # @@@     Scale Update      @@@
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -1464,7 +1483,7 @@ class DirectKinematicsFrame(CustomFrame):
     def scale_updates(self, value: str, label: ttk.Label, row: int):
         """ """
 
-        # Updating text.
+        # Updating text always.
         self.degree_labeling(label, value)
 
         # Send command if the mode is available.
@@ -1482,6 +1501,8 @@ class DirectKinematicsFrame(CustomFrame):
 
         # TODO: Serial Send with indiviual code.
         # TODO: Update DH table, as well.
+        self.robotic_properties.update_dh_table_request(float(value), row)
+
         self.robotic_properties.update_matrices_request()
         self.robotic_params_frame.update_all_tables()
 
@@ -1489,7 +1510,8 @@ class DirectKinematicsFrame(CustomFrame):
 
     def send_multiple_command_request(self):
         for row, scale in enumerate(self.scales_table):
-            print(row)
+            value = scale.get()
+            # self.robotic_properties.update_dh_table_request(float(value), row)
 
         self.robotic_properties.update_matrices_request()
         self.robotic_params_frame.update_all_tables()

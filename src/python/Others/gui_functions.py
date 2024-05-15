@@ -457,7 +457,7 @@ class ControlGUI:
         self.robotic_properties.q[1] = q2_rad_value
         self.robotic_properties.q[2] = q3_rad_value
 
-        self.robotic_properties.initial_tables_creation()
+        self.robotic_properties.initial_update_tables_request()()
 
         self.update_table(self.robotic_properties.dh_params, self.dh_parameters_table)
         self.update_table(self.robotic_properties.final_transformation_matrix, self.transformation_matrix_table)
