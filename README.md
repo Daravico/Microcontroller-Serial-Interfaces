@@ -1,4 +1,7 @@
-# Robot-Serial-Interface
+# "Robot Serial Interface" for Learning Robotic Fundamentals.
+
+## Index
+- [Description of the project](#description-of-the-project)
 
 ## Description of the project.
 
