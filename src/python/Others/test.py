@@ -1,25 +1,19 @@
-import tkinter as tk
-from tkinter import ttk
+import serial
 import time
 
-def start_progress():
-    progress_bar.start(50)  # La duración total es de 5000 milisegundos (5 segundos)
-    root.after(5000, stop_progress)  # Detiene el progreso después de 5 segundos
+# Configurar el puerto serial (ajusta el puerto según tu configuración)
+puerto_serial ='COM1'  # Linux
+# puerto_serial = 'COM3'  # Windows
 
-def stop_progress():
-    progress_bar.stop()
+# Inicializar la comunicación serial
+ser = serial.Serial(puerto_serial, 9600, timeout=1)
 
-root = tk.Tk()
-root.title("ProgressBar")
+# Esperar un breve momento para la inicialización
+time.sleep(2)
 
-# Crear ProgressBar
-progress_bar = ttk.Progressbar(root, orient="horizontal", length=200, mode="indeterminate")
+# Enviar el mensaje
+mensaje = "B"
+ser.write(mensaje.encode())
 
-# Colocar ProgressBar en la ventana
-progress_bar.pack(pady=10)
-
-# Crear botón para iniciar el progreso
-start_button = tk.Button(root, text="Iniciar Progreso", command=start_progress)
-start_button.pack(pady=5)
-
-root.mainloop()
+# Cerrar la conexión serial
+ser.close()

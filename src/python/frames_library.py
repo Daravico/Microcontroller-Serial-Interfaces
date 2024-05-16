@@ -21,19 +21,22 @@ class FrameHandler:
     frames from the ones that are required to load some configurations and send information.
     """
 
-    def __init__(self):
+    def __init__(self, serial_conn:SerialObject):
         """
         The constructor is only requried to have a list of the available frames, so that
         this can be easily organized and accessed in case any function is required from them.
         """
         self.frames: List[CustomFrame] = []
-
+        self.serial_conn = serial_conn
     # ------------------------------------------------
 
     def frame_packer(self, frame_name: str):
         """
         Function used to update the frame that is being selected. Normal frames are loaded into.
         """
+        # Closing the serial connection in any frame other than the DK Frame.
+        self.serial_conn.close()
+
         for frame in self.frames:
             if frame.name != frame_name:
                 frame.pack_forget()
@@ -48,6 +51,9 @@ class FrameHandler:
         the configurations from the robotic properties can be established prior to
         make modifications on this section of the code.
         """
+        # Opening the serial Connection in order to send instructions.
+        self.serial_conn.open()
+
         for frame in self.frames:
 
             # Placing the details of the parameters for the robotic configuration to the right.
@@ -215,7 +221,10 @@ class SerialConfigurationFrame(CustomFrame):
     """
 
     def __init__(
-        self, root: tb.Window, frame_handler: FrameHandler, serial_conn: SerialObject
+        self,
+        root: tb.Window,
+        frame_handler: FrameHandler,
+        serial_conn: SerialObject,
     ):
         CustomFrame.__init__(self, root, "serial_configuration_frame", frame_handler)
 
@@ -311,7 +320,7 @@ class SerialConfigurationFrame(CustomFrame):
 
     # ------------------------------------------------
 
-    def update_label_serial_port(self):
+    def update_label_serial_port(self, _):
         """
         This function updates the labels destinated to display the current selection
         for the serial configuration in regards to the port information exclusively.
@@ -1243,8 +1252,12 @@ class DirectKinematicsFrame(CustomFrame):
         frame_handler: FrameHandler,
         robotic_properties: RoboticProperties,
         robotic_params_frame: RoboticParamsFrame,
+        serial_conn: SerialObject,
     ):
         CustomFrame.__init__(self, root, "direct_kinematics_frame", frame_handler)
+
+        # Serial Configuration Object shared by some frames.
+        self.serial_conn = serial_conn
 
         # Robotic properties shared by all frames.
         self.robotic_properties = robotic_properties
@@ -1558,29 +1571,52 @@ class DirectKinematicsFrame(CustomFrame):
         functions is used by the continous mode to send the changes to individual scales
         over the robot.
         """
-        print(f"{row} - {value}")
+        # Variable to store serial data.
+        short_value = np.around(float(value), 3)
+        command = f'I#Q{row}:{short_value};'
 
-        # TODO: Serial Send with indiviual code.
+        print(command)
+        # Attempting to send serial data.
+        try:
+            self.serial_conn.write(command.encode())
+        except:
+            print("UNABLE TO SEND")
+
+        # Updating the information in the tables, as well for the visualizations.
         self.robotic_properties.update_dh_table_request(float(value), row)
-
         self.robotic_properties.update_matrices_request()
         self.robotic_params_frame.update_all_tables(self.degrees_mode_state.get())
 
     # ------------------------------------------------
 
     def send_multiple_command_request(self):
-        """ 
-        Method to send the information from all the scales when called. Is used when setting 
-        the default configuration and when the user request it not in the Continous Mode. 
         """
+        Method to send the information from all the scales when called. Is used when setting
+        the default configuration and when the user request it not in the Continous Mode.
+        """
+        # Starting command (Empty).
+        command = "M#"
+
+        # Updating information for the scales and DH parameters.
         for row, scale in enumerate(self.scales_table):
             value = scale.get()
             self.robotic_properties.update_dh_table_request(float(value), row)
 
+            # Shorten value appended.
+            short_value = np.around(float(value), 3)
+            command+=f'Q{row}:{short_value};'
+
+        print(command)
+        print(self.serial_conn.is_open)
+        # Attempting to send serial data.
+        try:
+            self.serial_conn.write(command.encode())
+        except:
+            print("UNABLE TO SEND")
+
+        # Updating visual information.
         self.robotic_properties.update_matrices_request()
         self.robotic_params_frame.update_all_tables(self.degrees_mode_state.get())
-        # TODO: Send comands.
-
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------

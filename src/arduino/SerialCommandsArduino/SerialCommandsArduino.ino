@@ -1,14 +1,10 @@
-#define LED 2
-#include "BluetoothSerial.h"
-BluetoothSerial SerialBT;
-
+/*
 String instruction = "";
 
 int incomingByte = 0; // for incoming serial data
 
 void setup() {
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
-  digitalWrite(BUILTIN_LED, HIGH);
 }
 
 void loop() {
@@ -27,4 +23,4 @@ void loop() {
       Serial.println(angle);
     }
   }
-}
+}*/

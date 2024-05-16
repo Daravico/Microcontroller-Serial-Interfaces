@@ -8,7 +8,7 @@ String instruction = "";
 int incomingByte = 0; // for incoming serial data
 
 void setup() {
-  Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
+  Serial.begin(115200); // opens serial port, sets data rate to 9600 bps
   digitalWrite(13, HIGH);
 
   servo1.attach(9);
@@ -22,6 +22,19 @@ void loop() {
   if (Serial.available() > 0) {
     instruction = Serial.readStringUntil('\n');
 
+    switch(instruction.charAt(0))
+    {
+      case 'I':
+        Serial.println("Method 1");
+        break;
+      case 'M':
+        Serial.println("Method 2");
+        break;
+    }
+  }
+}
+
+/*
     if(instruction.charAt(0) == 'Q') 
     {
       int servoNumber = instruction.charAt(1) - '0';
@@ -48,5 +61,4 @@ void loop() {
 
 
     }
-  }
-}
+  }*/
