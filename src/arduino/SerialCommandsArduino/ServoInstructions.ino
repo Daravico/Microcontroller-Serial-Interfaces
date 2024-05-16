@@ -1,3 +1,9 @@
+// Instructions are the following:
+// Multiple (Example):
+// M#Q1:0.450;Q2:1.520;Q3:-1.233;
+// Individual (Example):
+// I#Q1:0.435;
+
 #include "Servo.h"
 Servo servo1;
 Servo servo2;
@@ -26,6 +32,7 @@ void loop() {
     {
       case 'I':
         Serial.println("Method 1");
+        multipleCommands(instruction);
         break;
       case 'M':
         Serial.println("Method 2");
@@ -34,6 +41,12 @@ void loop() {
   }
 }
 
+void multipleCommands(String instruction)
+{
+  Serial.println(instruction);
+
+
+}
 /*
     if(instruction.charAt(0) == 'Q') 
     {
