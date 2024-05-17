@@ -4,27 +4,42 @@
 // Individual (Example):
 // I#Q1:0.435;
 
-#include "Servo.h"
-Servo servo1;
-Servo servo2;
-Servo servo3;
+#define PI 3.14159
+#define COUNT_SERVOS 3
 
+#include "Servo.h"
+
+// Array to store the servos created.
+Servo servos[COUNT_SERVOS];
+
+// Array to hold the value of the instructions received.
+float values_received[COUNT_SERVOS];
+
+// Variable to receive the instructions via Serial Communication.
 String instruction = "";
 
-int incomingByte = 0; // for incoming serial data
+// Incoming Serial Data variable before conversion.
+int incomingByte = 0; 
 
-void setup() {
-  Serial.begin(115200); // opens serial port, sets data rate to 9600 bps
-  digitalWrite(13, HIGH);
+void setup() 
+{
+  // Serial initialization with baudrate specs.
+  Serial.begin(115200); 
+  Serial.setTimeout(50);
 
-  servo1.attach(9);
-  servo2.attach(10);
-  servo3.attach(11);
+  // Servo pin attachments.
+  servos[0].attach(9);
+  servos[1].attach(10);
+  servos[2].attach(11);
   
-  servo1.write(180);
+  // Default configuration.
+  servos[0].write(180);
+  servos[1].write(180);
+  servos[2].write(180);
 }
 
-void loop() {
+void loop() 
+{
   if (Serial.available() > 0) {
     instruction = Serial.readStringUntil('\n');
 
@@ -41,37 +56,23 @@ void loop() {
   }
 }
 
+/* Multiple instructions for multiple servos */
 void multipleCommands(String instruction)
 {
   Serial.println(instruction);
+}
 
+/* Individual instruction for one servo */
+void individualCommand(String instruction)
+{
+  Serial.println(instruction);
+  Serial.println("Individual");
 
 }
-/*
-    if(instruction.charAt(0) == 'Q') 
-    {
-      int servoNumber = instruction.charAt(1) - '0';
 
-      float angle = instruction.substring(3).toFloat();
-
-      Serial.print("Servo: ");
-      Serial.print(servoNumber);
-      Serial.print(" Angle: ");
-      Serial.println(angle);
-
-      switch(servoNumber)
-      {
-        case 1:
-          servo1.write(angle);
-          break;
-        case 2:
-          servo2.write(angle);
-          break;
-        case 3: 
-          servo3.write(angle);
-          break;
-      }
-
-
-    }
-  }*/
+/* Mapper to translate radians to degrees */
+float radiansToDegrees(float value)
+{
+  float result = value * 180 / PI;
+  return result;
+}
