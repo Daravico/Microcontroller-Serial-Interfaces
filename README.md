@@ -18,10 +18,37 @@ This is not nor it uses a standarized framework for robotics. It is neither reco
 
 ### What to do with this project?
 
+
+
+
 ## Requirements
+
+
+
+
 ## Explanation and usage 
+
 ### Sample with 3 DoF
+
+
+
+
 ## Known issues
+
+
+
+
 ## Possible improvements
+
+
+
+
 ## Future work
+
+
+
+
 ## Resources used
+
+
+

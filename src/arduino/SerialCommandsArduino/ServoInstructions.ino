@@ -12,19 +12,21 @@
 // Array to store the servos created.
 Servo servos[COUNT_SERVOS];
 
-// Array to hold the value of the instructions received.
-float values_received[COUNT_SERVOS];
-
 // Variable to receive the instructions via Serial Communication.
 String instruction = "";
 
 // Incoming Serial Data variable before conversion.
 int incomingByte = 0; 
 
+// Prototypes */
+void multipleCommands(String instruction);
+void individualCommand(String instruction);
+int radiansToDegrees(float value);
+
 void setup() 
 {
   // Serial initialization with baudrate specs.
-  Serial.begin(115200); 
+  Serial.begin(9600); 
   Serial.setTimeout(50);
 
   // Servo pin attachments.
@@ -40,40 +42,76 @@ void setup()
 
 void loop() 
 {
-  if (Serial.available() > 0) {
+  if (Serial.available() > 0) 
+  {
     instruction = Serial.readStringUntil('\n');
 
     switch(instruction.charAt(0))
     {
+      // Case of an individual command being received.
       case 'I':
-        Serial.println("Method 1");
-        multipleCommands(instruction);
+        individualCommand(instruction);
         break;
+      // Case of an multiple commands being received.
       case 'M':
-        Serial.println("Method 2");
         multipleCommands(instruction);
         break;
     }
   }
 }
 
+/*********************************************************/
+
 /* Multiple instructions for multiple servos */
 void multipleCommands(String instruction)
 {
-  Serial.println(instruction);
+  int position = 2;
+  while (position < instruction.length())
+  {
+    // Getting the indexes of the instruction received.
+    int qIndex = instruction.substring(position + 1, position + 2).toInt() - 1;
+    int startPos = instruction.indexOf(':', position) + 1;
+    int finalPos = instruction.indexOf(';', position);
+
+    // Saving the values.
+    String individualValue = instruction.substring(startPos, finalPos);
+    float radiansValue = individualValue.toFloat();
+
+    // Transformation to degrees and sending.
+    int degreesValue = radiansToDegrees(radiansValue);
+    servos[qIndex].write(degreesValue);
+    Serial.println(degreesValue);
+    // Update to the index for the current position.
+    position = finalPos + 1;
+  }
 }
+
+/*********************************************************/
 
 /* Individual instruction for one servo */
 void individualCommand(String instruction)
 {
-  Serial.println(instruction);
-  Serial.println("Individual");
+  // Starting the index right after the double points.
+  int startPos = instruction.indexOf(':') + 1;
+  int finalPos = instruction.indexOf(';');
 
+  // 
+  int qIndex = instruction.substring(3, 4).toInt() - 1;
+
+  // Retreiving the value and making the conversion to degrees.
+  String instructionValue = instruction.substring(startPos, finalPos);
+  float radiansValue = instructionValue.toFloat();
+  int degreeValue = radiansToDegrees(radiansValue);
+
+  // Sending the position to the servo.
+  servos[qIndex].write(degreeValue);
 }
 
+/*********************************************************/
+
 /* Mapper to translate radians to degrees */
-float radiansToDegrees(float value)
+int radiansToDegrees(float value)
 {
-  float result = value * 180 / PI;
+  int result = value * 180 / PI;
   return result;
 }
