@@ -51,6 +51,7 @@ void loop()
         break;
       case 'M':
         Serial.println("Method 2");
+        multipleCommands(instruction);
         break;
     }
   }
