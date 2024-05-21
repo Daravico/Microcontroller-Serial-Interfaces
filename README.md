@@ -4,6 +4,7 @@
 - [Description of the project](#description-of-the-project)
 - [Requirements](#requirements)
 - [Explanation and usage](#explanation-and-usage)
+- [Additional Notes](#additional-notes)
 - [Known issues](#known-issues)
 - [Possible improvements](#possible-improvements)
 - [Resources used](#resources-used)
@@ -21,34 +22,36 @@ This is not nor it uses a standarized framework for robotics. It is neither reco
 
 
 
-## Requirements
+## Requirements.
 
 
 
 
-## Explanation and usage 
+## Explanation and usage.
 
 ### Sample with 3 DoF
 
 
-
-
-## Known issues
-
+## Additional notes.
 
 
 
-## Possible improvements
+## Known issues.
 
 
 
 
-## Future work
+## Possible improvements.
 
 
 
 
-## Resources used
+## Future work.
+
+
+
+
+## Resources used.
 
 
 

@@ -3,10 +3,10 @@ from typing import List
 
 # DEFAULT VALUES:
 # DH Parameters and Homogeneous Matrix variables.
-q = [0, np.pi / 2, 0]
-d = [1, 0, 0]
-a = [0, 5, 3]
-A = [np.pi / 2, 0, 0]
+q = [0,             np.pi / 2,      0]
+d = [60,            0,              0]
+a = [0,             105,            100]
+A = [np.pi / 2,     0,              0]
 
 ranges = np.array([[-np.pi / 2, np.pi / 2], [0, np.pi / 2], [0, np.pi / 2]])
 

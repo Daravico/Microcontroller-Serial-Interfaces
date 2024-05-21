@@ -1,9 +1,9 @@
 // Instructions are the following:
 // Multiple (Example):
-// M#Q1:0.450;Q2:1.520;Q3:-1.233;
-// M#Q1:0;Q2:1.571;Q3:-1.571;
+// M#Q0:0.450;Q1:1.520;Q2:-1.233;
+// M#Q0:0;Q1:1.571;Q2:-1.571;
 // Individual (Example):
-// I#Q1:0.435;
+// I#Q0:0.435;
 
 #include "Servo.h"
 
@@ -53,7 +53,7 @@ int incomingByte = 0;
 // Prototypes */
 void multipleCommands(String instruction);
 void individualCommand(String instruction);
-int radiansToDegrees(float value);
+int mapper(float x, float min_x, float max_x, float min_y, float max_y);
 
 void setup() 
 {
@@ -66,10 +66,15 @@ void setup()
   servos[1].attach(10);
   servos[2].attach(11);
   
+  int defaultValues[3];
+  defaultValues[0] = map(0, rangesRadiansMin[0], rangesRadiansMax[0], rangesMicroSecondsMin[0], rangesMicroSecondsMax[0]);
+  defaultValues[1] = map(PI/2, rangesRadiansMin[1], rangesRadiansMax[1], rangesMicroSecondsMin[1], rangesMicroSecondsMax[1]);
+  defaultValues[2] = map(0, rangesRadiansMin[2], rangesRadiansMax[2], rangesMicroSecondsMin[2], rangesMicroSecondsMax[2]);
+
   // Default configuration.
-  servos[0].write(180);
-  servos[1].write(180);
-  servos[2].write(180);
+  servos[0].writeMicroseconds(defaultValues[0]);
+  servos[1].writeMicroseconds(defaultValues[1]);
+  servos[2].writeMicroseconds(defaultValues[2]);
 }
 
 void loop() 
@@ -102,47 +107,27 @@ void multipleCommands(String instruction)
   for (int i = 0; i < COUNT_SERVOS; i++)
   {
     // Getting the indexes of the instruction received.
-    int qIndex = instruction.substring(position + 1, position + 2).toInt() - 1;
+    int qIndex = instruction.substring(position + 1, position + 2).toInt();
     int startPos = instruction.indexOf(':', position) + 1;
     int finalPos = instruction.indexOf(';', position);
 
-    // Saving the values.
+    // Extracting the ranges.
+    int minMsRange = rangesMicroSecondsMin[qIndex];
+    int maxMsRange = rangesMicroSecondsMax[qIndex];
+    float minRadRange = rangesRadiansMin[qIndex]; 
+    float maxRadRange = rangesRadiansMax[qIndex]; 
+
+    // Saving the value.
     String individualValue = instruction.substring(startPos, finalPos);
     float radiansValue = individualValue.toFloat();
     
-    // Transformation to degrees and sending.
-    int degreesValue = radiansToDegrees(radiansValue);
-    servos[qIndex].write(degreesValue);
-    Serial.println(degreesValue);
-    // int value = map(radiansValue, RQ1_MIN, RQ1_MAX, long, long)
-    Serial.println();
+    // Mapping value to microseconds and sending.
+    int value = mapper(radiansValue, minRadRange, maxRadRange, minMsRange, maxMsRange);
+    servos[qIndex].writeMicroseconds(value);
     
     // Update to the index for the current position.
     position = finalPos + 1;
   }
-
-/*
-  while (position < instruction.length())
-  {
-    // Getting the indexes of the instruction received.
-    int qIndex = instruction.substring(position + 1, position + 2).toInt() - 1;
-    int startPos = instruction.indexOf(':', position) + 1;
-    int finalPos = instruction.indexOf(';', position);
-
-    // Saving the values.
-    String individualValue = instruction.substring(startPos, finalPos);
-    float radiansValue = individualValue.toFloat();
-
-    // Transformation to degrees and sending.
-    int degreesValue = radiansToDegrees(radiansValue);
-    servos[qIndex].write(degreesValue);
-    Serial.println(degreesValue);
-    int value = map(radiansValue, RQ1_MIN, RQ1_MAX, long, long)
-    Serial.println();
-    
-    // Update to the index for the current position.
-    position = finalPos + 1;
-  }*/
 }
 
 /*********************************************************/
@@ -155,23 +140,29 @@ void individualCommand(String instruction)
   int finalPos = instruction.indexOf(';');
 
   // Getting the indexes of the instruction received.
-  int qIndex = instruction.substring(3, 4).toInt() - 1;
+  int qIndex = instruction.substring(3, 4).toInt();
+
+  // Extracting the ranges.
+  float minMsRange = rangesMicroSecondsMin[qIndex];
+  float maxMsRange = rangesMicroSecondsMax[qIndex];
+  float minRadRange = rangesRadiansMin[qIndex]; 
+  float maxRadRange = rangesRadiansMax[qIndex]; 
 
   // Retreiving the value and making the conversion to degrees.
   String instructionValue = instruction.substring(startPos, finalPos);
   float radiansValue = instructionValue.toFloat();
-  int degreeValue = radiansToDegrees(radiansValue);
-  Serial.println(degreeValue);
-
-  // Sending the position to the servo.
-  servos[qIndex].write(degreeValue);
+    
+  // Mapping value to microseconds and sending.
+  int value = mapper(radiansValue, minRadRange, maxRadRange, minMsRange, maxMsRange);
+  servos[qIndex].writeMicroseconds(value);
 }
 
-/*********************************************************/
-
-/* Mapper to translate radians to degrees */
-int radiansToDegrees(float value)
+/* *********************************************** */
+int mapper(float x, float min_x, float max_x, float min_y, float max_y)
 {
-  int result = value * 180 / PI;
-  return result;
+  float m =  ( max_y - min_y ) / (max_x - min_x );
+  float y = m * (x - min_x) + min_y;
+  return (int)y;
 }
+
+
