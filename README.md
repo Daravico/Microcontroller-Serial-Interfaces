@@ -18,12 +18,12 @@ This project is aimed to be an aid in learning robotic fundamentals. It is possi
 This is not nor it uses a standarized framework for robotics. It is neither recommended to be used at production. This project does not hide the mathematical parts to the end user, which is the main intention.
 
 ### What to do with this project?
-
-
-
+This can be used as a teaching tool, in order to observe the mathematical changes with certain request, both mathematically and physically. The system can also be used without a robot making certain configurations to the Serial Connection.
 
 ## Requirements.
-
+This project requires:
+- Electric components:
+- 
 
 
 
