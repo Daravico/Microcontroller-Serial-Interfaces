@@ -10,20 +10,22 @@
 - [Resources used](#resources-used)
 
 ## Description of the project.
-
 ### What is this?
 This project is aimed to be an aid in learning robotic fundamentals. It is possible to Visualize some important mathematical concepts used in robotics, which are the transformation matrix, DH parameters to calculate the final effector's position, which is also displayed on screen. The information can be displayed in both radians and degrees as per the user convenience. 
 
 ### What this is not?
-This is not nor it uses a standarized framework for robotics. It is neither recommended to be used at production. This project does not hide the mathematical parts to the end user, which is the main intention.
+This is not nor it uses a standardized framework for robotics. It is neither recommended to be used at production. This project does not hide the mathematical parts to the end user, which is the main intention.
+
+Not PID included. Control for vel, etc. Just kinematics analysis. 
 
 ### What to do with this project?
 This can be used as a teaching tool, in order to observe the mathematical changes with certain request, both mathematically and physically. The system can also be used without a robot making certain configurations to the Serial Connection.
 
 ## Requirements.
-This project requires:
+For this project, it is recommended to have the following components (The specific components used are also shown in parentheses):
 - Electric components:
-- 
+    - Arduino
+    - DC Voltage Source ()
 
 
 
