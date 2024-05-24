@@ -14,7 +14,7 @@ class PrincipalWindow:
 
         # Reference for the Serial Object, for both configuration and connection.
         self.serial_conn = SerialObject()
-        self.serial_conn.establish_parameters('COM7', 9600)
+        self.serial_conn.establish_parameters(None, 9600)
 
         # Robotic properties.
         self.robotic_properties = RoboticProperties()
