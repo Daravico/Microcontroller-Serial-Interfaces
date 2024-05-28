@@ -84,17 +84,33 @@ This frame is used to set the configuration to establish the connection with the
 
 
 
-## Possible improvements.
+## Possible improvements and future work.
+Here is a list of the possible improvements that will take place in the future:
+- **Inverse kinematics algorithm.** <br>
+gasdg
 
+- **Guided programming.**<br>
+dsgasdg
 
+- **Velocity control.**<br>
+gkh
 
+- **Sequence follower.**<br>
+gujho
 
-## Future work.
-
-
-
+- **Digital Twin/Visual graph.**<br>
+Either an option to visualize the robot on another interface or the full 3D representation with the possibility to be interacted with to become a full digital twin system.
 
 ## Resources used.
+- Visual Studio Code ([Download](https://code.visualstudio.com/))
 
+- Arduino IDE ([Download](https://www.arduino.cc/en/software))
+
+- Python (3.10) + Libraries:
+    - PySerial ([Documentation](https://pypi.org/project/pyserial/))
+    - TTKBootstrap ([Documentation](https://ttkbootstrap.readthedocs.io/en/latest/))
+    - NumPy ([Documentation](https://numpy.org/))
+
+- 3D printed robot ([STL File Download](https://www.thingiverse.com/thing:3458238))
 
 
