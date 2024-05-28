@@ -66,7 +66,7 @@ Finally, there is the option to end the program, marked with a red button.
 
 This frame is used to set the configuration to establish the connection with the robot. There is an option to load the available ports, showing both the name and the description for it. Another option gives the ability to set the baudrate specification, which also prevents the user to input characters other than digits.
 
-<img src="media/0-SerialConfiguration.png" alt="Serial Configuration" width="600"/>
+<img src="media/0-SerialConfiguration.png" alt="Serial Configuration" width="400"/>
 
 
 #### Robotic Configuration.
