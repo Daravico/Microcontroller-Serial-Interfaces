@@ -74,29 +74,22 @@ This frame is used to set the configuration to establish the connection with the
 #### Direct Kinematics Mode.
 ![Direct Kinematics Mode](/media/0-DKM.png)
 
-
-## Additional notes.
-
-
-
 ## Known issues.
-
-
-
+The following are the problems that can be encountered when using this program:
+- The AUTO mode has some glitches where other instructions are sent. This seems to be due to the timeout set for the Serial Communication. Could be adjusted but requires experimentation whether the messages are received or not. 
+- The DoF are limited to 6. This can be changed but it is visually limited by the GUI. Small adjustments can be made for it.
+- The GUI can be improved with better colors and a more friendly interface for the information that is being shown to the user.
 
 ## Possible improvements and future work.
 Here is a list of the possible improvements that will take place in the future:
 - **Inverse kinematics algorithm.** <br>
-gasdg
+An algorithm that, depending on the actuators defined in the robotic configuration, can provide with an interaction with the robot such that the inverse kinematics are calculated. This requires a numerical approach, since the robot can be set with up to 6 DoF and the actuators can be either linear or rotatory types, meaning that there can be 64 combinations (2^6), making the geometrical solutions not viable. 
 
 - **Guided programming.**<br>
-dsgasdg
+It can be implemented a mode where the robot is manually placed by the user, saving the points of the configuration so that the robot can make paths according to those instructions received.
 
 - **Velocity control.**<br>
-gkh
-
-- **Sequence follower.**<br>
-gujho
+An algorithm can be implemented so that the velocity of the placement for the received instructions can be set for smooth movement between signals. 
 
 - **Digital Twin/Visual graph.**<br>
 Either an option to visualize the robot on another interface or the full 3D representation with the possibility to be interacted with to become a full digital twin system.
