@@ -51,28 +51,33 @@ INCLUDE VIDEO/GIF SAMPLES ON EACH EXPLANATION BELOW.
 ### *Sample with 3 DoF*.
 As an example on how to use this project, a demonstration is shown bellow using a robot with 3 DoF.
 
-- The robot was 3D printed using black PLA. The link for the used model will be shared in the resources section. The model of the servomotors used were MG995, operating with a 5V voltage source.
-![Robot Picture](/media/12-Robot%20iso.jpg) 
-- The microcontroller board used to control the robot movement was an Arduino Uno (ATmega328P). This project can easily be adapted to other types of microcontroller, such as STM32 models or ESP32.
-![Arduino micro Picture](/media/9-Arduino.jpg) 
+- The robot was 3D printed using black PLA. The link for the used model will be shared in the resources section. The model of the servomotors used were MG995, operating with a 5V voltage source. <br>
+<img src="media/12-Robot iso.jpg" alt="Robotic Isometric" width="300"/>
+
+- The microcontroller board used to control the robot movement was an Arduino Uno (ATmega328P). This project can easily be adapted to other types of microcontroller, such as STM32 models or ESP32. <br>
+<img src="media/9-Arduino.jpg" alt="Robotic Configuration" width="300"/>
 
 #### Main Menu.
 The principal menu consist of the different options that are available to be selected, being those the serial configuration to establish the settings for the connection with the robot, the robotic configuration, where details about the parameters are set and the direct kinematics option, where the robot is controlled why the user aid by some sliders that send instructions to the robot. **The two remaining options are not currently available**. 
 Finally, there is the option to end the program, marked with a red button.
 
-![Main Menu](/media/0-MainMenu.png)
+<img src="media/0-MainMenu.png" alt="Main Menu" width="600"/>
 
 #### Serial Configuration.
 
+<img src="media/0-SerialConfiguration.png" alt="Serial Configuration" width="600"/>
+
 This frame is used to set the configuration to establish the connection with the robot. There is an option to load the available ports, showing both the name and the description for it. Another option gives the ability to set the baudrate specification, which also prevents the user to input characters other than digits.
 
-<img src="media/0-SerialConfiguration.png" alt="Serial Configuration" width="600"/>
+
 
 
 #### Robotic Configuration.
-![Robotic Configuration](/media/0-RoboticConfig.png)
+<img src="media/0-RoboticConfig.png" alt="Robotic Configuration" width="600"/>
+
 
 #### Direct Kinematics Mode.
+<img src="media/0-DKM.png" alt="Direct Kinematics Mode" width="600"/>
 ![Direct Kinematics Mode](/media/0-DKM.png)
 
 ## Known issues.
