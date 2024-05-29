@@ -11,7 +11,7 @@
 
 ## Description of the project.
 ### What is this?
-This project is aimed to be an aid in learning robotic fundamentals. It is possible to **visualize some important mathematical concepts used in robotics**, such as the transformation matrix, DH parameters to calculate the end effector's position, which is also displayed on screen. The information can be displayed in both radians and degrees as per the user convenience. 
+This project is aimed to be an aid in learning robotic fundamentals. It is possible to **visualize some important mathematical concepts used in robotics**, such as the transformation matrix, DH parameters to calculate the end effector's position, which is also displayed on screen. The information can be displayed in both radians and degrees as per the user convenience. You can found the YouTube video at the [Resources used](#resources-used) section.
 
 ### What this is not?
 This is not nor it uses a standardized framework for robotics. It is neither recommended to be used at production. This project does not hide the mathematical parts to the end user, which is the main intention.
@@ -36,18 +36,7 @@ For this project, it is recommended to have the following components (The specif
         - TTKBootstrap
         - NumPy
 
-
 ## Explanation and usage.
-### Workflow and diagrams.
-
-
-
-Add here or add in each section. Include a general and specific ones.
-INCLUDE VIDEO/GIF SAMPLES ON EACH EXPLANATION BELOW. 
-
-
-
-
 ### *Sample with 3 DoF*.
 As an example on how to use this project, a demonstration is shown bellow using a robot with 3 DoF.
 
@@ -69,16 +58,28 @@ Finally, there is the option to end the program, marked with a red button.
 
 This frame is used to set the configuration to establish the connection with the robot. There is an option to load the available ports, showing both the name and the description for it. Another option gives the ability to set the baudrate specification, which also prevents the user to input characters other than digits.
 
-
-
+<img src="media/14-SerialConfig.gif" alt="Robotic Configuration" width="600"/>
 
 #### Robotic Configuration.
 <img src="media/0-RoboticConfig.png" alt="Robotic Configuration" width="600"/>
 
+This section is used to establish the robotics configuration in regards to the Denavit-Hartenberg parameters. Each actuator can be configured as a linear or rotatory one, and the user can also set the range limits for such actuators.  The DoF can also be modified, adding or removing the corresponding rows to the system. The configuration that is established in this section is the default one that the robot will be starting with as the initial position. 
+
+<img src="media/14-RoboticConfig.gif" alt="Robotic Configuration" width="600"/>
 
 #### Direct Kinematics Mode.
 <img src="media/0-DKM.png" alt="Direct Kinematics Mode" width="600"/>
-![Direct Kinematics Mode](/media/0-DKM.png)
+
+Finally, the Direct Kinematics Mode allows the user to control the robot as per the positions settings by the scales shown in screen (This is connected to the robot configuration). The default position is always the starting point for the robot. 
+
+ - The **manual mode** allows the user to set the desired position before the robot starts to move. Once the scales had been adjusted as desired the green button sends the instructions through serial communication to the robot and the new position is set. <br>
+<img src="media/15-functional one.gif" alt="Robotic Configuration" width="600"/>
+
+- The **automatic mode** sets the current position according to the position of the scales. Once this information is sent, the manipulation of the scales automatically sends the information to the robot to adjust the new coordinates of the robot. This mode has great instability at the moment, therefore it is not recommended its use for now. <br>
+<img src="media/15-functional two.gif" alt="Robotic Configuration" width="600"/>
+
+Both of this modes have the visualization of the current DH parameters, adjust the transformation matrix automatically on each change and sets the position of the end effector at the bottom chart.
+
 
 ## Known issues.
 The following are the problems that can be encountered when using this program:
@@ -111,5 +112,7 @@ Either an option to visualize the robot on another interface or the full 3D repr
     - NumPy ([Documentation](https://numpy.org/))
 
 - 3D printed robot ([STL File Download](https://www.thingiverse.com/thing:3458238))
+
+- Youtube Video ([Link](https://youtu.be/z4Sg1rN3Mjw))
 
 
